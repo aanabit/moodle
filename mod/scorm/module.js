@@ -582,7 +582,8 @@ M.mod_scorm.init = function(Y, nav_display, navposition_left, navposition_top, h
         var tree = new Y.TreeView({
             container: '#scorm_tree',
             nodes: toc,
-            multiSelect: false
+            multiSelect: false,
+            lazyRender: false
         });
         scorm_tree_node = tree;
         // Trigger after instead of on, avoid recursive calls.
