@@ -172,9 +172,8 @@ class api {
                           JOIN {cohort_members} cm ON u.id = cm.userid
                           JOIN {context} ctx ON u.id = ctx.instanceid AND ctx.contextlevel = :usercontext
                           LEFT JOIN {role_assignments} ra ON ra.contextid = ctx.id
-                           AND ra.roleid = :roleid
-                           AND ra.userid = :userid
                          WHERE cm.cohortid ' . $cohortsql . '
+                           AND u.id = :userid
                            AND ra.id IS NULL';
 
                 $toadd = $DB->get_records_sql($sql, $params);
