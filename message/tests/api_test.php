@@ -175,6 +175,61 @@ class core_message_api_testcase extends core_message_messagelib_testcase {
     }
 
     /**
+     * Tests searching users in a conversation.
+     */
+    public function test_search_users_in_conversation() {
+        // Create some users.
+        $user1 = new stdClass();
+        $user1->firstname = 'User search';
+        $user1->lastname = 'One';
+        $user1 = self::getDataGenerator()->create_user($user1);
+
+        // The person doing the search.
+        $this->setUser($user1);
+
+        // Second user is going to have their last access set to now, so they are online.
+        $user2 = new stdClass();
+        $user2->firstname = 'User search';
+        $user2->lastname = 'Two';
+        $user2->lastaccess = time();
+        $user2 = self::getDataGenerator()->create_user($user2);
+
+        // Block the second user.
+        \core_message\api::block_user($user1->id, $user2->id);
+
+        $user3 = new stdClass();
+        $user3->firstname = 'User';
+        $user3->lastname = 'Three';
+        $user3 = self::getDataGenerator()->create_user($user3);
+
+        $user4 = new stdClass();
+        $user4->firstname = 'User search';
+        $user4->lastname = 'Four';
+        $user4 = self::getDataGenerator()->create_user($user4);
+
+        $conversationid = \core_message\api::create_conversation_between_users(
+            [$user1->id, $user2->id, $user3->id, $user4->id]
+        );
+
+        // Perform a search.
+        $results = \core_message\api::search_users_in_conversation($user1->id, $conversationid, 'Search');
+
+        $this->assertEquals(2, count($results));
+        $this->assertEquals($user4->id, $results[0]->userid);
+
+        $user = $results[1];
+        $this->assertEquals($user2->id, $user->userid);
+        $this->assertEquals(fullname($user2), $user->fullname);
+        $this->assertFalse($user->ismessaging);
+        $this->assertNull($user->lastmessage);
+        $this->assertNull($user->messageid);
+        $this->assertNull($user->isonline);
+        $this->assertFalse($user->isread);
+        $this->assertTrue($user->isblocked);
+        $this->assertNull($user->unreadcount);
+    }
+
+    /**
      * Tests searching users.
      */
     public function test_search_users() {
@@ -182,7 +237,7 @@ class core_message_api_testcase extends core_message_messagelib_testcase {
 
         // Create some users.
         $user1 = new stdClass();
-        $user1->firstname = 'User';
+        $user1->firstname = 'User search';
         $user1->lastname = 'One';
         $user1 = self::getDataGenerator()->create_user($user1);
 
@@ -210,9 +265,14 @@ class core_message_api_testcase extends core_message_messagelib_testcase {
         $user5 = self::getDataGenerator()->create_user($user5);
 
         $user6 = new stdClass();
-        $user6->firstname = 'User';
+        $user6->firstname = 'User search';
         $user6->lastname = 'Six';
         $user6 = self::getDataGenerator()->create_user($user6);
+
+        $user7 = new stdClass();
+        $user7->firstname = 'User search';
+        $user7->lastname = 'Seven';
+        $user7 = self::getDataGenerator()->create_user($user7);
 
         // Create some courses.
         $course1 = new stdClass();
@@ -255,7 +315,14 @@ class core_message_api_testcase extends core_message_messagelib_testcase {
         $course5context = context_course::instance($course5->id);
         assign_capability('moodle/course:viewparticipants', CAP_PROHIBIT, $role->id, $course5context->id);
 
-        // Perform a search.
+        $time = 1;
+        // Send a messages to a non contact.
+        $this->send_fake_message($user1, $user6, 'Don\'t block me.', 0, $time);
+        // Receive a messages from a non contact.
+        $this->send_fake_message($user7, $user1, 'Don\'t block me.', 0, $time);
+
+        // Perform a search $CFG->messagingallusers setting enabled.
+        set_config('messagingallusers', 1);
         list($contacts, $courses, $noncontacts) = \core_message\api::search_users($user1->id, 'search');
 
         // Check that we retrieved the correct contacts.
@@ -269,8 +336,29 @@ class core_message_api_testcase extends core_message_messagelib_testcase {
         $this->assertEquals($course1->id, $courses[1]->id);
 
         // Check that we retrieved the correct non-contacts.
-        $this->assertEquals(1, count($noncontacts));
+        $this->assertEquals(3, count($noncontacts));
         $this->assertEquals($user5->id, $noncontacts[0]->userid);
+        $this->assertEquals($user7->id, $noncontacts[1]->userid);
+        $this->assertEquals($user6->id, $noncontacts[2]->userid);
+
+        // Perform a search $CFG->messagingallusers setting disabled.
+        set_config('messagingallusers', 0);
+        list($contacts, $courses, $noncontacts) = \core_message\api::search_users($user1->id, 'search');
+
+        // Check that we retrieved the correct contacts.
+        $this->assertEquals(2, count($contacts));
+        $this->assertEquals($user3->id, $contacts[0]->userid);
+        $this->assertEquals($user2->id, $contacts[1]->userid);
+
+        // Check that we retrieved the correct courses.
+        $this->assertEquals(2, count($courses));
+        $this->assertEquals($course3->id, $courses[0]->id);
+        $this->assertEquals($course1->id, $courses[1]->id);
+
+        // Check that we retrieved the correct non-contacts.
+        $this->assertEquals(2, count($noncontacts));
+        $this->assertEquals($user7->id, $noncontacts[0]->userid);
+        $this->assertEquals($user6->id, $noncontacts[1]->userid);
     }
 
     /**

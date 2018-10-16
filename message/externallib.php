@@ -1007,6 +1007,84 @@ class core_message_external extends external_api {
     }
 
     /**
+     * Get messagearea search users in conversation parameters.
+     *
+     * @return external_function_parameters
+     * @since 3.6
+     */
+    public static function data_for_messagearea_search_users_in_conversation_parameters() {
+        return new external_function_parameters(
+            array(
+                'userid' => new external_value(PARAM_INT, 'The id of the user who is performing the search'),
+                'conversationid' => new external_value(PARAM_INT, 'The id of the conversation'),
+                'search' => new external_value(PARAM_RAW, 'The string being searched'),
+                'limitfrom' => new external_value(PARAM_INT, 'Limit from', VALUE_DEFAULT, 0),
+                'limitnum' => new external_value(PARAM_INT, 'Limit number', VALUE_DEFAULT, 0)
+            )
+        );
+    }
+
+    /**
+     * Get messagearea search users in conversation results.
+     *
+     * @param int $userid The id of the user who is performing the search
+     * @param int $conversationid The id of the conversation
+     * @param string $search The string being searched
+     * @param int $limitfrom
+     * @param int $limitnum
+     * @return stdClass
+     * @throws moodle_exception
+     * @since 3.6
+     */
+    public static function data_for_messagearea_search_users_in_conversation($userid, $conversationid, $search,
+                                                                             $limitfrom = 0, $limitnum = 0) {
+        global $CFG, $PAGE, $USER;
+
+        // Check if messaging is enabled.
+        if (empty($CFG->messaging)) {
+            throw new moodle_exception('disabled', 'message');
+        }
+
+        $systemcontext = context_system::instance();
+
+        $params = array(
+            'userid' => $userid,
+            'conversationid' => $conversationid,
+            'search' => $search,
+            'limitfrom' => $limitfrom,
+            'limitnum' => $limitnum
+        );
+        self::validate_parameters(self::data_for_messagearea_search_users_in_conversation_parameters(), $params);
+        self::validate_context($systemcontext);
+
+        if (($USER->id != $userid) && !has_capability('moodle/site:readallmessages', $systemcontext)) {
+            throw new moodle_exception('You do not have permission to perform this action.');
+        }
+
+        $users = \core_message\api::search_users_in_conversation($userid, $conversationid, $search, $limitfrom, $limitnum);
+        $results = new \core_message\output\messagearea\user_search_results($users);
+
+        $renderer = $PAGE->get_renderer('core_message');
+        return $results->export_for_template($renderer);
+    }
+
+    /**
+     * Get messagearea search users in conversation returns.
+     *
+     * @return external_single_structure
+     * @since 3.6
+     */
+    public static function data_for_messagearea_search_users_in_conversation_returns() {
+        return new external_single_structure(
+            array(
+                'contacts' => new external_multiple_structure(
+                    self::get_messagearea_contact_structure()
+                ),
+            )
+        );
+    }
+
+    /**
      * Get messagearea search users parameters.
      *
      * @return external_function_parameters
