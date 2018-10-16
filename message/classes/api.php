@@ -45,6 +45,21 @@ class api {
      * The action for deleting a message.
      */
     const MESSAGE_ACTION_DELETED = 2;
+    
+    /**
+     * Handles searching for messages and users in the message area.
+     *
+     * @param int $userid The user id doing the searching
+     * @param string $search The string the user is searching
+     * @param int $limitfrom
+     * @param int $limitnum
+     * @return array
+     */
+    public static function search_messages_and_users($userid, $search, $limitfrom = 0, $limitnum = 0)
+    {
+        $messages = self::search_messages($userid, $search, $limitfrom, $limitnum);
+        list($contacts, $courses, $noncontacts) = search_users($userid, $search);
+    }
 
     /**
      * Handles searching for messages in the message area.
