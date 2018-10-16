@@ -45,7 +45,7 @@ class api {
      * The action for deleting a message.
      */
     const MESSAGE_ACTION_DELETED = 2;
-    
+
     /**
      * Handles searching for messages and users in the message area.
      *
@@ -55,8 +55,7 @@ class api {
      * @param int $limitnum
      * @return array
      */
-    public static function search_messages_and_users($userid, $search, $limitfrom = 0, $limitnum = 0)
-    {
+    public static function search_messages_and_users($userid, $search, $limitfrom = 0, $limitnum = 0) {
         $messages = self::search_messages($userid, $search, $limitfrom, $limitnum);
         list($contacts, $courses, $noncontacts) = search_users($userid, $search);
     }
@@ -187,7 +186,7 @@ class api {
                     ON mcm.userid = u.id
              LEFT JOIN {message_users_blocked} mub
                     ON (mub.blockeduserid = u.id AND mub.userid = :userid)
-                 WHERE mcm.conversationid= :conversationid 
+                 WHERE mcm.conversationid= :conversationid
                  AND u.deleted = 0";
 
         // Add more conditions.
@@ -200,7 +199,6 @@ class api {
                         'search' => '%' . $search . '%',
                         'conversationid' => $conversationid
                         );
-
 
         // Convert all the user records into contacts.
         $contacts = array();
@@ -294,14 +292,14 @@ class api {
               ORDER BY " . $DB->sql_fullname();
         } else {
             // In case $CFG->messagingallusers is disabled, search for users you have a conversation with.
-            // Messaging settings could change, so could exist an old conversation with users you cannot message anymore
+            // Messaging setting could change, so could exist an old conversation with users you cannot message anymore.
             $sql = "SELECT $ufields
                   FROM {user} u
                  WHERE u.deleted = 0
                    AND u.confirmed = 1
                    AND " . $DB->sql_like($fullname, ':search', false) . "
                    AND u.id IN (SELECT DISTINCT(userid)
-                                FROM {message_conversation_members} 
+                                FROM {message_conversation_members}
                                 WHERE conversationid IN (SELECT DISTINCT(conversationid)
                                                          FROM {message_conversation_members}
                                                          WHERE userid = :userid2
