@@ -1863,6 +1863,57 @@ class core_message_externallib_testcase extends externallib_advanced_testcase {
     }
 
     /**
+     * Tests searching users in a conversation.
+     */
+    public function test_search_users_in_conversation() {
+        $this->resetAfterTest(true);
+        // Create some users.
+        $user1 = new stdClass();
+        $user1->firstname = 'User search';
+        $user1->lastname = 'One';
+        $user1 = self::getDataGenerator()->create_user($user1);
+        // The person doing the search.
+        $this->setUser($user1);
+        // Second user is going to have their last access set to now, so they are online.
+        $user2 = new stdClass();
+        $user2->firstname = 'User search';
+        $user2->lastname = 'Two';
+        $user2->lastaccess = time();
+        $user2 = self::getDataGenerator()->create_user($user2);
+        // Block the second user.
+        \core_message\api::block_user($user1->id, $user2->id);
+        $user3 = new stdClass();
+        $user3->firstname = 'User';
+        $user3->lastname = 'Three';
+        $user3 = self::getDataGenerator()->create_user($user3);
+        $user4 = new stdClass();
+        $user4->firstname = 'User search';
+        $user4->lastname = 'Four';
+        $user4 = self::getDataGenerator()->create_user($user4);
+        $conversationid = \core_message\api::create_conversation_between_users(
+            [$user1->id, $user2->id, $user3->id, $user4->id]
+        );
+        // Perform a search.
+        $results = core_message_external::data_for_messagearea_search_users_in_conversation($user1->id, $conversationid, 'Search');
+        // We need to execute the return values cleaning process to simulate the web service.
+        $results = external_api::clean_returnvalue(core_message_external::data_for_messagearea_search_users_in_course_returns(),
+            $results);
+        $users = $results['contacts'];
+        $this->assertCount(2, $users);
+        $this->assertEquals($user4->id, $users[0]['userid']);
+        $user = $users[1];
+        $this->assertEquals($user2->id, $user['userid']);
+        $this->assertEquals(fullname($user2), $user['fullname']);
+        $this->assertFalse($user['ismessaging']);
+        $this->assertNull($user['lastmessage']);
+        $this->assertNull($user['messageid']);
+        $this->assertNull($user['isonline']);
+        $this->assertFalse($user['isread']);
+        $this->assertTrue($user['isblocked']);
+        $this->assertNull($user['unreadcount']);
+    }
+
+    /**
      * Tests searching users in course as another user.
      */
     public function test_messagearea_search_users_in_course_as_other_user() {

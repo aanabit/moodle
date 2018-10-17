@@ -153,6 +153,47 @@ class api {
     }
 
     /**
+     * Handles searching for user in a particular conversation.
+     *
+     * @param int $userid The user id doing the searching
+     * @param int $conversationid The id of the conversation we are searching in
+     * @param string $search The string the user is searching
+     * @param int $limitfrom
+     * @param int $limitnum
+     * @return array
+     */
+    public static function search_users_in_conversation($userid, $conversationid, $search, $limitfrom = 0, $limitnum = 0) {
+        global $DB;
+        $sql = "SELECT u.*, mub.id as isblocked, mcm.id as conversation
+                  FROM {user} u
+                  JOIN {message_conversation_members} mcm
+                    ON mcm.userid = u.id
+             LEFT JOIN {message_users_blocked} mub
+                    ON (mub.blockeduserid = u.id AND mub.userid = :userid)
+                 WHERE mcm.conversationid= :conversationid
+                 AND u.deleted = 0";
+        // Add more conditions.
+        $fullname = $DB->sql_fullname();
+        $sql .= " AND u.id != :userid2
+                  AND " . $DB->sql_like($fullname, ':search', false) . "
+             ORDER BY " . $DB->sql_fullname();
+        $params = array('userid' => $userid,
+            'userid2' => $userid,
+            'search' => '%' . $search . '%',
+            'conversationid' => $conversationid
+        );
+        // Convert all the user records into contacts.
+        $contacts = array();
+        if ($users = $DB->get_records_sql($sql, $params, $limitfrom, $limitnum)) {
+            foreach ($users as $user) {
+                $user->blocked = $user->isblocked ? 1 : 0;
+                $contacts[] = helper::create_contact($user);
+            }
+        }
+        return $contacts;
+    }
+
+    /**
      * Handles searching for user in the message area.
      *
      * @param int $userid The user id doing the searching

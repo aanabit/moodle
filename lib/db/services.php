@@ -966,6 +966,14 @@ $functions = array(
         'type' => 'read',
         'ajax' => true,
     ),
+    'core_message_data_for_messagearea_search_users_in_conversation' => array(
+        'classname' => 'core_message_external',
+        'methodname' => 'data_for_messagearea_search_users_in_conversation',
+        'classpath' => 'message/externallib.php',
+        'description' => 'Retrieve the template data for searching for people in a conversation',
+        'type' => 'read',
+        'ajax' => true,
+    ),
     'core_message_data_for_messagearea_conversations' => array(
         'classname' => 'core_message_external',
         'methodname' => 'data_for_messagearea_conversations',
