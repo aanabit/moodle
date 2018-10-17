@@ -141,6 +141,8 @@ class api {
     /**
      * Handles searching for user in a particular course in the message area.
      *
+     * @deprecated since Moodle 3.6
+     *
      * @param int $userid The user id doing the searching
      * @param int $courseid The id of the course we are searching in
      * @param string $search The string the user is searching
@@ -149,6 +151,8 @@ class api {
      * @return array
      */
     public static function search_users_in_course($userid, $courseid, $search, $limitfrom = 0, $limitnum = 0) {
+        debugging('\core_message\api::search_users_in_course is deprecated', DEBUG_DEVELOPER);
+
         global $DB;
 
         // Get all the users in the course.
@@ -182,12 +186,52 @@ class api {
     /**
      * Handles searching for user in the message area.
      *
+     * @deprecated since Moodle 3.6
+     *
      * @param int $userid The user id doing the searching
      * @param string $search The string the user is searching
      * @param int $limitnum
      * @return array
      */
     public static function search_users($userid, $search, $limitnum = 0) {
+        debugging('\core_message\api::search_users is deprecated. Use \core_message\api::message_search_users instead',
+            DEBUG_DEVELOPER);
+
+        list($contacts, $noncontacts) = self::message_search_users($userid, $search, $limitnum);
+
+        // Now, let's get the courses.
+        // Make sure to limit searches to enrolled courses.
+        $enrolledcourses = enrol_get_my_courses(array('id', 'cacherev'));
+        $courses = array();
+        // Really we want the user to be able to view the participants if they have the capability
+        // 'moodle/course:viewparticipants' or 'moodle/course:enrolreview', but since the search_courses function
+        // only takes required parameters we can't. However, the chance of a user having 'moodle/course:enrolreview' but
+        // *not* 'moodle/course:viewparticipants' are pretty much zero, so it is not worth addressing.
+        if ($arrcourses = \core_course_category::search_courses(array('search' => $search), array('limit' => $limitnum),
+                array('moodle/course:viewparticipants'))) {
+            foreach ($arrcourses as $course) {
+                if (isset($enrolledcourses[$course->id])) {
+                    $data = new \stdClass();
+                    $data->id = $course->id;
+                    $data->shortname = $course->shortname;
+                    $data->fullname = $course->fullname;
+                    $courses[] = $data;
+                }
+            }
+        }
+
+        return array($contacts, $courses, $noncontacts);
+    }
+
+    /**
+     * Handles searching for user in the message area.
+     *
+     * @param int $userid The user id doing the searching
+     * @param string $search The string the user is searching
+     * @param int $limitnum
+     * @return array
+     */
+    public static function message_search_users($userid, $search, $limitnum = 0) {
         global $CFG, $DB;
 
         // Used to search for contacts.
@@ -216,28 +260,8 @@ class api {
                 'search' => '%' . $search . '%') + $excludeparams, 0, $limitnum)) {
             foreach ($users as $user) {
                 $user->blocked = $user->isuserblocked ? 1 : 0;
+                $user->canmessage = self::can_post_message($user, \core_user::get_user($userid, 'id'));
                 $contacts[] = helper::create_contact($user);
-            }
-        }
-
-        // Now, let's get the courses.
-        // Make sure to limit searches to enrolled courses.
-        $enrolledcourses = enrol_get_my_courses(array('id', 'cacherev'));
-        $courses = array();
-        // Really we want the user to be able to view the participants if they have the capability
-        // 'moodle/course:viewparticipants' or 'moodle/course:enrolreview', but since the search_courses function
-        // only takes required parameters we can't. However, the chance of a user having 'moodle/course:enrolreview' but
-        // *not* 'moodle/course:viewparticipants' are pretty much zero, so it is not worth addressing.
-        if ($arrcourses = \core_course_category::search_courses(array('search' => $search), array('limit' => $limitnum),
-                array('moodle/course:viewparticipants'))) {
-            foreach ($arrcourses as $course) {
-                if (isset($enrolledcourses[$course->id])) {
-                    $data = new \stdClass();
-                    $data->id = $course->id;
-                    $data->shortname = $course->shortname;
-                    $data->fullname = $course->fullname;
-                    $courses[] = $data;
-                }
             }
         }
 
@@ -245,7 +269,10 @@ class api {
         // Note - you can only block contacts, so these users will not be blocked, so no need to get that
         // extra detail from the database.
         $noncontacts = array();
-        $sql = "SELECT $ufields
+
+        $params = array('userid' => $userid, 'search' => '%' . $search . '%');
+        if ($CFG->messagingallusers) {
+            $sql = "SELECT $ufields
                   FROM {user} u
                  WHERE u.deleted = 0
                    AND u.confirmed = 1
@@ -255,14 +282,31 @@ class api {
                                       FROM {message_contacts}
                                      WHERE userid = :userid)
               ORDER BY " . $DB->sql_fullname();
-        if ($users = $DB->get_records_sql($sql,  array('userid' => $userid, 'search' => '%' . $search . '%') + $excludeparams,
-                0, $limitnum)) {
+        } else {
+            // In case $CFG->messagingallusers is disabled, search for users you have a conversation with.
+            // Messaging setting could change, so could exist an old conversation with users you cannot message anymore.
+            $sql = "SELECT $ufields
+                FROM {user} u
+                INNER JOIN {message_conversation_members} cm ON u.id = cm.userid
+                INNER JOIN {message_conversation_members} cm2 ON cm.conversationid = cm2.conversationid and cm2.userid = :userid2
+                WHERE u.deleted = 0
+                   AND u.confirmed = 1
+                   AND " . $DB->sql_like($fullname, ':search', false) . "
+                   AND u.id $exclude
+                   AND u.id NOT IN (SELECT contactid
+                                      FROM {message_contacts}
+                                     WHERE userid = :userid)
+                ORDER BY " . $DB->sql_fullname();
+            $params['userid2'] = $userid;
+        }
+        if ($users = $DB->get_records_sql($sql,  $params + $excludeparams,
+            0, $limitnum)) {
             foreach ($users as $user) {
                 $noncontacts[] = helper::create_contact($user);
             }
         }
 
-        return array($contacts, $courses, $noncontacts);
+        return array($contacts, $noncontacts);
     }
 
     /**

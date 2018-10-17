@@ -160,6 +160,7 @@ class core_message_api_testcase extends core_message_messagelib_testcase {
 
         // Perform a search.
         $results = \core_message\api::search_users_in_course($user1->id, $course1->id, 'User');
+        $this->assertDebuggingCalled();
 
         $this->assertEquals(1, count($results));
 
@@ -256,8 +257,10 @@ class core_message_api_testcase extends core_message_messagelib_testcase {
         $course5context = context_course::instance($course5->id);
         assign_capability('moodle/course:viewparticipants', CAP_PROHIBIT, $role->id, $course5context->id);
 
-        // Perform a search.
+        // Perform a search $CFG->messagingallusers setting enabled.
+        set_config('messagingallusers', 1);
         list($contacts, $courses, $noncontacts) = \core_message\api::search_users($user1->id, 'search');
+        $this->assertDebuggingCalled();
 
         // Check that we retrieved the correct contacts.
         $this->assertEquals(2, count($contacts));
@@ -272,6 +275,83 @@ class core_message_api_testcase extends core_message_messagelib_testcase {
         // Check that we retrieved the correct non-contacts.
         $this->assertEquals(1, count($noncontacts));
         $this->assertEquals($user5->id, $noncontacts[0]->userid);
+    }
+
+    /**
+     * Tests searching users.
+     */
+    public function test_message_search_users() {
+        // Create some users.
+        $user1 = new stdClass();
+        $user1->firstname = 'User search';
+        $user1->lastname = 'One';
+        $user1 = self::getDataGenerator()->create_user($user1);
+        // Set as the user performing the search.
+        $this->setUser($user1);
+        $user2 = new stdClass();
+        $user2->firstname = 'User search';
+        $user2->lastname = 'Two';
+        $user2 = self::getDataGenerator()->create_user($user2);
+        $user3 = new stdClass();
+        $user3->firstname = 'User search';
+        $user3->lastname = 'Three';
+        $user3 = self::getDataGenerator()->create_user($user3);
+        $user4 = new stdClass();
+        $user4->firstname = 'User';
+        $user4->lastname = 'Four';
+        $user4 = self::getDataGenerator()->create_user($user4);
+        $user5 = new stdClass();
+        $user5->firstname = 'User search';
+        $user5->lastname = 'Five';
+        $user5 = self::getDataGenerator()->create_user($user5);
+        $user6 = new stdClass();
+        $user6->firstname = 'User search';
+        $user6->lastname = 'Six';
+        $user6 = self::getDataGenerator()->create_user($user6);
+        $user7 = new stdClass();
+        $user7->firstname = 'User search';
+        $user7->lastname = 'Seven';
+        $user7 = self::getDataGenerator()->create_user($user7);
+
+        // Add some users as contacts.
+        \core_message\api::add_contact($user1->id, $user2->id);
+        \core_message\api::add_contact($user1->id, $user3->id);
+        \core_message\api::add_contact($user1->id, $user4->id);
+
+        $time = 1;
+        // Send a messages to a non contact.
+        $this->send_fake_message($user1, $user6, 'Don\'t block me.', 0, $time);
+        // Receive a messages from a non contact.
+        $this->send_fake_message($user7, $user1, 'Don\'t block me.', 0, $time);
+
+        // Perform a search $CFG->messagingallusers setting enabled.
+        set_config('messagingallusers', 1);
+        list($contacts, $noncontacts) = \core_message\api::message_search_users($user1->id, 'search');
+
+        // Check that we retrieved the correct contacts.
+        $this->assertEquals(2, count($contacts));
+        $this->assertEquals($user3->id, $contacts[0]->userid);
+        $this->assertEquals($user2->id, $contacts[1]->userid);
+
+        // Check that we retrieved the correct non-contacts.
+        $this->assertEquals(3, count($noncontacts));
+        $this->assertEquals($user5->id, $noncontacts[0]->userid);
+        $this->assertEquals($user7->id, $noncontacts[1]->userid);
+        $this->assertEquals($user6->id, $noncontacts[2]->userid);
+
+        // Perform a search $CFG->messagingallusers setting disabled.
+        set_config('messagingallusers', 0);
+        list($contacts, $noncontacts) = \core_message\api::message_search_users($user1->id, 'search');
+
+        // Check that we retrieved the correct contacts.
+        $this->assertEquals(2, count($contacts));
+        $this->assertEquals($user3->id, $contacts[0]->userid);
+        $this->assertEquals($user2->id, $contacts[1]->userid);
+
+        // Check that we retrieved the correct non-contacts.
+        $this->assertEquals(2, count($noncontacts));
+        $this->assertEquals($user7->id, $noncontacts[0]->userid);
+        $this->assertEquals($user6->id, $noncontacts[1]->userid);
     }
 
     /**
