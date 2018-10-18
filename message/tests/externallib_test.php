@@ -1858,6 +1858,7 @@ class core_message_externallib_testcase extends externallib_advanced_testcase {
 
         // Perform a search.
         $result = core_message_external::data_for_messagearea_search_users_in_course($user1->id, $course1->id, 'User');
+        $this->assertDebuggingCalled();
 
         // We need to execute the return values cleaning process to simulate the web service.
         $result = external_api::clean_returnvalue(core_message_external::data_for_messagearea_search_users_in_course_returns(),
@@ -1917,6 +1918,7 @@ class core_message_externallib_testcase extends externallib_advanced_testcase {
 
         // Perform a search.
         $result = core_message_external::data_for_messagearea_search_users_in_course($user1->id, $course1->id, 'User');
+        $this->assertDebuggingCalled();
 
         // We need to execute the return values cleaning process to simulate the web service server.
         $result = external_api::clean_returnvalue(core_message_external::data_for_messagearea_search_users_in_course_returns(),
@@ -1958,6 +1960,7 @@ class core_message_externallib_testcase extends externallib_advanced_testcase {
         // Ensure an exception is thrown.
         $this->expectException('moodle_exception');
         core_message_external::data_for_messagearea_search_users_in_course($user2->id, $course->id, 'User');
+        $this->assertDebuggingCalled();
     }
 
     /**
@@ -1981,6 +1984,7 @@ class core_message_externallib_testcase extends externallib_advanced_testcase {
         // Ensure an exception is thrown.
         $this->expectException('moodle_exception');
         core_message_external::data_for_messagearea_search_users_in_course($user->id, $course->id, 'User');
+        $this->assertDebuggingCalled();
     }
 
     /**
@@ -2053,8 +2057,10 @@ class core_message_externallib_testcase extends externallib_advanced_testcase {
         \core_message\api::add_contact($user1->id, $user3->id);
         \core_message\api::add_contact($user1->id, $user4->id);
 
-        // Perform a search.
+        // Perform a search $CFG->messagingallusers setting enabled.
+        set_config('messagingallusers', 1);
         $result = core_message_external::data_for_messagearea_search_users($user1->id, 'search');
+        $this->assertDebuggingCalled();
 
         // We need to execute the return values cleaning process to simulate the web service server.
         $result = external_api::clean_returnvalue(core_message_external::data_for_messagearea_search_users_returns(),
@@ -2141,8 +2147,10 @@ class core_message_externallib_testcase extends externallib_advanced_testcase {
         \core_message\api::add_contact($user1->id, $user3->id);
         \core_message\api::add_contact($user1->id, $user4->id);
 
-        // Perform a search.
+        // Perform a search $CFG->messagingallusers setting enabled.
+        set_config('messagingallusers', 1);
         $result = core_message_external::data_for_messagearea_search_users($user1->id, 'search');
+        $this->assertDebuggingCalled();
 
         // We need to execute the return values cleaning process to simulate the web service server.
         $result = external_api::clean_returnvalue(core_message_external::data_for_messagearea_search_users_returns(),
@@ -2182,6 +2190,7 @@ class core_message_externallib_testcase extends externallib_advanced_testcase {
         // Ensure an exception is thrown.
         $this->expectException('moodle_exception');
         core_message_external::data_for_messagearea_search_users($user2->id, 'User');
+        $this->assertDebuggingCalled();
     }
 
     /**
@@ -2204,6 +2213,7 @@ class core_message_externallib_testcase extends externallib_advanced_testcase {
         // Ensure an exception is thrown.
         $this->expectException('moodle_exception');
         core_message_external::data_for_messagearea_search_users($user->id, 'User');
+        $this->assertDebuggingCalled();
     }
 
     /**
