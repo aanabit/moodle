@@ -510,9 +510,32 @@ class api {
      * @param int $userid the id to whom the favourite belongs.
      * @throws \moodle_exception if the favourite does not exist for the user.
      */
-    public static function unset_favourite_conversation(int $conversationid, int $userid) {
+    public static function unset_favourite_conversation(int $conversationid, int $userid)
+    {
         $ufservice = \core_favourites\service_factory::get_service_for_user_context(\context_user::instance($userid));
         $ufservice->delete_favourite('core_message', 'message_conversations', $conversationid, \context_system::instance());
+    }
+
+    public static function get_conversations_between_users(int $userid1, int $userid2, int $limitfrom = 0, int $limitnum = 20) {
+        global $DB;
+
+        // Get all conversation where both user1 and user2 are members
+        $sql = "SELECT DISTINCT(mcm1.conversationid)
+                    FROM {message_conversation_members} mcm1
+                    INNER JOIN {message_conversation_members} mcm2
+                    ON mcm1.conversationid = mcm2.conversationid
+                    WHERE mcm1.userid = :userid1
+                    AND mcm2.userid = :userid2
+                    ORDER BY mcm1.timecreated DESC";
+
+        $result = $DB->get_recordset_sql($sql, ['userid1' => $userid1, 'userid2' => $userid2], $limitfrom, $limitnum);
+
+        $conversations = array();
+        foreach ($result as $conversation) {
+            $conversations[] = helper::create_conversation()$userid1, $conversation->id);
+        }
+
+        return $conversations;
     }
 
     /**
