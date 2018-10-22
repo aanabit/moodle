@@ -510,8 +510,7 @@ class api {
      * @param int $userid the id to whom the favourite belongs.
      * @throws \moodle_exception if the favourite does not exist for the user.
      */
-    public static function unset_favourite_conversation(int $conversationid, int $userid)
-    {
+    public static function unset_favourite_conversation(int $conversationid, int $userid) {
         $ufservice = \core_favourites\service_factory::get_service_for_user_context(\context_user::instance($userid));
         $ufservice->delete_favourite('core_message', 'message_conversations', $conversationid, \context_system::instance());
     }
