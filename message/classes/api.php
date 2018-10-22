@@ -333,6 +333,8 @@ class api {
      * @param int $type the conversation type.
      * @param bool $favouritesonly whether to retrieve only the favourite conversations for the user, or not.
      * @return array
+     * @throws \coding_exception
+     * @throws \dml_exception
      */
     public static function get_conversations($userid, $limitfrom = 0, $limitnum = 20, int $type = null,
             bool $favouritesonly = false) {
@@ -355,8 +357,13 @@ class api {
             $favouriteparams = $inparams;
         }
 
+
+        // If we only want conversation of a certain type.
+        $typesql = !is_null($type) ? " AND mc.type = :convtype " : "";
+
         // Get the last message from each conversation that the user belongs to.
-        $sql = "SELECT m.id, m.conversationid, m.useridfrom, mcm2.userid as useridto, m.smallmessage, m.timecreated
+        $sql = "SELECT m.id, m.conversationid, mc.id as convoid, mc.type as conversationtype, m.useridfrom,
+                       mcm2.userid as useridto, m.smallmessage, m.timecreated
                   FROM {messages} m
             INNER JOIN (
                           SELECT MAX(m.id) AS messageid
@@ -380,6 +387,8 @@ class api {
                     ON mcm.conversationid = m.conversationid
             INNER JOIN {message_conversation_members} mcm2
                     ON mcm2.conversationid = m.conversationid
+            INNER JOIN {message_conversations} mc
+                    ON mc.id = m.conversationid $typesql
                  WHERE mcm.userid = m.useridfrom
                    AND mcm.id != mcm2.id $favouritesql
               ORDER BY m.timecreated DESC";
@@ -394,42 +403,87 @@ class api {
         }
         $messageset->close();
 
-        // If there are no messages return early.
+        // TODO: It should be valid to have a conversation without any messages.
+        // TODO: Remove this once we've updated unit tests.
+        // If there are no messages from any conversations, then return early.
         if (empty($messages)) {
             return [];
         }
 
-        // We need to pull out the list of other users that are part of each of these conversations. This
+        // Now we want to get 1 member for each conversation, but this depends on the type.
+        //
+        // For 'individual' type conversations, regardless of who sent the last message,
+        // we want the details of the other member in the conversation (i.e. not the current user).
+        //
+        // For 'group' type conversations, we want the details of the member who sent the last message.
+        // This may be the current user, and that's fine.
+        //
+        // So, we'll end up with a members array, indexed by conversationid, containing a single member for each conversation,
+        // based on the above logic for the two different conversation types.
+        $members = [];
+        foreach ($messages as $message) {
+            if ($message->conversationtype == self::MESSAGE_CONVERSATION_TYPE_INDIVIDUAL) {
+                $memberid = ($message->useridfrom == $userid) ? $message->useridto : $message->useridfrom;
+            } else if ($message->conversationtype == self::MESSAGE_CONVERSATION_TYPE_GROUP) {
+                $memberid = $message->useridfrom;
+            }
+            $members[$message->conversationid] = $memberid;
+        }
+        // Now, get the distinct userids from this list.
+        $otheruserids = array_unique(array_values($members));
+
+
+        // We need to pull out the list of users corresponding to the memberids in the conversations.This
         // needs to be done in a separate query to avoid doing a join on the messages tables and the user
         // tables because on large sites these tables are massive which results in extremely slow
         // performance (typically due to join buffer exhaustion).
-        $otheruserids = array_map(function($message) use ($userid) {
-            return ($message->useridfrom == $userid) ? $message->useridto : $message->useridfrom;
-        }, array_values($messages));
-
-        // Ok, let's get the other members in the conversations.
+        // We also, want:
+        // a) contact status for the user.
+        // b) block status for the user.
         list($useridsql, $usersparams) = $DB->get_in_or_equal($otheruserids);
         $userfields = \user_picture::fields('u', array('lastaccess'));
-        $userssql = "SELECT $userfields
+        $userssql = "SELECT $userfields, mc.id AS contactid, mub.id AS blockedid
                        FROM {user} u
-                      WHERE id $useridsql
-                        AND deleted = 0";
+                  LEFT JOIN {message_contacts} mc
+                         ON (mc.userid = ? AND mc.contactid = u.id)
+                  LEFT JOIN {message_users_blocked} mub
+                         ON (mub.userid = ? AND mub.blockeduserid = u.id)
+                      WHERE u.id $useridsql
+                        AND u.deleted = 0";
+        $usersparams = array_merge([$userid, $userid], $usersparams);
         $otherusers = $DB->get_records_sql($userssql, $usersparams);
 
-        // If there are no other users (user may have been deleted), then do not continue.
-        if (empty($otherusers)) {
-            return [];
+        // TODO: we could fail early here if we're sure that:
+        // TODO: a) we have no otherusers for all the conversations (users may have been deleted)
+        // TODO: b) we're sure that all conversations are individual (1:1).
+        //if (empty($otherusers)) {
+        //    return [];
+        //}
+
+        // Finally, fill up the members array with the the user records, if found, so we have one record per conversationid index.
+        foreach ($members as $convid => $memberid) {
+            if (!array_key_exists($memberid, $otherusers)) {
+                // The user may have been deleted. Nullify to let the code below know.
+                $members[$convid] = null;
+                continue;
+            }
+            $members[$convid] = $otherusers[$memberid];
         }
 
-        $contactssql = "SELECT contactid
-                          FROM {message_contacts}
-                         WHERE userid = ?
-                           AND contactid $useridsql";
-        $contacts = $DB->get_records_sql($contactssql, array_merge([$userid], $usersparams));
+        // Now, get the member count for each of the conversations returned.
+        $conversationids = array_map(function($message) {
+            return $message->conversationid;
+        }, array_values($messages));
+        list($convidsql, $convidparams) = $DB->get_in_or_equal($conversationids);
+        $membercountsql = "SELECT conversationid, count(id) AS membercount
+                             FROM {message_conversation_members} mcm
+                            WHERE mcm.conversationid $convidsql
+                         GROUP BY mcm.conversationid";
+        $membercounts = $DB->get_records_sql($membercountsql, $convidparams);
 
-        // Finally, let's get the unread messages count for this user so that we can add them
+        // Finally, let's get the unread messages count for this user so that we can add it
         // to the conversation. Remember we need to ignore the messages the user sent.
-        $unreadcountssql = 'SELECT m.useridfrom, count(m.id) as count
+        $unreadcountssql = 'SELECT m.conversationid, count(m.id) as unreadcount
                               FROM {messages} m
                         INNER JOIN {message_conversations} mc
                                 ON mc.id = m.conversationid
@@ -441,49 +495,56 @@ class api {
                              WHERE mcm.userid = ?
                                AND m.useridfrom != ?
                                AND mua.id is NULL
-                          GROUP BY useridfrom';
+                          GROUP BY m.conversationid';
         $unreadcounts = $DB->get_records_sql($unreadcountssql, [$userid, self::MESSAGE_ACTION_READ, self::MESSAGE_ACTION_DELETED,
             $userid, $userid]);
 
         // Get rid of the table prefix.
         $userfields = str_replace('u.', '', $userfields);
         $userproperties = explode(',', $userfields);
-        $arrconversations = array();
+        $arrconversations = [];
         foreach ($messages as $message) {
-            $conversation = new \stdClass();
-            $otheruserid = ($message->useridfrom == $userid) ? $message->useridto : $message->useridfrom;
-            $otheruser = isset($otherusers[$otheruserid]) ? $otherusers[$otheruserid] : null;
-            $contact = isset($contacts[$otheruserid]) ? $contacts[$otheruserid] : null;
+            $otheruser = $members[$message->conversationid];
 
-            // It's possible the other user was deleted, so, skip.
-            if (is_null($otheruser)) {
+            // It's possible the single other user we're including has been deleted.
+            // In cases like this, we still want to include the conversation if it's public and has other members.
+            // I.e. If it's an individual conversation (1:1), and the other member has been deleted, then skip it.
+            if (is_null($otheruser) && $message->conversationtype == self::MESSAGE_CONVERSATION_TYPE_INDIVIDUAL) {
                 continue;
             }
 
-            // Add the other user's information to the conversation, if we have one.
-            foreach ($userproperties as $prop) {
-                $conversation->$prop = ($otheruser) ? $otheruser->$prop : null;
-            }
-
-            // Add the contact's information, if we have one.
-            $conversation->blocked = ($contact) ? $contact->blocked : null;
-
-            // Add the message information.
-            $conversation->messageid = $message->id;
-            $conversation->smallmessage = $message->smallmessage;
-            $conversation->useridfrom = $message->useridfrom;
+            $conversation = new \stdClass();
+            $conversation->id = $message->conversationid;
+            $conversation->type = $message->conversationtype;
+            $conversation->membercount = $membercounts[$conversation->id]->membercount;
 
             // Only consider it unread if $user has unread messages.
-            if (isset($unreadcounts[$otheruserid])) {
+            if (isset($unreadcounts[$conversation->id])) {
                 $conversation->isread = false;
-                $conversation->unreadcount = $unreadcounts[$otheruserid]->count;
+                $conversation->unreadcount = $unreadcounts[$conversation->id]->unreadcount;
             } else {
                 $conversation->isread = true;
+                $conversation->unreadcount = null;
             }
 
-            $arrconversations[$otheruserid] = helper::create_contact($conversation);
-        }
+            // Add the details of the user who sent the most recent message, starting with the basic profile fields.
+            $member = new \stdClass();
+            foreach ($userproperties as $prop) {
+                $member->$prop = $otheruser->$prop;
+            }
+            $member->iscontact = ($otheruser->contactid) ? true : false;
+            $member->isblocked = ($otheruser->blockedid) ? true : false;
 
+            // Format the existing member data and adds additional fields such as user profile image links.
+            $member = helper::finalise_member($member);
+            $conversation->members = [$member];
+
+            // Add the most recent message information to the messages structure.
+            $convmessage = helper::finalise_message($message, $conversation->type);
+            $conversation->messages = [$convmessage];
+
+            $arrconversations[$message->conversationid] = $conversation;
+        }
         return $arrconversations;
     }
 

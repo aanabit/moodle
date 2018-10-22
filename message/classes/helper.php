@@ -157,6 +157,66 @@ class helper {
     }
 
     /**
+     * Helper used to finalise a conversation member structure.
+     *
+     * @param \stdClass $member the member structure.
+     * @param string $prefix string prefix to use in unaliasing the member's user fields, if required.
+     * @return \stdClass the updated member profile.
+     */
+    public static function finalise_member(\stdClass $member, $prefix = '') {
+        global $PAGE;
+
+        // Unalias, if needed, and set basic data.
+        $member = \user_picture::unalias($member, array('lastaccess'), $prefix . 'id', $prefix);
+        $data = new \stdClass();
+        $data->userid = $member->id;
+        $data->fullname = fullname($member);
+
+        // Set the user picture data.
+        $userpicture = new \user_picture($member);
+        $userpicture->size = 1; // Size f1.
+        $data->profileimageurl = $userpicture->get_url($PAGE)->out(false);
+        $userpicture->size = 0; // Size f2.
+        $data->profileimageurlsmall = $userpicture->get_url($PAGE)->out(false);
+
+        // Set online status indicators.
+        $data->isonline = null;
+        if (self::show_online_status($member)) {
+            $data->isonline = self::is_online($member->lastaccess);
+        }
+        $data->showonlinestatus = is_null($data->isonline) ? false : true;
+
+        $data->isblocked = isset($member->isblocked) ? (bool) $member->isblocked : false;
+        $data->iscontact = isset($member->iscontact) ? (bool) $member->iscontact : false;
+
+        return $data;
+    }
+
+    /**
+     * Helper used to finalise a conversation message structure for return from various api methods.
+     * @see \core_message\api::get_conversations() for example.
+     *
+     * @param \stdClass $message the message data, usually a record from the messages table.
+     * @param int $conversationtype the type of the conversation. see api class for defined types.
+     * @return \stdClass the formatted message data.
+     */
+    public static function finalise_message(\stdClass $message, int $conversationtype) {
+        $data = new \stdClass();
+
+        $data->messageid = $message->id;
+        if (isset($message->smallmessage)) {
+            // Strip the HTML tags from the message for displaying in the contact area.
+            $data->text = clean_param($message->smallmessage, PARAM_NOTAGS);
+        }
+        $data->useridfrom = $message->useridfrom;
+        if ($conversationtype == api::MESSAGE_CONVERSATION_TYPE_INDIVIDUAL) {
+            $data->useridto = $message->useridto;
+        }
+        $data->timecreated = $message->timecreated;
+        return $data;
+    }
+
+    /**
      * Helper function for creating a contact object.
      *
      * @param \stdClass $contact

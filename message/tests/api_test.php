@@ -751,45 +751,65 @@ class core_message_api_testcase extends core_message_messagelib_testcase {
         $this->send_fake_message($user4, $user1, 'Yah brah, it\'s pretty rad.', 0, $time + 10);
         $messageid3 = $this->send_fake_message($user1, $user4, 'Dope.', 0, $time + 11);
 
-        // Retrieve the conversations.
-        $conversations = \core_message\api::get_conversations($user1->id);
+        // Generate a group conversation.
+        $memberids = [$user1->id, $user2->id, $user3->id];
+        $groupconv = \core_message\api::create_conversation(\core_message\api::MESSAGE_CONVERSATION_TYPE_GROUP, $memberids,
+            'Project chat');
+        // TODO: convo should still be returned, even without messages.
+        $this->send_fake_message_to_conversation($user1, $groupconv->id);
+
+        // First, try to get conversation by type 'group' and confirm we get 1 back.
+        $conversations = \core_message\api::get_conversations($user1->id, 0, 20,
+            \core_message\api::MESSAGE_CONVERSATION_TYPE_GROUP);
+        $this->assertEquals(1, count($conversations));
+
+        // Retrieve the individual conversations.
+        $conversations = \core_message\api::get_conversations($user1->id, 0, 20,
+            \core_message\api::MESSAGE_CONVERSATION_TYPE_INDIVIDUAL);
 
         // Confirm the data is correct.
         $this->assertEquals(3, count($conversations));
 
-        $message1 = array_shift($conversations);
-        $message2 = array_shift($conversations);
-        $message3 = array_shift($conversations);
+        $conv1 = array_shift($conversations);
+        $conv2 = array_shift($conversations);
+        $conv3 = array_shift($conversations);
 
-        $this->assertEquals($user4->id, $message1->userid);
-        $this->assertEquals($user1->id, $message1->useridfrom);
-        $this->assertTrue($message1->ismessaging);
-        $this->assertEquals('Dope.', $message1->lastmessage);
-        $this->assertEquals($messageid3, $message1->messageid);
-        $this->assertNull($message1->isonline);
-        $this->assertFalse($message1->isread);
-        $this->assertFalse($message1->isblocked);
-        $this->assertEquals(1, $message1->unreadcount);
+        $this->assertObjectHasAttribute('members', $conv1);
+        $this->assertObjectHasAttribute('messages', $conv1);
+        $this->assertObjectHasAttribute('members', $conv2);
+        $this->assertObjectHasAttribute('messages', $conv2);
+        $this->assertObjectHasAttribute('members', $conv3);
+        $this->assertObjectHasAttribute('messages', $conv3);
 
-        $this->assertEquals($user3->id, $message2->userid);
-        $this->assertEquals($user3->id, $message2->useridfrom);
-        $this->assertTrue($message2->ismessaging);
-        $this->assertEquals('Cool.', $message2->lastmessage);
-        $this->assertEquals($messageid2, $message2->messageid);
-        $this->assertNull($message2->isonline);
-        $this->assertFalse($message2->isread);
-        $this->assertFalse($message2->isblocked);
-        $this->assertEquals(2, $message2->unreadcount);
+        $this->assertEquals($user4->id, $conv1->members[0]->userid);
+        $this->assertEquals($user1->id, $conv1->messages[0]->useridfrom);
+        //$this->assertTrue($conv1->messages[0]->ismessaging); // Removed.
+        $this->assertEquals('Dope.', $conv1->messages[0]->text);
+        $this->assertEquals($messageid3, $conv1->messages[0]->messageid);
+        $this->assertNull($conv1->members[0]->isonline);
+        $this->assertFalse($conv1->isread);
+        $this->assertFalse($conv1->members[0]->isblocked);
+        $this->assertEquals(1, $conv1->unreadcount);
 
-        $this->assertEquals($user2->id, $message3->userid);
-        $this->assertEquals($user2->id, $message3->useridfrom);
-        $this->assertTrue($message3->ismessaging);
-        $this->assertEquals('Word.', $message3->lastmessage);
-        $this->assertEquals($messageid1, $message3->messageid);
-        $this->assertNull($message3->isonline);
-        $this->assertFalse($message3->isread);
-        $this->assertFalse($message3->isblocked);
-        $this->assertEquals(2, $message3->unreadcount);
+        $this->assertEquals($user3->id, $conv2->members[0]->userid);
+        $this->assertEquals($user3->id, $conv2->messages[0]->useridfrom);
+        //$this->assertTrue($message2->ismessaging); // Removed.
+        $this->assertEquals('Cool.', $conv2->messages[0]->text);
+        $this->assertEquals($messageid2, $conv2->messages[0]->messageid);
+        $this->assertNull($conv2->members[0]->isonline);
+        $this->assertFalse($conv2->isread);
+        $this->assertFalse($conv2->members[0]->isblocked);
+        $this->assertEquals(2, $conv2->unreadcount);
+
+        $this->assertEquals($user2->id, $conv3->members[0]->userid);
+        $this->assertEquals($user2->id, $conv3->messages[0]->useridfrom);
+        //$this->assertTrue($message3->ismessaging); // Removed.
+        $this->assertEquals('Word.', $conv3->messages[0]->text);
+        $this->assertEquals($messageid1, $conv3->messages[0]->messageid);
+        $this->assertNull($conv3->members[0]->isonline);
+        $this->assertFalse($conv3->isread);
+        $this->assertFalse($conv3->members[0]->isblocked);
+        $this->assertEquals(2, $conv3->unreadcount);
     }
 
     /**
@@ -828,15 +848,17 @@ class core_message_api_testcase extends core_message_messagelib_testcase {
         $this->assertCount(1, $conversations);
 
         $conversation = array_shift($conversations);
+        $members = $conversation->members;
+        $messages = $conversation->messages;
 
-        $this->assertEquals($user3->id, $conversation->userid);
-        $this->assertEquals($user3->id, $conversation->useridfrom);
-        $this->assertTrue($conversation->ismessaging);
-        $this->assertEquals('Cool.', $conversation->lastmessage);
-        $this->assertEquals($messageid2, $conversation->messageid);
-        $this->assertNull($conversation->isonline);
+        $this->assertEquals($user3->id, $members[0]->userid);
+        $this->assertEquals($user3->id, $messages[0]->useridfrom);
+        // $this->assertTrue($conversation->ismessaging); Removed.
+        $this->assertEquals('Cool.', $messages[0]->text);
+        $this->assertEquals($messageid2, $messages[0]->messageid);
+        $this->assertNull($members[0]->isonline);
         $this->assertFalse($conversation->isread);
-        $this->assertFalse($conversation->isblocked);
+        $this->assertFalse($members[0]->isblocked);
         $this->assertEquals(2, $conversation->unreadcount);
 
         // Retrieve the next conversation.
@@ -846,15 +868,17 @@ class core_message_api_testcase extends core_message_messagelib_testcase {
         $this->assertCount(1, $conversations);
 
         $conversation = array_shift($conversations);
+        $members = $conversation->members;
+        $messages = $conversation->messages;
 
-        $this->assertEquals($user2->id, $conversation->userid);
-        $this->assertEquals($user2->id, $conversation->useridfrom);
-        $this->assertTrue($conversation->ismessaging);
-        $this->assertEquals('Word.', $conversation->lastmessage);
-        $this->assertEquals($messageid1, $conversation->messageid);
-        $this->assertNull($conversation->isonline);
+        $this->assertEquals($user2->id, $members[0]->userid);
+        $this->assertEquals($user2->id, $messages[0]->useridfrom);
+        //$this->assertTrue($conversation->ismessaging);
+        $this->assertEquals('Word.', $messages[0]->text);
+        $this->assertEquals($messageid1, $messages[0]->messageid);
+        $this->assertNull($members[0]->isonline);
         $this->assertFalse($conversation->isread);
-        $this->assertFalse($conversation->isblocked);
+        $this->assertFalse($members[0]->isblocked);
         $this->assertEquals(2, $conversation->unreadcount);
 
         // Ask for an offset that doesn't exist.
@@ -896,7 +920,7 @@ class core_message_api_testcase extends core_message_messagelib_testcase {
 
         // Confirm the conversation is from the non-deleted user.
         $conversation = reset($conversations);
-        $this->assertEquals($user3->id, $conversation->userid);
+        $this->assertEquals($user3->id, $conversation->members[0]->userid);
     }
 
    /**
@@ -1297,8 +1321,8 @@ class core_message_api_testcase extends core_message_messagelib_testcase {
             foreach ($data as $expectation) {
                 $otheruser = $users[$expectation['with']];
                 $conversation = $conversations[$expectation['messageposition']];
-                $this->assertEquals($otheruser->id, $conversation->userid);
-                $this->assertEquals($expectation['subject'], $conversation->lastmessage);
+                $this->assertEquals($otheruser->id, $conversation->members[0]->userid);
+                $this->assertEquals($expectation['subject'], $conversation->messages[0]->text);
                 $this->assertEquals($expectation['unreadcount'], $conversation->unreadcount);
             }
         }
