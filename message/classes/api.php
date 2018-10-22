@@ -261,7 +261,10 @@ class api {
             foreach ($users as $user) {
                 $user->blocked = $user->isuserblocked ? 1 : 0;
                 $user->canmessage = self::can_post_message($user, \core_user::get_user($userid, 'id'));
-                $contacts[] = helper::create_contact($user);
+                $contact = helper::create_contact($user);
+                $contact->contactrequests = self::get_contact_requests_between_users($userid, $user->id, 0, $limitnum);
+                $contact->conversations = self::get_conversations_between_users($userid, $user->id, 0, $limitnum);
+                $contacts[] = $contact;
             }
         }
 
@@ -302,7 +305,10 @@ class api {
         if ($users = $DB->get_records_sql($sql,  $params + $excludeparams,
             0, $limitnum)) {
             foreach ($users as $user) {
-                $noncontacts[] = helper::create_contact($user);
+                $contact = helper::create_contact($user);
+                $contact->contactrequests = self::get_contact_requests_between_users($userid, $user->id, 0, $limitnum);
+                $contact->conversations = self::get_conversations_between_users($userid, $user->id, 0, $limitnum);
+                $noncontacts[] = $contact;
             }
         }
 
@@ -576,26 +582,66 @@ class api {
         $ufservice->delete_favourite('core_message', 'message_conversations', $conversationid, \context_system::instance());
     }
 
-    public static function get_conversations_between_users(int $userid1, int $userid2, int $limitfrom = 0, int $limitnum = 20) {
+    /**
+     * Returns all conversations between two users
+     *
+     * @param int $userid One of the user's id
+     * @param int $userid The other user's id
+     * @param int $limitfrom
+     * @param int $limitnum
+     * @return array
+     * @throws \dml_exception
+     */
+    public static function get_conversations_between_users(
+        int $userid1,
+        int $userid2,
+        int $limitfrom = 0,
+        int $limitnum = 20) :array{
         global $DB;
+
+        if ($userid1 == $userid2) {
+            return array();
+        }
 
         // Get all conversation where both user1 and user2 are members
         $sql = "SELECT DISTINCT(mcm1.conversationid)
-                    FROM {message_conversation_members} mcm1
-                    INNER JOIN {message_conversation_members} mcm2
-                    ON mcm1.conversationid = mcm2.conversationid
-                    WHERE mcm1.userid = :userid1
-                    AND mcm2.userid = :userid2
-                    ORDER BY mcm1.timecreated DESC";
+                FROM {message_conversation_members} mcm1
+                INNER JOIN {message_conversation_members} mcm2
+                ON mcm1.conversationid = mcm2.conversationid
+                WHERE mcm1.userid = :userid1
+                AND mcm2.userid = :userid2
+                ORDER BY mcm1.timecreated DESC";
 
-        $result = $DB->get_recordset_sql($sql, ['userid1' => $userid1, 'userid2' => $userid2], $limitfrom, $limitnum);
+        return $DB->get_records_sql($sql, array('userid1' => $userid1, 'userid2' => $userid2), $limitfrom, $limitnum);
+    }
 
-        $conversations = array();
-        foreach ($result as $conversation) {
-            $conversations[] = helper::create_conversation()$userid1, $conversation->id);
+    /**
+     * Returns all contact requests between two users
+     *
+     * @param int $userid One of the user's id
+     * @param int $userid The other user's id
+     * @param int $limitfrom
+     * @param int $limitnum
+     * @return array
+     * @throws \dml_exception
+     */
+    public static function get_contact_requests_between_users(
+        int $userid1,
+        int $userid2,
+        int $limitfrom = 0,
+        int $limitnum = 20) :array {
+        global $DB;
+
+        if ($userid1 === $userid2) {
+            return array();
         }
 
-        return $conversations;
+        // Get all contact requests between both user1 and user2
+        $sql = "(userid = :userid1 AND requesteduserid = :userid2)
+                OR (userid = :userid3 AND requesteduserid = :userid4)";
+        $params = array ('userid1' => $userid1, 'userid2' => $userid2, 'userid3' => $userid2, 'userid4' => $userid1);
+
+        return $DB->get_records_select('message_contact_requests', $sql, $params, 'timecreated', '*', $limitfrom, $limitnum);
     }
 
     /**
@@ -1589,7 +1635,7 @@ class api {
      * @param string $name The name of the conversation
      * @return \stdClass
      */
-    public static function create_conversation(int $type, array $userids, string $name = null) {
+    public static function create_conversation(int $type, array $userids, string $name = null, $updatehash = true) {
         global $DB;
 
         // Sanity check.
