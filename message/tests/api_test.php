@@ -40,7 +40,6 @@ use \core_message\tests\helper as testhelper;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class core_message_api_testcase extends core_message_messagelib_testcase {
-
     public function test_mark_all_read_for_user_touser() {
         $sender = $this->getDataGenerator()->create_user(array('firstname' => 'Test1', 'lastname' => 'User1'));
         $recipient = $this->getDataGenerator()->create_user(array('firstname' => 'Test2', 'lastname' => 'User2'));
