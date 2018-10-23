@@ -400,7 +400,7 @@ class api {
               ORDER BY m.timecreated DESC";
 
         $params = array_merge($favouriteparams, ['userid' => $userid, 'action' => self::MESSAGE_ACTION_DELETED,
-            'userid2' => $userid]);
+            'userid2' => $userid, 'convtype' => $type]);
         $messageset = $DB->get_recordset_sql($sql, $params, $limitfrom, $limitnum);
 
         $messages = [];
@@ -1635,7 +1635,7 @@ class api {
      * @param string $name The name of the conversation
      * @return \stdClass
      */
-    public static function create_conversation(int $type, array $userids, string $name = null, $updatehash = true) {
+    public static function create_conversation(int $type, array $userids, string $name = null) {
         global $DB;
 
         // Sanity check.
