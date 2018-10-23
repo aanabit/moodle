@@ -141,6 +141,8 @@ class api {
     /**
      * Handles searching for user in a particular course in the message area.
      *
+     * @deprecated since Moodle 3.6
+     *
      * @param int $userid The user id doing the searching
      * @param int $courseid The id of the course we are searching in
      * @param string $search The string the user is searching
@@ -150,6 +152,8 @@ class api {
      */
     public static function search_users_in_course($userid, $courseid, $search, $limitfrom = 0, $limitnum = 0) {
         global $DB;
+
+        debugging('\core_message\api::search_users_in_course is deprecated', DEBUG_DEVELOPER);
 
         // Get all the users in the course.
         list($esql, $params) = get_enrolled_sql(\context_course::instance($courseid), '', 0, true);
@@ -182,6 +186,8 @@ class api {
     /**
      * Handles searching for user in the message area.
      *
+     * @deprecated since Moodle 3.6
+     *
      * @param int $userid The user id doing the searching
      * @param string $search The string the user is searching
      * @param int $limitnum
@@ -190,35 +196,10 @@ class api {
     public static function search_users($userid, $search, $limitnum = 0) {
         global $CFG, $DB;
 
-        // Used to search for contacts.
-        $fullname = $DB->sql_fullname();
-        $ufields = \user_picture::fields('u', array('lastaccess'));
+        debugging('\core_message\api::search_users is deprecated. Use \core_message\api::message_search_users instead',
+            DEBUG_DEVELOPER);
 
-        // Users not to include.
-        $excludeusers = array($userid, $CFG->siteguest);
-        list($exclude, $excludeparams) = $DB->get_in_or_equal($excludeusers, SQL_PARAMS_NAMED, 'param', false);
-
-        // Ok, let's search for contacts first.
-        $contacts = array();
-        $sql = "SELECT $ufields, mub.id as isuserblocked
-                  FROM {user} u
-                  JOIN {message_contacts} mc
-                    ON u.id = mc.contactid
-             LEFT JOIN {message_users_blocked} mub
-                    ON (mub.userid = :userid2 AND mub.blockeduserid = u.id)
-                 WHERE mc.userid = :userid
-                   AND u.deleted = 0
-                   AND u.confirmed = 1
-                   AND " . $DB->sql_like($fullname, ':search', false) . "
-                   AND u.id $exclude
-              ORDER BY " . $DB->sql_fullname();
-        if ($users = $DB->get_records_sql($sql, array('userid' => $userid, 'userid2' => $userid,
-                'search' => '%' . $search . '%') + $excludeparams, 0, $limitnum)) {
-            foreach ($users as $user) {
-                $user->blocked = $user->isuserblocked ? 1 : 0;
-                $contacts[] = helper::create_contact($user);
-            }
-        }
+        list($contacts, $noncontacts) = self::message_search_users($userid, $search, $limitnum);
 
         // Now, let's get the courses.
         // Make sure to limit searches to enrolled courses.
@@ -238,27 +219,6 @@ class api {
                     $data->fullname = $course->fullname;
                     $courses[] = $data;
                 }
-            }
-        }
-
-        // Let's get those non-contacts. Toast them gears boi.
-        // Note - you can only block contacts, so these users will not be blocked, so no need to get that
-        // extra detail from the database.
-        $noncontacts = array();
-        $sql = "SELECT $ufields
-                  FROM {user} u
-                 WHERE u.deleted = 0
-                   AND u.confirmed = 1
-                   AND " . $DB->sql_like($fullname, ':search', false) . "
-                   AND u.id $exclude
-                   AND u.id NOT IN (SELECT contactid
-                                      FROM {message_contacts}
-                                     WHERE userid = :userid)
-              ORDER BY " . $DB->sql_fullname();
-        if ($users = $DB->get_records_sql($sql,  array('userid' => $userid, 'search' => '%' . $search . '%') + $excludeparams,
-                0, $limitnum)) {
-            foreach ($users as $user) {
-                $noncontacts[] = helper::create_contact($user);
             }
         }
 
