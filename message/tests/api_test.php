@@ -162,6 +162,7 @@ class core_message_api_testcase extends core_message_messagelib_testcase {
 
         // Perform a search.
         $results = \core_message\api::search_users_in_course($user1->id, $course1->id, 'User');
+        $this->assertDebuggingCalled();
 
         $this->assertEquals(1, count($results));
 
@@ -258,8 +259,10 @@ class core_message_api_testcase extends core_message_messagelib_testcase {
         $course5context = context_course::instance($course5->id);
         assign_capability('moodle/course:viewparticipants', CAP_PROHIBIT, $role->id, $course5context->id);
 
-        // Perform a search.
+        // Perform a search $CFG->messagingallusers setting enabled.
+        set_config('messagingallusers', 1);
         list($contacts, $courses, $noncontacts) = \core_message\api::search_users($user1->id, 'search');
+        $this->assertDebuggingCalled();
 
         // Check that we retrieved the correct contacts.
         $this->assertEquals(2, count($contacts));
