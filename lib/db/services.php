@@ -965,7 +965,8 @@ $functions = array(
         'classname' => 'core_message_external',
         'methodname' => 'data_for_messagearea_search_users',
         'classpath' => 'message/externallib.php',
-        'description' => 'Retrieve the template data for searching for people',
+        'description' => '** DEPRECATED ** Please do not call this function any more.
+                          Retrieve the template data for searching for people',
         'type' => 'read',
         'ajax' => true,
     ),
@@ -973,7 +974,8 @@ $functions = array(
         'classname' => 'core_message_external',
         'methodname' => 'data_for_messagearea_search_users_in_course',
         'classpath' => 'message/externallib.php',
-        'description' => 'Retrieve the template data for searching for people in a course',
+        'description' => '** DEPRECATED ** Please do not call this function any more.
+                          Retrieve the template data for searching for people in a course',
         'type' => 'read',
         'ajax' => true,
     ),
