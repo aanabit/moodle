@@ -864,6 +864,23 @@ class core_message_external extends external_api {
                 'isblocked' => new external_value(PARAM_BOOL, 'If the user has been blocked'),
                 'unreadcount' => new external_value(PARAM_INT, 'The number of unread messages in this conversation',
                     VALUE_DEFAULT, null),
+                'canmessage' => new external_value(PARAM_BOOL, 'Can current user send a message to the user?'),
+                'requirescontactrequest' => new external_value(PARAM_BOOL, 'Does the user requires a contact request to be messaged?'),
+                'contactrequests' => new external_multiple_structure( new external_single_structure(
+                        array(
+                            'id' => new external_value(PARAM_INT, 'Contact request id'),
+                            'userid' => new external_value(PARAM_INT, 'Id of user has sent the contact request'),
+                            'requesteduserid' => new external_value(PARAM_INT, 'Id of user has received the contact request'),
+                            'timecreated' => new external_value(PARAM_INT, 'The timecreated timestamp for the contact request'),
+                        ), 'information about contact request', VALUE_OPTIONAL),
+                    'Contact requests between users', VALUE_OPTIONAL
+                ),
+                'conversations' => new external_multiple_structure( new external_single_structure(
+                        array(
+                            'conversationid' => new external_value(PARAM_INT, 'Conversations id'),
+                        ), 'information about conversation', VALUE_OPTIONAL),
+                    'Conversations between users', VALUE_OPTIONAL
+                ),
             )
         );
     }
@@ -932,6 +949,8 @@ class core_message_external extends external_api {
     /**
      * Get messagearea search users in course parameters.
      *
+     * @deprecated since 3.6
+     *
      * @return external_function_parameters
      * @since 3.2
      */
@@ -949,6 +968,8 @@ class core_message_external extends external_api {
 
     /**
      * Get messagearea search users in course results.
+     *
+     * @deprecated since 3.6
      *
      * @param int $userid The id of the user who is performing the search
      * @param int $courseid The id of the course
@@ -994,6 +1015,8 @@ class core_message_external extends external_api {
     /**
      * Get messagearea search users in course returns.
      *
+     * @deprecated since 3.6
+     *
      * @return external_single_structure
      * @since 3.2
      */
@@ -1008,7 +1031,18 @@ class core_message_external extends external_api {
     }
 
     /**
+     * Marking the method as deprecated.
+     *
+     * @return bool
+     */
+    public static function data_for_messagearea_search_users_in_course_is_deprecated() {
+        return true;
+    }
+
+    /**
      * Get messagearea search users parameters.
+     *
+     * @deprecated since 3.6
      *
      * @return external_function_parameters
      * @since 3.2
@@ -1025,6 +1059,8 @@ class core_message_external extends external_api {
 
     /**
      * Get messagearea search users results.
+     *
+     * @deprecated since 3.6
      *
      * @param int $userid The id of the user who is performing the search
      * @param string $search The string being searched
@@ -1065,6 +1101,8 @@ class core_message_external extends external_api {
     /**
      * Get messagearea search users returns.
      *
+     * @deprecated since 3.6
+     *
      * @return external_single_structure
      * @since 3.2
      */
@@ -1082,6 +1120,89 @@ class core_message_external extends external_api {
                             'fullname' => new external_value(PARAM_TEXT, 'The course fullname'),
                         )
                     )
+                ),
+                'noncontacts' => new external_multiple_structure(
+                    self::get_messagearea_contact_structure()
+                )
+            )
+        );
+    }
+
+    /**
+     * Marking the method as deprecated.
+     *
+     * @return bool
+     */
+    public static function data_for_messagearea_search_users_is_deprecated() {
+        return true;
+    }
+
+    /**
+     * Get messagearea message search users parameters.
+     *
+     * @return external_function_parameters
+     * @since 3.6
+     */
+    public static function data_for_messagearea_message_search_users_parameters() {
+        return new external_function_parameters(
+            array(
+                'userid' => new external_value(PARAM_INT, 'The id of the user who is performing the search'),
+                'search' => new external_value(PARAM_RAW, 'The string being searched'),
+                'limitnum' => new external_value(PARAM_INT, 'Limit number', VALUE_DEFAULT, 0)
+            )
+        );
+    }
+
+    /**
+     * Get messagearea message search users results.
+     *
+     * @param int $userid The id of the user who is performing the search
+     * @param string $search The string being searched
+     * @param int $limitnum
+     * @return stdClass
+     * @throws moodle_exception
+     * @since 3.6
+     */
+    public static function data_for_messagearea_message_search_users($userid, $search, $limitnum = 0) {
+        global $CFG, $PAGE, $USER;
+
+        // Check if messaging is enabled.
+        if (empty($CFG->messaging)) {
+            throw new moodle_exception('disabled', 'message');
+        }
+
+        $systemcontext = context_system::instance();
+
+        $params = array(
+            'userid' => $userid,
+            'search' => $search,
+            'limitnum' => $limitnum
+        );
+        self::validate_parameters(self::data_for_messagearea_message_search_users_parameters(), $params);
+        self::validate_context($systemcontext);
+
+        if (($USER->id != $userid) && !has_capability('moodle/site:readallmessages', $systemcontext)) {
+            throw new moodle_exception('You do not have permission to perform this action.');
+        }
+
+        list($contacts, $noncontacts) = \core_message\api::message_search_users($userid, $search, $limitnum);
+        $search = new \core_message\output\messagearea\user_search_results($contacts, array(), $noncontacts);
+
+        $renderer = $PAGE->get_renderer('core_message');
+        return $search->export_for_template($renderer);
+    }
+
+    /**
+     * Get messagearea message search users returns.
+     *
+     * @return external_single_structure
+     * @since 3.2
+     */
+    public static function data_for_messagearea_message_search_users_returns() {
+        return new external_single_structure(
+            array(
+                'contacts' => new external_multiple_structure(
+                    self::get_messagearea_contact_structure()
                 ),
                 'noncontacts' => new external_multiple_structure(
                     self::get_messagearea_contact_structure()
