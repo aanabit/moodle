@@ -191,13 +191,16 @@ class helper {
                 $data->messageid = $contact->messageid;
             }
         }
+        $data->showonlinestatus = self::show_online_status($userfields);
         $data->isonline = null;
-        if (self::show_online_status($userfields)) {
+        if ($data->showonlinestatus) {
             $data->isonline = self::is_online($userfields->lastaccess);
         }
         $data->isblocked = isset($contact->blocked) ? (bool) $contact->blocked : false;
         $data->isread = isset($contact->isread) ? (bool) $contact->isread : false;
         $data->unreadcount = isset($contact->unreadcount) ? $contact->unreadcount : null;
+        $data->canmessage = isset($contact->canmessage) ? $contact->canmessage : false;
+        $data->requirescontactrequest = self::requires_contact_request($userfields->id);
 
         return $data;
     }
@@ -353,5 +356,15 @@ class helper {
         $messagereadexists = $DB->record_exists_sql($sql, [$userid, $userid]);
 
         return $messageexists || $messagereadexists;
+    }
+
+    /**
+     * Checks if a user requires contact request base on message privacy settings
+     *
+     * @param int $userid
+     * @return bool
+     */
+    public static function requires_contact_request(int $userid) : bool {
+        return api::get_user_privacy_messaging_preference($userid) == api::MESSAGE_PRIVACY_ONLYCONTACTS;
     }
 }
