@@ -321,8 +321,6 @@ class helper {
         $data->isblocked = isset($contact->blocked) ? (bool) $contact->blocked : false;
         $data->isread = isset($contact->isread) ? (bool) $contact->isread : false;
         $data->unreadcount = isset($contact->unreadcount) ? $contact->unreadcount : null;
-        $data->canmessage = isset($contact->canmessage) ? $contact->canmessage : false;
-        $data->requirescontactrequest = self::requires_contact_request($userfields->id);
 
         return $data;
     }
@@ -531,15 +529,5 @@ class helper {
             $members[$data->id] = $data;
         }
         return $members;
-    }
-
-    /*
-     * Checks if a user requires contact request base on message privacy settings
-     *
-     * @param int $userid
-     * @return bool
-     */
-    public static function requires_contact_request(int $userid) : bool {
-        return api::get_user_privacy_messaging_preference($userid) == api::MESSAGE_PRIVACY_ONLYCONTACTS;
     }
 }

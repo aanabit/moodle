@@ -864,20 +864,12 @@ class core_message_external extends external_api {
                 'isblocked' => new external_value(PARAM_BOOL, 'If the user has been blocked'),
                 'unreadcount' => new external_value(PARAM_INT, 'The number of unread messages in this conversation',
                     VALUE_DEFAULT, null),
-                'canmessage' => new external_value(PARAM_BOOL, 'Can current user send a message to the user?'),
-                'requirescontactrequest' => new external_value(PARAM_BOOL, 'Does the user requires a contact request to be messaged?'),
-                'contactrequests' => new external_multiple_structure( new external_single_structure(
-                        array(
-                            'id' => new external_value(PARAM_INT, 'Contact request id'),
-                            'userid' => new external_value(PARAM_INT, 'Id of user has sent the contact request'),
-                            'requesteduserid' => new external_value(PARAM_INT, 'Id of user has received the contact request'),
-                            'timecreated' => new external_value(PARAM_INT, 'The timecreated timestamp for the contact request'),
-                        ), 'information about contact request', VALUE_OPTIONAL),
-                    'Contact requests between users', VALUE_OPTIONAL
-                ),
                 'conversations' => new external_multiple_structure( new external_single_structure(
                         array(
-                            'conversationid' => new external_value(PARAM_INT, 'Conversations id'),
+                            'id' => new external_value(PARAM_INT, 'Conversations id'),
+                            'type' => new external_value(PARAM_INT, 'Conversation type: private or public'),
+                            'name' => new external_value(PARAM_TEXT, 'Multilang compatible conversation name'. VALUE_OPTIONAL),
+                            'timecreated' => new external_value(PARAM_INT, 'The timecreated timestamp for the conversation'),
                         ), 'information about conversation', VALUE_OPTIONAL),
                     'Conversations between users', VALUE_OPTIONAL
                 ),

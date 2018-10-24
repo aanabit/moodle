@@ -2218,7 +2218,6 @@ class core_message_externallib_testcase extends externallib_advanced_testcase {
         $this->assertDebuggingCalled();
     }
 
-
     /**
      * Tests searching users.
      */
@@ -2519,107 +2518,9 @@ class core_message_externallib_testcase extends externallib_advanced_testcase {
         $this->assertEquals($user5->id, $noncontacts[0]['userid']);
         $this->assertEquals($user3->id, $noncontacts[1]['userid']);
 
-        // Check that we retrieved the correct conversations for non-contacts
+        // Check that we retrieved the correct conversations for non-contacts.
         $this->assertArrayNotHasKey('conversations', $noncontacts[0]);
         $this->assertCount(1, $noncontacts[1]['conversations']);
-    }
-
-    /**
-     * Tests searching users with and without contact requests.
-     */
-    public function test_message_search_users_with_and_without_contact_requests() {
-        $this->resetAfterTest(true);
-
-        // Create some users.
-        $user1 = new stdClass();
-        $user1->firstname = 'User search';
-        $user1->lastname = 'One';
-        $user1 = self::getDataGenerator()->create_user($user1);
-
-        // Set as the user performing the search.
-        $this->setUser($user1);
-
-        $user2 = new stdClass();
-        $user2->firstname = 'User search';
-        $user2->lastname = 'Two';
-        $user2 = self::getDataGenerator()->create_user($user2);
-
-        $user3 = new stdClass();
-        $user3->firstname = 'User search';
-        $user3->lastname = 'Three';
-        $user3 = self::getDataGenerator()->create_user($user3);
-
-        $user4 = new stdClass();
-        $user4->firstname = 'User';
-        $user4->lastname = 'Four';
-        $user4 = self::getDataGenerator()->create_user($user4);
-
-        $user5 = new stdClass();
-        $user5->firstname = 'User search';
-        $user5->lastname = 'Five';
-        $user5 = self::getDataGenerator()->create_user($user5);
-
-        // Add some contact_requests.
-        \core_message\api::create_contact_request($user1->id, $user2->id);
-        \core_message\api::create_contact_request($user3->id, $user1->id);
-
-        // Perform a search $CFG->messagingallusers setting enabled.
-        set_config('messagingallusers', 1);
-        $result = core_message_external::data_for_messagearea_message_search_users($user1->id, 'search');
-
-        // We need to execute the return values cleaning process to simulate the web service server.
-        $result = external_api::clean_returnvalue(core_message_external::data_for_messagearea_message_search_users_returns(),
-            $result);
-
-        // Confirm that we returns contacts and non-contacts.
-        $contacts = $result['contacts'];
-        $noncontacts = $result['noncontacts'];
-
-        // Check that we retrieved the correct contacts.
-        $this->assertCount(0, $contacts);
-
-        // Check that we retrieved the correct non-contacts.
-        $this->assertCount(3, $noncontacts);
-        $this->assertEquals($user5->id, $noncontacts[0]['userid']);
-        $this->assertEquals($user3->id, $noncontacts[1]['userid']);
-        $this->assertEquals($user2->id, $noncontacts[2]['userid']);
-
-        // Check that we retrieved the correct conversations for non-contacts
-        $this->assertArrayNotHasKey('contactrequests', $noncontacts[0]);
-        $this->assertCount(1, $noncontacts[1]['contactrequests']);
-        $this->assertCount(1, $noncontacts[2]['contactrequests']);
-
-        // Perform same search after confirming or declining contact requests.
-        // Confirm a contact request.
-        \core_message\api::confirm_contact_request($user1->id, $user2->id);
-        // Decline a contact request.
-        \core_message\api::decline_contact_request($user3->id, $user1->id);
-
-        // Perform a search $CFG->messagingallusers setting enabled.
-        $result = core_message_external::data_for_messagearea_message_search_users($user1->id, 'search');
-
-        // We need to execute the return values cleaning process to simulate the web service server.
-        $result = external_api::clean_returnvalue(core_message_external::data_for_messagearea_message_search_users_returns(),
-            $result);
-
-        // Confirm that we returns contacts and non-contacts.
-        $contacts = $result['contacts'];
-        $noncontacts = $result['noncontacts'];
-
-        // Check that we retrieved the correct contacts.
-        $this->assertCount(1, $contacts);
-
-        // Check that we retrieved the correct contact requests for contacts.
-        $this->assertArrayNotHasKey('contactrequests', $noncontacts[0]);
-
-        // Check that we retrieved the correct non-contacts.
-        $this->assertCount(2, $noncontacts);
-        $this->assertEquals($user5->id, $noncontacts[0]['userid']);
-        $this->assertEquals($user3->id, $noncontacts[1]['userid']);
-
-        // Check that we retrieved the correct contact requests for non-contacts
-        $this->assertArrayNotHasKey('contactrequests', $noncontacts[0]);
-        $this->assertArrayNotHasKey('contactrequests', $noncontacts[1]);
     }
 
     /**
