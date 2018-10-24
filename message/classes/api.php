@@ -245,12 +245,15 @@ class api {
      */
     public static function message_search_users(int $userid, string $search, int $limitnum = 0) : array {
         global $CFG, $DB;
+
         // Used to search for contacts.
         $fullname = $DB->sql_fullname();
         $ufields = \user_picture::fields('u', array('lastaccess'));
+
         // Users not to include.
         $excludeusers = array($userid, $CFG->siteguest);
         list($exclude, $excludeparams) = $DB->get_in_or_equal($excludeusers, SQL_PARAMS_NAMED, 'param', false);
+
         // Ok, let's search for contacts first.
         $contacts = array();
         $sql = "SELECT $ufields, mub.id as isuserblocked
@@ -265,23 +268,27 @@ class api {
                    AND " . $DB->sql_like($fullname, ':search', false) . "
                    AND u.id $exclude
               ORDER BY " . $DB->sql_fullname();
-        if ($users = $DB->get_records_sql($sql, array('userid' => $userid, 'userid2' => $userid,
+        if ($foundusers = $DB->get_records_sql($sql, array('userid' => $userid, 'userid2' => $userid,
                 'search' => '%' . $search . '%') + $excludeparams, 0, $limitnum)) {
-            foreach ($users as $user) {
-                $user->blocked = $user->isuserblocked ? 1 : 0;
-                $user->canmessage = self::can_post_message($user, \core_user::get_user($userid, 'id'));
-                $contact = helper::create_contact($user);
-                $contact->contactrequests = self::get_contact_requests_between_users($userid, $user->id, 0, $limitnum);
-                $contact->conversations = self::get_conversations_between_users($userid, $user->id, 0, $limitnum);
+            foreach ($foundusers as $founduser) {
+                $founduser->blocked = $founduser->isuserblocked ? 1 : 0;
+                $founduser->canmessage = self::can_post_conversation_message($founduser->id, $userid);
+
+                $contact = helper::create_contact($founduser);
+                $contact->contactrequests = self::get_contact_requests_between_users($userid, $founduser->id, 0, $limitnum);
+                $contact->conversations = self::get_conversations_between_users($userid, $founduser->id, 0, $limitnum);
+
                 $contacts[] = $contact;
             }
         }
+
         // Let's get those non-contacts. Toast them gears boi.
         // Note - you can only block contacts, so these users will not be blocked, so no need to get that
         // extra detail from the database.
         $noncontacts = array();
         $params = array('userid' => $userid, 'search' => '%' . $search . '%');
         if ($CFG->messagingallusers) {
+            // In case $CFG->messagingallusers is enabled, search for all users site-wide but are not user's contact.
             $sql = "SELECT $ufields
                   FROM {user} u
                  WHERE u.deleted = 0
@@ -309,15 +316,19 @@ class api {
                 ORDER BY " . $DB->sql_fullname();
             $params['userid2'] = $userid;
         }
-        if ($users = $DB->get_records_sql($sql,  $params + $excludeparams,
+        if ($foundusers = $DB->get_records_sql($sql,  $params + $excludeparams,
             0, $limitnum)) {
-            foreach ($users as $user) {
-                $contact = helper::create_contact($user);
-                $contact->contactrequests = self::get_contact_requests_between_users($userid, $user->id, 0, $limitnum);
-                $contact->conversations = self::get_conversations_between_users($userid, $user->id, 0, $limitnum);
+            foreach ($foundusers as $founduser) {
+                $founduser->canmessage = self::can_post_conversation_message($founduser->id,$userid);
+
+                $contact = helper::create_contact($founduser);
+                $contact->contactrequests = self::get_contact_requests_between_users($userid, $founduser->id, 0, $limitnum);
+                $contact->conversations = self::get_conversations_between_users($userid, $founduser->id, 0, $limitnum);
+
                 $noncontacts[] = $contact;
             }
         }
+
         return array($contacts, $noncontacts);
     }
 
@@ -514,18 +525,25 @@ class api {
         int $userid2,
         int $limitfrom = 0,
         int $limitnum = 20) : array {
+
         global $DB;
+
         if ($userid1 == $userid2) {
             return array();
         }
-        // Get all conversation where both user1 and user2 are members
-        $sql = "SELECT DISTINCT(mcm1.conversationid)
-                FROM {message_conversation_members} mcm1
-                INNER JOIN {message_conversation_members} mcm2
-                ON mcm1.conversationid = mcm2.conversationid
+
+        // Get all conversation where both user1 and user2 are members.
+        // TODO: Add subname value. Waiting for definite table structure.
+        $sql = "SELECT mc.id, mc.type, mc.name, mc.timecreated
+                FROM {message_conversations} mc
+                INNER JOIN {message_conversation_members} mcm1 
+                ON mc.id = mcm1.conversationid
+                INNER JOIN {message_conversation_members} mcm2 
+                ON mc.id = mcm2.conversationid
                 WHERE mcm1.userid = :userid1
-                AND mcm2.userid = :userid2
-                ORDER BY mcm1.timecreated DESC";
+                  AND mcm2.userid = :userid2
+                ORDER BY mc.timecreated DESC";
+
         return $DB->get_records_sql($sql, array('userid1' => $userid1, 'userid2' => $userid2), $limitfrom, $limitnum);
     }
     /**
@@ -543,14 +561,18 @@ class api {
         int $userid2,
         int $limitfrom = 0,
         int $limitnum = 20) : array {
+
         global $DB;
+
         if ($userid1 === $userid2) {
             return array();
         }
-        // Get all contact requests between both user1 and user2
+
+        // Get all contact requests between both user1 and user2.
         $sql = "(userid = :userid1 AND requesteduserid = :userid2)
                 OR (userid = :userid3 AND requesteduserid = :userid4)";
         $params = array ('userid1' => $userid1, 'userid2' => $userid2, 'userid3' => $userid2, 'userid4' => $userid1);
+
         return $DB->get_records_select('message_contact_requests', $sql, $params, 'timecreated', '*', $limitfrom, $limitnum);
     }
 

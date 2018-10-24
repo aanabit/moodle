@@ -877,7 +877,10 @@ class core_message_external extends external_api {
                 ),
                 'conversations' => new external_multiple_structure( new external_single_structure(
                         array(
-                            'conversationid' => new external_value(PARAM_INT, 'Conversations id'),
+                            'id' => new external_value(PARAM_INT, 'Conversations id'),
+                            'type' => new external_value(PARAM_INT, 'Conversation type: private or public'),
+                            'name' => new external_value(PARAM_TEXT, 'Multilang compatible conversation name'. VALUE_OPTIONAL),
+                            'timecreated' => new external_value(PARAM_INT, 'The timecreated timestamp for the conversation'),
                         ), 'information about conversation', VALUE_OPTIONAL),
                     'Conversations between users', VALUE_OPTIONAL
                 ),
