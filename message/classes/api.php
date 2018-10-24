@@ -313,7 +313,7 @@ class api {
         if ($foundusers = $DB->get_records_sql($sql,  $params + $excludeparams,
             0, $limitnum)) {
             foreach ($foundusers as $founduser) {
-                $founduser->canmessage = self::can_post_conversation_message($founduser->id,$userid);
+                $founduser->canmessage = self::can_post_conversation_message($founduser->id, $userid);
 
                 $contact = helper::create_contact($founduser);
                 $contact->contactrequests = self::get_contact_requests_between_users($userid, $founduser->id, 0, $limitnum);
@@ -507,8 +507,8 @@ class api {
     /**
      * Returns all conversations between two users
      *
-     * @param int $userid One of the user's id
-     * @param int $userid The other user's id
+     * @param int $userid1 One of the user's id
+     * @param int $userid2 The other user's id
      * @param int $limitfrom
      * @param int $limitnum
      * @return array
@@ -530,9 +530,9 @@ class api {
         // TODO: Add subname value. Waiting for definite table structure.
         $sql = "SELECT mc.id, mc.type, mc.name, mc.timecreated
                 FROM {message_conversations} mc
-                INNER JOIN {message_conversation_members} mcm1 
+                INNER JOIN {message_conversation_members} mcm1
                 ON mc.id = mcm1.conversationid
-                INNER JOIN {message_conversation_members} mcm2 
+                INNER JOIN {message_conversation_members} mcm2
                 ON mc.id = mcm2.conversationid
                 WHERE mcm1.userid = :userid1
                   AND mcm2.userid = :userid2
@@ -543,8 +543,8 @@ class api {
     /**
      * Returns all contact requests between two users
      *
-     * @param int $userid One of the user's id
-     * @param int $userid The other user's id
+     * @param int $userid1 One of the user's id
+     * @param int $userid2 The other user's id
      * @param int $limitfrom
      * @param int $limitnum
      * @return array

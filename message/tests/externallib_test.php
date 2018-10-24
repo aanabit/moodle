@@ -2517,7 +2517,7 @@ class core_message_externallib_testcase extends externallib_advanced_testcase {
         $this->assertEquals($user5->id, $noncontacts[0]['userid']);
         $this->assertEquals($user3->id, $noncontacts[1]['userid']);
 
-        // Check that we retrieved the correct conversations for non-contacts
+        // Check that we retrieved the correct conversations for non-contacts.
         $this->assertArrayNotHasKey('conversations', $noncontacts[0]);
         $this->assertCount(1, $noncontacts[1]['conversations']);
     }
@@ -2582,7 +2582,7 @@ class core_message_externallib_testcase extends externallib_advanced_testcase {
         $this->assertEquals($user3->id, $noncontacts[1]['userid']);
         $this->assertEquals($user2->id, $noncontacts[2]['userid']);
 
-        // Check that we retrieved the correct conversations for non-contacts
+        // Check that we retrieved the correct conversations for non-contacts.
         $this->assertArrayNotHasKey('contactrequests', $noncontacts[0]);
         $this->assertCount(1, $noncontacts[1]['contactrequests']);
         $this->assertCount(1, $noncontacts[2]['contactrequests']);
@@ -2615,7 +2615,7 @@ class core_message_externallib_testcase extends externallib_advanced_testcase {
         $this->assertEquals($user5->id, $noncontacts[0]['userid']);
         $this->assertEquals($user3->id, $noncontacts[1]['userid']);
 
-        // Check that we retrieved the correct contact requests for non-contacts
+        // Check that we retrieved the correct contact requests for non-contacts.
         $this->assertArrayNotHasKey('contactrequests', $noncontacts[0]);
         $this->assertArrayNotHasKey('contactrequests', $noncontacts[1]);
     }

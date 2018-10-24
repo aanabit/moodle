@@ -865,7 +865,10 @@ class core_message_external extends external_api {
                 'unreadcount' => new external_value(PARAM_INT, 'The number of unread messages in this conversation',
                     VALUE_DEFAULT, null),
                 'canmessage' => new external_value(PARAM_BOOL, 'Can current user send a message to the user?'),
-                'requirescontactrequest' => new external_value(PARAM_BOOL, 'Does the user requires a contact request to be messaged?'),
+                'requirescontactrequest' => new external_value(
+                    PARAM_BOOL,
+                    'Does the user requires a contact request to be messaged?'
+                ),
                 'contactrequests' => new external_multiple_structure( new external_single_structure(
                         array(
                             'id' => new external_value(PARAM_INT, 'Contact request id'),
