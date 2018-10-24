@@ -276,35 +276,39 @@ class api {
         // Note - you can only block contacts, so these users will not be blocked, so no need to get that
         // extra detail from the database.
         $noncontacts = array();
-        $params = array('userid' => $userid, 'search' => '%' . $search . '%');
+        $params = array('userid1' => $userid, 'userid2' => $userid, 'search' => '%' . $search . '%');
         if ($CFG->messagingallusers) {
             // In case $CFG->messagingallusers is enabled, search for all users site-wide but are not user's contact.
-            $sql = "SELECT $ufields
-                  FROM {user} u
-                 WHERE u.deleted = 0
-                   AND u.confirmed = 1
-                   AND " . $DB->sql_like($fullname, ':search', false) . "
-                   AND u.id $exclude
-                   AND u.id NOT IN (SELECT contactid
-                                      FROM {message_contacts}
-                                     WHERE userid = :userid)
-              ORDER BY " . $DB->sql_fullname();
+            $sql = "SELECT $ufields, mub.id as isuserblocked
+                    FROM {user} u
+                    LEFT JOIN {message_users_blocked} mub
+                    ON (mub.userid = :userid2 AND mub.blockeduserid = u.id)
+                    WHERE u.deleted = 0
+                    AND u.confirmed = 1
+                    AND " . $DB->sql_like($fullname, ':search', false) . "
+                    AND u.id $exclude
+                    AND u.id NOT IN (SELECT contactid
+                                     FROM {message_contacts}
+                                     WHERE userid = :userid1)
+                    ORDER BY " . $DB->sql_fullname();
         } else {
             // In case $CFG->messagingallusers is disabled, search for users you have a conversation with.
             // Messaging setting could change, so could exist an old conversation with users you cannot message anymore.
-            $sql = "SELECT $ufields
+            $sql = "SELECT $ufields, mub.id as isuserblocked
                 FROM {user} u
                 INNER JOIN {message_conversation_members} cm ON u.id = cm.userid
-                INNER JOIN {message_conversation_members} cm2 ON cm.conversationid = cm2.conversationid and cm2.userid = :userid2
+                INNER JOIN {message_conversation_members} cm2 ON cm.conversationid = cm2.conversationid and cm2.userid = :userid3
+                LEFT JOIN {message_users_blocked} mub
+                ON (mub.userid = :userid2 AND mub.blockeduserid = u.id)
                 WHERE u.deleted = 0
                    AND u.confirmed = 1
                    AND " . $DB->sql_like($fullname, ':search', false) . "
                    AND u.id $exclude
                    AND u.id NOT IN (SELECT contactid
                                       FROM {message_contacts}
-                                     WHERE userid = :userid)
+                                     WHERE userid = :userid1)
                 ORDER BY " . $DB->sql_fullname();
-            $params['userid2'] = $userid;
+            $params['userid3'] = $userid;
         }
         if ($foundusers = $DB->get_records_sql($sql,  $params + $excludeparams,
             0, $limitnum)) {
