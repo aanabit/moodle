@@ -199,8 +199,6 @@ class helper {
         $data->isblocked = isset($contact->blocked) ? (bool) $contact->blocked : false;
         $data->isread = isset($contact->isread) ? (bool) $contact->isread : false;
         $data->unreadcount = isset($contact->unreadcount) ? $contact->unreadcount : null;
-        $data->canmessage = isset($contact->canmessage) ? $contact->canmessage : false;
-        $data->requirescontactrequest = self::requires_contact_request($userfields->id);
 
         return $data;
     }

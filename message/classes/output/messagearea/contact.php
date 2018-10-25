@@ -121,14 +121,7 @@ class contact implements templatable, renderable {
         $this->isblocked = $contact->isblocked;
         $this->isread = $contact->isread;
         $this->unreadcount = $contact->unreadcount;
-        $this->canmessage = $contact->canmessage;
-        $this->requirescontactrequest = $contact->requirescontactrequest;
-        if (!empty($contact->conversations)) {
-            $this->conversations = $contact->conversations;
-        }
-        if (!empty($contact->contactrequests)) {
-            $this->contactrequests = $contact->contactrequests;
-        }
+        $this->privateconversationid = (empty($contact->privateconversationid) ? 0 : $contact->privateconversationid);
     }
 
     public function export_for_template(\renderer_base $output) {
@@ -153,14 +146,7 @@ class contact implements templatable, renderable {
         $contact->isblocked = $this->isblocked;
         $contact->isread = $this->isread;
         $contact->unreadcount = $this->unreadcount;
-        $contact->canmessage = $this->canmessage;
-        $contact->requirescontactrequest = $this->requirescontactrequest;
-        if (!empty($this->conversations)) {
-            $contact->conversations = $this->conversations;
-        }
-        if (!empty($this->contactrequests)) {
-            $contact->contactrequests = $this->contactrequests;
-        }
+        $contact->privateconversationid = (empty($this->privateconversationid) ? 0 : $this->privateconversationid);
 
         return $contact;
     }

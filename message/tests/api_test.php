@@ -364,101 +364,11 @@ class core_message_api_testcase extends core_message_messagelib_testcase {
     }
 
     /**
-     * Tests getting conversations between 2 users.
-     */
-    public function test_get_conversations_between_users() {
-        // Create some users.
-        $user1 = new stdClass();
-        $user1->firstname = 'User';
-        $user1->lastname = 'One';
-        $user1 = self::getDataGenerator()->create_user($user1);
-
-        $user2 = new stdClass();
-        $user2->firstname = 'User';
-        $user2->lastname = 'Two';
-        $user2 = self::getDataGenerator()->create_user($user2);
-
-        $user3 = new stdClass();
-        $user3->firstname = 'User search';
-        $user3->lastname = 'Three';
-        $user3 = self::getDataGenerator()->create_user($user3);
-
-        $user4 = new stdClass();
-        $user4->firstname = 'User';
-        $user4->lastname = 'Four';
-        $user4 = self::getDataGenerator()->create_user($user4);
-
-        $user5 = new stdClass();
-        $user5->firstname = 'User';
-        $user5->lastname = 'Five';
-        $user5 = self::getDataGenerator()->create_user($user5);
-
-        // Add a users as contact.
-        \core_message\api::add_contact($user1->id, $user2->id);
-
-        $time = 1;
-
-        // Send a message to a non contact.
-        $this->send_fake_message($user1, $user2, 'Don\'t block me.', 0, $time);
-
-        // Receive a message from a non contact.
-        $this->send_fake_message($user3, $user1, 'Don\'t block me.', 0, $time);
-
-        // Create a group conversation with users.
-        \core_message\api::create_conversation(\core_message\api::MESSAGE_CONVERSATION_TYPE_GROUP,
-            array($user1->id, $user2->id, $user3->id, $user4->id),
-            'Project chat');
-
-        // Check that we retrieved the correct conversations.
-        $this->assertCount(2, \core_message\api::get_conversations_between_users($user1->id, $user2->id));
-        $this->assertCount(2, \core_message\api::get_conversations_between_users($user2->id, $user1->id));
-        $this->assertCount(2, \core_message\api::get_conversations_between_users($user1->id, $user3->id));
-        $this->assertCount(2, \core_message\api::get_conversations_between_users($user3->id, $user1->id));
-        $this->assertCount(1, \core_message\api::get_conversations_between_users($user1->id, $user4->id));
-        $this->assertCount(1, \core_message\api::get_conversations_between_users($user4->id, $user1->id));
-        $this->assertCount(0, \core_message\api::get_conversations_between_users($user1->id, $user5->id));
-        $this->assertCount(0, \core_message\api::get_conversations_between_users($user5->id, $user1->id));
-    }
-
-    /**
-     * Tests getting contact requests 2 users.
-     */
-    public function test_get_contact_requests_between_users() {
-        // Create some users.
-        $user1 = new stdClass();
-        $user1->firstname = 'User';
-        $user1->lastname = 'One';
-        $user1 = self::getDataGenerator()->create_user($user1);
-
-        $user2 = new stdClass();
-        $user2->firstname = 'User';
-        $user2->lastname = 'Two';
-        $user2 = self::getDataGenerator()->create_user($user2);
-
-        // Check that we retrieved no contact requests.
-        $this->assertCount(0, \core_message\api::get_contact_requests_between_users($user1->id, $user2->id));
-
-        // Send a contact_request.
-        \core_message\api::create_contact_request($user1->id, $user2->id);
-        $this->assertCount(1, \core_message\api::get_contact_requests_between_users($user1->id, $user2->id));
-
-        // Decline a contact request.
-        \core_message\api::decline_contact_request($user1->id, $user2->id);
-        $this->assertCount(0, \core_message\api::get_contact_requests_between_users($user1->id, $user2->id));
-
-        // Receive a contact_request.
-        \core_message\api::create_contact_request($user2->id, $user1->id);
-        $this->assertCount(1, \core_message\api::get_contact_requests_between_users($user1->id, $user2->id));
-
-        // Confirm a contact request.
-        \core_message\api::confirm_contact_request($user2->id, $user1->id);
-        $this->assertCount(0, \core_message\api::get_contact_requests_between_users($user1->id, $user2->id));
-    }
-
-    /**
      * Tests searching users with and without conversations.
      */
     public function test_message_search_users_with_and_without_conversations() {
+        global $DB;
+
         // Create some users.
         $user1 = new stdClass();
         $user1->firstname = 'User search';
@@ -494,15 +404,12 @@ class core_message_api_testcase extends core_message_messagelib_testcase {
         $time = 1;
 
         // Send a messages to a non contact.
-        $this->send_fake_message($user1, $user2, 'Don\'t block me.', 0, $time);
+        $message2id = $this->send_fake_message($user1, $user2, 'Don\'t block me.', 0, $time);
+        $conversation2id = $DB->get_field('messages', 'conversationid', array('id' => $message2id));
 
         // Receive a messages from a non contact.
-        $this->send_fake_message($user3, $user1, 'Don\'t block me.', 0, $time);
-
-        // Create a group conversation with users.
-        \core_message\api::create_conversation(\core_message\api::MESSAGE_CONVERSATION_TYPE_GROUP,
-            array($user1->id, $user2->id, $user4->id),
-            'Project chat');
+        $message3id = $this->send_fake_message($user3, $user1, 'Don\'t block me.', 0, $time);
+        $conversation3id = $DB->get_field('messages', 'conversationid', array('id' => $message3id));
 
         // Perform a search $CFG->messagingallusers setting enabled.
         set_config('messagingallusers', 1);
@@ -512,7 +419,7 @@ class core_message_api_testcase extends core_message_messagelib_testcase {
         $this->assertCount(1, $contacts);
 
         // Check that we retrieved the correct conversations for contacts.
-        $this->assertCount(2, $contacts[0]->conversations);
+        $this->assertEquals($contacts[0]->privateconversationid, $conversation2id);
 
         // Check that we retrieved the correct non-contacts.
         $this->assertCount(2, $noncontacts);
@@ -520,89 +427,8 @@ class core_message_api_testcase extends core_message_messagelib_testcase {
         $this->assertEquals($user3->id, $noncontacts[1]->userid);
 
         // Check that we retrieved the correct conversations for non-contacts.
-        $this->assertCount(0, $noncontacts[0]->conversations);
-        $this->assertCount(1, $noncontacts[1]->conversations);
-    }
-
-    /**
-     * Tests searching users with and without contact requests.
-     */
-    public function test_message_search_users_with_and_without_contact_requests() {
-        // Create some users.
-        $user1 = new stdClass();
-        $user1->firstname = 'User search';
-        $user1->lastname = 'One';
-        $user1 = self::getDataGenerator()->create_user($user1);
-
-        // Set as the user performing the search.
-        $this->setUser($user1);
-
-        $user2 = new stdClass();
-        $user2->firstname = 'User search';
-        $user2->lastname = 'Two';
-        $user2 = self::getDataGenerator()->create_user($user2);
-
-        $user3 = new stdClass();
-        $user3->firstname = 'User search';
-        $user3->lastname = 'Three';
-        $user3 = self::getDataGenerator()->create_user($user3);
-
-        $user4 = new stdClass();
-        $user4->firstname = 'User';
-        $user4->lastname = 'Four';
-        $user4 = self::getDataGenerator()->create_user($user4);
-
-        $user5 = new stdClass();
-        $user5->firstname = 'User search';
-        $user5->lastname = 'Five';
-        $user5 = self::getDataGenerator()->create_user($user5);
-
-        // Add some contact_requests.
-        \core_message\api::create_contact_request($user1->id, $user2->id);
-        \core_message\api::create_contact_request($user3->id, $user1->id);
-
-        // Perform a search $CFG->messagingallusers setting enabled.
-        set_config('messagingallusers', 1);
-        list($contacts, $noncontacts) = \core_message\api::message_search_users($user1->id, 'search');
-
-        // Check that we retrieved the correct contacts.
-        $this->assertCount(0, $contacts);
-
-        // Check that we retrieved the correct non-contacts.
-        $this->assertCount(3, $noncontacts);
-        $this->assertEquals($user5->id, $noncontacts[0]->userid);
-        $this->assertEquals($user3->id, $noncontacts[1]->userid);
-        $this->assertEquals($user2->id, $noncontacts[2]->userid);
-
-        // Check that we retrieved the correct conversations for non-contacts.
-        $this->assertCount(0, $noncontacts[0]->contactrequests);
-        $this->assertCount(1, $noncontacts[1]->contactrequests);
-        $this->assertCount(1, $noncontacts[2]->contactrequests);
-
-        // Perform same search after confirming or declining contact requests.
-        // Confirm a contact request.
-        \core_message\api::confirm_contact_request($user1->id, $user2->id);
-
-        // Decline a contact request.
-        \core_message\api::decline_contact_request($user3->id, $user1->id);
-
-        // Perform a search $CFG->messagingallusers setting enabled.
-        list($contacts, $noncontacts) = \core_message\api::message_search_users($user1->id, 'search');
-
-        // Check that we retrieved the correct contacts.
-        $this->assertCount(1, $contacts);
-
-        // Check that we retrieved the correct contact requests for contacts.
-        $this->assertCount(0, $contacts[0]->contactrequests);
-
-        // Check that we retrieved the correct non-contacts.
-        $this->assertCount(2, $noncontacts);
-        $this->assertEquals($user5->id, $noncontacts[0]->userid);
-        $this->assertEquals($user3->id, $noncontacts[1]->userid);
-
-        // Check that we retrieved the correct contact requests for non-contacts.
-        $this->assertCount(0, $noncontacts[0]->contactrequests);
-        $this->assertCount(0, $noncontacts[1]->contactrequests);
+        $this->assertEquals($noncontacts[0]->privateconversationid, 0);
+        $this->assertEquals($noncontacts[1]->privateconversationid, $conversation3id);
     }
 
     /**
