@@ -864,15 +864,6 @@ class core_message_external extends external_api {
                 'isblocked' => new external_value(PARAM_BOOL, 'If the user has been blocked'),
                 'unreadcount' => new external_value(PARAM_INT, 'The number of unread messages in this conversation',
                     VALUE_DEFAULT, null),
-                'conversations' => new external_multiple_structure( new external_single_structure(
-                        array(
-                            'id' => new external_value(PARAM_INT, 'Conversations id'),
-                            'type' => new external_value(PARAM_INT, 'Conversation type: private or public'),
-                            'name' => new external_value(PARAM_TEXT, 'Multilang compatible conversation name'. VALUE_OPTIONAL),
-                            'timecreated' => new external_value(PARAM_INT, 'The timecreated timestamp for the conversation'),
-                        ), 'information about conversation', VALUE_OPTIONAL),
-                    'Conversations between users', VALUE_OPTIONAL
-                ),
             )
         );
     }
@@ -894,6 +885,36 @@ class core_message_external extends external_api {
                 'showonlinestatus' => new external_value(PARAM_BOOL, 'Show the user\'s online status?'),
                 'isblocked' => new external_value(PARAM_BOOL, 'If the user has been blocked'),
                 'iscontact' => new external_value(PARAM_BOOL, 'Is the user a contact?')
+            )
+        );
+    }
+
+    /**
+     * Return the structure of found user.
+     *
+     * @return external_single_structure
+     * @since Moodle 3.6
+     */
+    private static function get_message_search_user_structure() {
+        return new external_single_structure(
+            array(
+                'id' => new external_value(PARAM_INT, 'The user id'),
+                'fullname' => new external_value(PARAM_NOTAGS, 'The user\'s name'),
+                'profileimageurl' => new external_value(PARAM_URL, 'User picture URL'),
+                'profileimageurlsmall' => new external_value(PARAM_URL, 'Small user picture URL'),
+                'isonline' => new external_value(PARAM_BOOL, 'The user\'s online status'),
+                'showonlinestatus' => new external_value(PARAM_BOOL, 'Show the user\'s online status?'),
+                'isblocked' => new external_value(PARAM_BOOL, 'If the user has been blocked'),
+                'iscontact' => new external_value(PARAM_BOOL, 'Is the user a contact?'),
+                'conversations' => new external_multiple_structure( new external_single_structure(
+                    array(
+                        'id' => new external_value(PARAM_INT, 'Conversations id'),
+                        'type' => new external_value(PARAM_INT, 'Conversation type: private or public'),
+                        'name' => new external_value(PARAM_TEXT, 'Multilang compatible conversation name'. VALUE_OPTIONAL),
+                        'timecreated' => new external_value(PARAM_INT, 'The timecreated timestamp for the conversation'),
+                    ), 'information about conversation', VALUE_OPTIONAL),
+                    'Conversations between users', VALUE_OPTIONAL
+                ),
             )
         );
     }
@@ -1135,7 +1156,7 @@ class core_message_external extends external_api {
      * @return external_function_parameters
      * @since 3.6
      */
-    public static function message_search_users_parameters() {
+    public static function messagearea_search_users_parameters() {
         return new external_function_parameters(
             array(
                 'userid' => new external_value(PARAM_INT, 'The id of the user who is performing the search'),
@@ -1155,7 +1176,7 @@ class core_message_external extends external_api {
      * @throws moodle_exception
      * @since 3.6
      */
-    public static function message_search_users($userid, $search, $limitnum = 0) {
+    public static function messagearea_search_users($userid, $search, $limitnum = 0) {
         global $CFG, $PAGE, $USER;
 
         // Check if messaging is enabled.
@@ -1170,7 +1191,7 @@ class core_message_external extends external_api {
             'search' => $search,
             'limitnum' => $limitnum
         );
-        self::validate_parameters(self::message_search_users_parameters(), $params);
+        self::validate_parameters(self::messagearea_search_users_parameters(), $params);
         self::validate_context($systemcontext);
 
         if (($USER->id != $userid) && !has_capability('moodle/site:readallmessages', $systemcontext)) {
@@ -1178,10 +1199,7 @@ class core_message_external extends external_api {
         }
 
         list($contacts, $noncontacts) = \core_message\api::message_search_users($userid, $search, $limitnum);
-        $search = new \core_message\output\messagearea\user_search_results($contacts, array(), $noncontacts);
-
-        $renderer = $PAGE->get_renderer('core_message');
-        return $search->export_for_template($renderer);
+        return array('contacts' => $contacts, 'noncontacts' => $noncontacts);
     }
 
     /**
@@ -1190,14 +1208,14 @@ class core_message_external extends external_api {
      * @return external_single_structure
      * @since 3.2
      */
-    public static function message_search_users_returns() {
+    public static function messagearea_search_users_returns() {
         return new external_single_structure(
             array(
                 'contacts' => new external_multiple_structure(
-                    self::get_messagearea_contact_structure()
+                    self::get_message_search_user_structure()
                 ),
                 'noncontacts' => new external_multiple_structure(
-                    self::get_messagearea_contact_structure()
+                    self::get_message_search_user_structure()
                 )
             )
         );

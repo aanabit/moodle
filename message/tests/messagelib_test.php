@@ -387,7 +387,7 @@ class core_message_messagelib_testcase extends advanced_testcase {
     /**
      * Test message_search_users.
      */
-    public function test_message_search_users() {
+    public function test_messagearea_search_users() {
         global $USER;
 
         // Set this user as the admin.
@@ -401,9 +401,9 @@ class core_message_messagelib_testcase extends advanced_testcase {
         \core_message\api::add_contact($USER->id, $user1->id);
         \core_message\api::add_contact($USER->id, $user2->id);
 
-        $this->assertCount(1, message_search_users(0, 'Test1'));
-        $this->assertCount(2, message_search_users(0, 'Test'));
-        $this->assertCount(1, message_search_users(0, 'user1'));
-        $this->assertCount(2, message_search_users(0, 'user'));
+        $this->assertCount(1, messagearea_search_users(0, 'Test1'));
+        $this->assertCount(2, messagearea_search_users(0, 'Test'));
+        $this->assertCount(1, messagearea_search_users(0, 'user1'));
+        $this->assertCount(2, messagearea_search_users(0, 'user'));
     }
 }

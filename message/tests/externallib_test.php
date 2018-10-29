@@ -1992,7 +1992,7 @@ class core_message_externallib_testcase extends externallib_advanced_testcase {
     /**
      * Tests searching users.
      */
-    public function test_messagearea_search_users() {
+    public function test_data_for_messagearea_search_users() {
         $this->resetAfterTest(true);
 
         // Create some users.
@@ -2221,7 +2221,7 @@ class core_message_externallib_testcase extends externallib_advanced_testcase {
     /**
      * Tests searching users.
      */
-    public function test_messagearea_message_search_users() {
+    public function test_messagearea_search_users() {
         $this->resetAfterTest(true);
 
         // Create some users.
@@ -2277,10 +2277,10 @@ class core_message_externallib_testcase extends externallib_advanced_testcase {
 
         // Perform a search $CFG->messagingallusers setting enabled.
         set_config('messagingallusers', 1);
-        $result = core_message_external::message_search_users($user1->id, 'search');
+        $result = core_message_external::messagearea_search_users($user1->id, 'search');
 
         // We need to execute the return values cleaning process to simulate the web service server.
-        $result = external_api::clean_returnvalue(core_message_external::message_search_users_returns(),
+        $result = external_api::clean_returnvalue(core_message_external::messagearea_search_users_returns(),
             $result);
 
         // Confirm that we returns contacts and non-contacts.
@@ -2289,21 +2289,21 @@ class core_message_externallib_testcase extends externallib_advanced_testcase {
 
         // Check that we retrieved the correct contacts.
         $this->assertCount(2, $contacts);
-        $this->assertEquals($user3->id, $contacts[0]['userid']);
-        $this->assertEquals($user2->id, $contacts[1]['userid']);
+        $this->assertEquals($user3->id, $contacts[0]['id']);
+        $this->assertEquals($user2->id, $contacts[1]['id']);
 
         // Check that we retrieved the correct non-contacts.
         $this->assertCount(3, $noncontacts);
-        $this->assertEquals($user5->id, $noncontacts[0]['userid']);
-        $this->assertEquals($user7->id, $noncontacts[1]['userid']);
-        $this->assertEquals($user6->id, $noncontacts[2]['userid']);
+        $this->assertEquals($user5->id, $noncontacts[0]['id']);
+        $this->assertEquals($user7->id, $noncontacts[1]['id']);
+        $this->assertEquals($user6->id, $noncontacts[2]['id']);
 
         // Perform a search $CFG->messagingallusers setting disabled.
         set_config('messagingallusers', 0);
-        $result = core_message_external::message_search_users($user1->id, 'search');
+        $result = core_message_external::messagearea_search_users($user1->id, 'search');
 
         // We need to execute the return values cleaning process to simulate the web service server.
-        $result = external_api::clean_returnvalue(core_message_external::message_search_users_returns(),
+        $result = external_api::clean_returnvalue(core_message_external::messagearea_search_users_returns(),
             $result);
 
         // Confirm that we returns contacts and non-contacts.
@@ -2312,19 +2312,19 @@ class core_message_externallib_testcase extends externallib_advanced_testcase {
 
         // Check that we retrieved the correct contacts.
         $this->assertCount(2, $contacts);
-        $this->assertEquals($user3->id, $contacts[0]['userid']);
-        $this->assertEquals($user2->id, $contacts[1]['userid']);
+        $this->assertEquals($user3->id, $contacts[0]['id']);
+        $this->assertEquals($user2->id, $contacts[1]['id']);
 
         // Check that we retrieved the correct non-contacts.
         $this->assertCount(2, $noncontacts);
-        $this->assertEquals($user7->id, $noncontacts[0]['userid']);
-        $this->assertEquals($user6->id, $noncontacts[1]['userid']);
+        $this->assertEquals($user7->id, $noncontacts[0]['id']);
+        $this->assertEquals($user6->id, $noncontacts[1]['id']);
     }
 
     /**
      * Tests searching users as another user.
      */
-    public function test_messagearea_message_search_users_as_other_user() {
+    public function test_message_search_users_as_other_user() {
         $this->resetAfterTest(true);
 
         // The person doing the search.
@@ -2381,10 +2381,10 @@ class core_message_externallib_testcase extends externallib_advanced_testcase {
 
         // Perform a search $CFG->messagingallusers setting enabled.
         set_config('messagingallusers', 1);
-        $result = core_message_external::message_search_users($user1->id, 'search');
+        $result = core_message_external::messagearea_search_users($user1->id, 'search');
 
         // We need to execute the return values cleaning process to simulate the web service server.
-        $result = external_api::clean_returnvalue(core_message_external::message_search_users_returns(),
+        $result = external_api::clean_returnvalue(core_message_external::messagearea_search_users_returns(),
             $result);
 
         // Confirm that we returns contacts and non-contacts.
@@ -2393,21 +2393,21 @@ class core_message_externallib_testcase extends externallib_advanced_testcase {
 
         // Check that we retrieved the correct contacts.
         $this->assertCount(2, $contacts);
-        $this->assertEquals($user3->id, $contacts[0]['userid']);
-        $this->assertEquals($user2->id, $contacts[1]['userid']);
+        $this->assertEquals($user3->id, $contacts[0]['id']);
+        $this->assertEquals($user2->id, $contacts[1]['id']);
 
         // Check that we retrieved the correct non-contacts.
         $this->assertCount(3, $noncontacts);
-        $this->assertEquals($user5->id, $noncontacts[0]['userid']);
-        $this->assertEquals($user7->id, $noncontacts[1]['userid']);
-        $this->assertEquals($user6->id, $noncontacts[2]['userid']);
+        $this->assertEquals($user5->id, $noncontacts[0]['id']);
+        $this->assertEquals($user7->id, $noncontacts[1]['id']);
+        $this->assertEquals($user6->id, $noncontacts[2]['id']);
 
         // Perform a search $CFG->messagingallusers setting disabled.
         set_config('messagingallusers', 0);
-        $result = core_message_external::message_search_users($user1->id, 'search');
+        $result = core_message_external::messagearea_search_users($user1->id, 'search');
 
         // We need to execute the return values cleaning process to simulate the web service server.
-        $result = external_api::clean_returnvalue(core_message_external::message_search_users_returns(),
+        $result = external_api::clean_returnvalue(core_message_external::messagearea_search_users_returns(),
             $result);
 
         // Confirm that we returns contacts and non-contacts.
@@ -2416,19 +2416,19 @@ class core_message_externallib_testcase extends externallib_advanced_testcase {
 
         // Check that we retrieved the correct contacts.
         $this->assertCount(2, $contacts);
-        $this->assertEquals($user3->id, $contacts[0]['userid']);
-        $this->assertEquals($user2->id, $contacts[1]['userid']);
+        $this->assertEquals($user3->id, $contacts[0]['id']);
+        $this->assertEquals($user2->id, $contacts[1]['id']);
 
         // Check that we retrieved the correct non-contacts.
         $this->assertCount(2, $noncontacts);
-        $this->assertEquals($user7->id, $noncontacts[0]['userid']);
-        $this->assertEquals($user6->id, $noncontacts[1]['userid']);
+        $this->assertEquals($user7->id, $noncontacts[0]['id']);
+        $this->assertEquals($user6->id, $noncontacts[1]['id']);
     }
 
     /**
      * Tests searching users as another user without the proper capabilities.
      */
-    public function test_messagearea_message_search_users_as_other_user_without_cap() {
+    public function test_message_search_users_as_other_user_without_cap() {
         $this->resetAfterTest(true);
 
         // Create some users.
@@ -2440,7 +2440,7 @@ class core_message_externallib_testcase extends externallib_advanced_testcase {
 
         // Ensure an exception is thrown.
         $this->expectException('moodle_exception');
-        core_message_external::message_search_users($user2->id, 'User');
+        core_message_external::messagearea_search_users($user2->id, 'User');
         $this->assertDebuggingCalled();
     }
 
@@ -2497,10 +2497,10 @@ class core_message_externallib_testcase extends externallib_advanced_testcase {
 
         // Perform a search $CFG->messagingallusers setting enabled.
         set_config('messagingallusers', 1);
-        $result = core_message_external::message_search_users($user1->id, 'search');
+        $result = core_message_external::messagearea_search_users($user1->id, 'search');
 
         // We need to execute the return values cleaning process to simulate the web service server.
-        $result = external_api::clean_returnvalue(core_message_external::message_search_users_returns(),
+        $result = external_api::clean_returnvalue(core_message_external::messagearea_search_users_returns(),
             $result);
 
         // Confirm that we returns contacts and non-contacts.
@@ -2515,18 +2515,18 @@ class core_message_externallib_testcase extends externallib_advanced_testcase {
 
         // Check that we retrieved the correct non-contacts.
         $this->assertCount(2, $noncontacts);
-        $this->assertEquals($user5->id, $noncontacts[0]['userid']);
-        $this->assertEquals($user3->id, $noncontacts[1]['userid']);
+        $this->assertEquals($user5->id, $noncontacts[0]['id']);
+        $this->assertEquals($user3->id, $noncontacts[1]['id']);
 
         // Check that we retrieved the correct conversations for non-contacts.
-        $this->assertArrayNotHasKey('conversations', $noncontacts[0]);
+        $this->assertCount(0, $noncontacts[0]['conversations']);
         $this->assertCount(1, $noncontacts[1]['conversations']);
     }
 
     /**
      * Tests searching users with messaging disabled.
      */
-    public function test_messagearea_message_search_users_messaging_disabled() {
+    public function test_message_search_users_messaging_disabled() {
         $this->resetAfterTest(true);
 
         // Create some skeleton data just so we can call the WS.
@@ -2540,7 +2540,7 @@ class core_message_externallib_testcase extends externallib_advanced_testcase {
 
         // Ensure an exception is thrown.
         $this->expectException('moodle_exception');
-        core_message_external::message_search_users($user->id, 'User');
+        core_message_external::messagearea_search_users($user->id, 'User');
         $this->assertDebuggingCalled();
     }
 

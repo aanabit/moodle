@@ -121,9 +121,6 @@ class contact implements templatable, renderable {
         $this->isblocked = $contact->isblocked;
         $this->isread = $contact->isread;
         $this->unreadcount = $contact->unreadcount;
-        if (!empty($contact->conversations)) {
-            $this->conversations = $contact->conversations;
-        }
     }
 
     public function export_for_template(\renderer_base $output) {
@@ -148,9 +145,6 @@ class contact implements templatable, renderable {
         $contact->isblocked = $this->isblocked;
         $contact->isread = $this->isread;
         $contact->unreadcount = $this->unreadcount;
-        if (!empty($this->conversations)) {
-            $contact->conversations = $this->conversations;
-        }
 
         return $contact;
     }
