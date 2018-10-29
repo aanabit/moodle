@@ -987,6 +987,14 @@ $functions = array(
         'type' => 'read',
         'ajax' => true,
     ),
+    'core_message_message_search_users' => array(
+        'classname' => 'core_message_external',
+        'methodname' => 'message_search_users',
+        'classpath' => 'message/externallib.php',
+        'description' => 'Retrieve the template data for searching for people',
+        'type' => 'read',
+        'ajax' => true,
+    ),
     'core_message_data_for_messagearea_conversations' => array(
         'classname' => 'core_message_external',
         'methodname' => 'data_for_messagearea_conversations',

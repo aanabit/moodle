@@ -248,86 +248,79 @@ class api {
 
         // Used to search for contacts.
         $fullname = $DB->sql_fullname();
-        $ufields = \user_picture::fields('u', array('lastaccess'));
 
         // Users not to include.
         $excludeusers = array($userid, $CFG->siteguest);
         list($exclude, $excludeparams) = $DB->get_in_or_equal($excludeusers, SQL_PARAMS_NAMED, 'param', false);
 
-        // Ok, let's search for contacts first.
-        $contacts = array();
-        $sql = "SELECT $ufields, mub.id as isuserblocked
-                  FROM {user} u
-                  JOIN {message_contacts} mc
-                    ON u.id = mc.contactid
-             LEFT JOIN {message_users_blocked} mub
-                    ON (mub.userid = :userid2 AND mub.blockeduserid = u.id)
-                 WHERE mc.userid = :userid
-                   AND u.deleted = 0
-                   AND u.confirmed = 1
-                   AND " . $DB->sql_like($fullname, ':search', false) . "
-                   AND u.id $exclude
-              ORDER BY " . $DB->sql_fullname();
-        if ($foundusers = $DB->get_records_sql($sql, array('userid' => $userid, 'userid2' => $userid,
-                'search' => '%' . $search . '%') + $excludeparams, 0, $limitnum)) {
-            foreach ($foundusers as $founduser) {
-                $founduser->blocked = $founduser->isuserblocked ? 1 : 0;
-                $contact = helper::create_contact($founduser);
-                $contact->conversations = self::get_conversations_between_users($userid, $founduser->id, 0, $limitnum);
+        // Get all user's contacts
+        $allcontacts = self::get_user_contacts($userid);
 
-                $contacts[] = $contact;
-            }
+        list($contactusers, $contactparams) = $DB->get_in_or_equal($allcontacts, SQL_PARAMS_NAMED, 'contacts');
+        list($noncontactusers, $noncontactparams) = $DB->get_in_or_equal($allcontacts, SQL_PARAMS_NAMED, 'contacts', false);
+
+        $params = array('search' => '%' . $search . '%') + $excludeparams;
+
+        // Ok, let's search for contacts first.
+        $sql = "SELECT id
+                  FROM {user}
+                 WHERE deleted = 0
+                   AND confirmed = 1
+                   AND " . $DB->sql_like($fullname, ':search', false) . "
+                   AND id $contactusers
+                   AND id $exclude
+                ORDER BY " . $DB->sql_fullname();
+        $foundusers = $DB->get_records_sql_menu($sql, $params + $contactparams, 0, $limitnum);
+
+        $contacts = helper::get_member_info($userid, array_keys($foundusers));
+        $orderedcontacs = array();
+        foreach ($foundusers as $key => $value) {
+            $contact = $contacts[$key];
+            $contact->conversations = self::get_conversations_between_users($userid, $key, 0, 0);
+            $orderedcontacs[] = $contact;
         }
 
         // Let's get those non-contacts. Toast them gears boi.
         // Note - you can only block contacts, so these users will not be blocked, so no need to get that
         // extra detail from the database.
-        $noncontacts = array();
-        $params = array('userid1' => $userid, 'userid2' => $userid, 'search' => '%' . $search . '%');
         if ($CFG->messagingallusers) {
             // In case $CFG->messagingallusers is enabled, search for all users site-wide but are not user's contact.
-            $sql = "SELECT $ufields, mub.id as isuserblocked
-                    FROM {user} u
-                    LEFT JOIN {message_users_blocked} mub
-                    ON (mub.userid = :userid2 AND mub.blockeduserid = u.id)
-                    WHERE u.deleted = 0
-                    AND u.confirmed = 1
-                    AND " . $DB->sql_like($fullname, ':search', false) . "
-                    AND u.id $exclude
-                    AND u.id NOT IN (SELECT contactid
-                                     FROM {message_contacts}
-                                     WHERE userid = :userid1)
-                    ORDER BY " . $DB->sql_fullname();
+            $sql = "SELECT u.id
+                  FROM {user} u
+                 WHERE u.deleted = 0
+                   AND u.confirmed = 1
+                   AND " . $DB->sql_like($fullname, ':search', false) . "
+                   AND u.id $noncontactusers
+                   AND u.id $exclude
+                ORDER BY " . $DB->sql_fullname();
         } else {
             // In case $CFG->messagingallusers is disabled, search for users you have a conversation with.
             // Messaging setting could change, so could exist an old conversation with users you cannot message anymore.
-            $sql = "SELECT $ufields, mub.id as isuserblocked
+            $sql = "SELECT u.id
                 FROM {user} u
-                INNER JOIN {message_conversation_members} cm ON u.id = cm.userid
-                INNER JOIN {message_conversation_members} cm2 ON cm.conversationid = cm2.conversationid and cm2.userid = :userid3
-                LEFT JOIN {message_users_blocked} mub
-                ON (mub.userid = :userid2 AND mub.blockeduserid = u.id)
+                INNER JOIN {message_conversation_members} cm 
+                ON u.id = cm.userid
+                INNER JOIN {message_conversation_members} cm2 
+                ON cm.conversationid = cm2.conversationid and cm2.userid = :userid
                 WHERE u.deleted = 0
                    AND u.confirmed = 1
                    AND " . $DB->sql_like($fullname, ':search', false) . "
                    AND u.id $exclude
-                   AND u.id NOT IN (SELECT contactid
-                                      FROM {message_contacts}
-                                     WHERE userid = :userid1)
+                   AND u.id $noncontactusers
                 ORDER BY " . $DB->sql_fullname();
-            $params['userid3'] = $userid;
+            $params['userid'] = $userid;
         }
-        if ($foundusers = $DB->get_records_sql($sql,  $params + $excludeparams,
-            0, $limitnum)) {
-            foreach ($foundusers as $founduser) {
-                $contact = helper::create_contact($founduser);
-                $contact->conversations = self::get_conversations_between_users($userid, $founduser->id, 0, $limitnum);
+        $foundusers = $DB->get_records_sql_menu($sql, $params + $noncontactparams, 0, $limitnum);
 
-                $noncontacts[] = $contact;
-            }
+        $noncontacts = helper::get_member_info($userid, array_keys($foundusers));
+        $orderednoncontacs = array();
+        foreach ($foundusers as $key => $value) {
+            $contact = $contacts[$key];
+            $contact->conversations = self::get_conversations_between_users($userid, $key, 0, 0);
+            $orderednoncontacs[] = $contact;
         }
 
-        return array($contacts, $noncontacts);
+        return array($orderedcontacs, $orderednoncontacs);
     }
 
     /**
@@ -518,11 +511,8 @@ class api {
      * @return array
      * @throws \dml_exception
      */
-    public static function get_conversations_between_users(
-        int $userid1,
-        int $userid2,
-        int $limitfrom = 0,
-        int $limitnum = 20) : array {
+    public static function get_conversations_between_users(int $userid1, int $userid2,
+                                                           int $limitfrom = 0, int $limitnum = 20) : array {
 
         global $DB;
 
@@ -538,8 +528,11 @@ class api {
                 ON mc.id = mcm1.conversationid
                 INNER JOIN {message_conversation_members} mcm2
                 ON mc.id = mcm2.conversationid
+                LEFT JOIN {message_conversation_area} mca
+                ON mca.convrersationid = mc.id
                 WHERE mcm1.userid = :userid1
                   AND mcm2.userid = :userid2
+                  AND mca.enabled != 0
                 ORDER BY mc.timecreated DESC";
 
         return $DB->get_records_sql($sql, array('userid1' => $userid1, 'userid2' => $userid2), $limitfrom, $limitnum);
@@ -574,14 +567,14 @@ class api {
     }
 
     /**
-     * Returns the contacts to display in the contacts area.
+     * Returns the user ids of contacts.
      *
      * @param int $userid The user id
      * @param int $limitfrom
      * @param int $limitnum
-     * @return array
+     * @return array Contact userids array
      */
-    public static function get_contacts($userid, $limitfrom = 0, $limitnum = 0) {
+    public static function get_user_contacts(int $userid, int $limitfrom = 0, int $limitnum = 0) : array {
         global $DB;
 
         $contactids = [];
@@ -598,6 +591,22 @@ class api {
                 }
             }
         }
+
+        return $contactids;
+    }
+
+    /**
+     * Returns the contacts to display in the contacts area.
+     *
+     * @param int $userid The user id
+     * @param int $limitfrom
+     * @param int $limitnum
+     * @return array
+     */
+    public static function get_contacts($userid, $limitfrom = 0, $limitnum = 0) {
+        global $DB;
+
+        $contactids = self::get_user_contacts($userid, $limitfrom, $limitnum);
 
         if (!empty($contactids)) {
             list($insql, $inparams) = $DB->get_in_or_equal($contactids);

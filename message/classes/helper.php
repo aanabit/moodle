@@ -313,9 +313,8 @@ class helper {
                 $data->messageid = $contact->messageid;
             }
         }
-        $data->showonlinestatus = self::show_online_status($userfields);
         $data->isonline = null;
-        if ($data->showonlinestatus) {
+        if (self::show_online_status($userfields)) {
             $data->isonline = self::is_online($userfields->lastaccess);
         }
         $data->isblocked = isset($contact->blocked) ? (bool) $contact->blocked : false;
@@ -487,8 +486,7 @@ class helper {
      * @throws \coding_exception
      * @throws \dml_exception
      */
-    public static function get_member_info(int $referenceuserid, array $userids) : array
-    {
+    public static function get_member_info(int $referenceuserid, array $userids) : array {
         global $DB, $PAGE;
 
         list($useridsql, $usersparams) = $DB->get_in_or_equal($userids);

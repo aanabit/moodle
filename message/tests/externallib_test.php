@@ -2277,10 +2277,10 @@ class core_message_externallib_testcase extends externallib_advanced_testcase {
 
         // Perform a search $CFG->messagingallusers setting enabled.
         set_config('messagingallusers', 1);
-        $result = core_message_external::data_for_messagearea_message_search_users($user1->id, 'search');
+        $result = core_message_external::message_search_users($user1->id, 'search');
 
         // We need to execute the return values cleaning process to simulate the web service server.
-        $result = external_api::clean_returnvalue(core_message_external::data_for_messagearea_message_search_users_returns(),
+        $result = external_api::clean_returnvalue(core_message_external::message_search_users_returns(),
             $result);
 
         // Confirm that we returns contacts and non-contacts.
@@ -2300,10 +2300,10 @@ class core_message_externallib_testcase extends externallib_advanced_testcase {
 
         // Perform a search $CFG->messagingallusers setting disabled.
         set_config('messagingallusers', 0);
-        $result = core_message_external::data_for_messagearea_message_search_users($user1->id, 'search');
+        $result = core_message_external::message_search_users($user1->id, 'search');
 
         // We need to execute the return values cleaning process to simulate the web service server.
-        $result = external_api::clean_returnvalue(core_message_external::data_for_messagearea_message_search_users_returns(),
+        $result = external_api::clean_returnvalue(core_message_external::message_search_users_returns(),
             $result);
 
         // Confirm that we returns contacts and non-contacts.
@@ -2381,10 +2381,10 @@ class core_message_externallib_testcase extends externallib_advanced_testcase {
 
         // Perform a search $CFG->messagingallusers setting enabled.
         set_config('messagingallusers', 1);
-        $result = core_message_external::data_for_messagearea_message_search_users($user1->id, 'search');
+        $result = core_message_external::message_search_users($user1->id, 'search');
 
         // We need to execute the return values cleaning process to simulate the web service server.
-        $result = external_api::clean_returnvalue(core_message_external::data_for_messagearea_message_search_users_returns(),
+        $result = external_api::clean_returnvalue(core_message_external::message_search_users_returns(),
             $result);
 
         // Confirm that we returns contacts and non-contacts.
@@ -2404,10 +2404,10 @@ class core_message_externallib_testcase extends externallib_advanced_testcase {
 
         // Perform a search $CFG->messagingallusers setting disabled.
         set_config('messagingallusers', 0);
-        $result = core_message_external::data_for_messagearea_message_search_users($user1->id, 'search');
+        $result = core_message_external::message_search_users($user1->id, 'search');
 
         // We need to execute the return values cleaning process to simulate the web service server.
-        $result = external_api::clean_returnvalue(core_message_external::data_for_messagearea_message_search_users_returns(),
+        $result = external_api::clean_returnvalue(core_message_external::message_search_users_returns(),
             $result);
 
         // Confirm that we returns contacts and non-contacts.
@@ -2440,7 +2440,7 @@ class core_message_externallib_testcase extends externallib_advanced_testcase {
 
         // Ensure an exception is thrown.
         $this->expectException('moodle_exception');
-        core_message_external::data_for_messagearea_message_search_users($user2->id, 'User');
+        core_message_external::message_search_users($user2->id, 'User');
         $this->assertDebuggingCalled();
     }
 
@@ -2497,10 +2497,10 @@ class core_message_externallib_testcase extends externallib_advanced_testcase {
 
         // Perform a search $CFG->messagingallusers setting enabled.
         set_config('messagingallusers', 1);
-        $result = core_message_external::data_for_messagearea_message_search_users($user1->id, 'search');
+        $result = core_message_external::message_search_users($user1->id, 'search');
 
         // We need to execute the return values cleaning process to simulate the web service server.
-        $result = external_api::clean_returnvalue(core_message_external::data_for_messagearea_message_search_users_returns(),
+        $result = external_api::clean_returnvalue(core_message_external::message_search_users_returns(),
             $result);
 
         // Confirm that we returns contacts and non-contacts.
@@ -2540,7 +2540,7 @@ class core_message_externallib_testcase extends externallib_advanced_testcase {
 
         // Ensure an exception is thrown.
         $this->expectException('moodle_exception');
-        core_message_external::data_for_messagearea_message_search_users($user->id, 'User');
+        core_message_external::message_search_users($user->id, 'User');
         $this->assertDebuggingCalled();
     }
 

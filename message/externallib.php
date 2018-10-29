@@ -1135,7 +1135,7 @@ class core_message_external extends external_api {
      * @return external_function_parameters
      * @since 3.6
      */
-    public static function data_for_messagearea_message_search_users_parameters() {
+    public static function message_search_users_parameters() {
         return new external_function_parameters(
             array(
                 'userid' => new external_value(PARAM_INT, 'The id of the user who is performing the search'),
@@ -1155,7 +1155,7 @@ class core_message_external extends external_api {
      * @throws moodle_exception
      * @since 3.6
      */
-    public static function data_for_messagearea_message_search_users($userid, $search, $limitnum = 0) {
+    public static function message_search_users($userid, $search, $limitnum = 0) {
         global $CFG, $PAGE, $USER;
 
         // Check if messaging is enabled.
@@ -1170,7 +1170,7 @@ class core_message_external extends external_api {
             'search' => $search,
             'limitnum' => $limitnum
         );
-        self::validate_parameters(self::data_for_messagearea_message_search_users_parameters(), $params);
+        self::validate_parameters(self::message_search_users_parameters(), $params);
         self::validate_context($systemcontext);
 
         if (($USER->id != $userid) && !has_capability('moodle/site:readallmessages', $systemcontext)) {
@@ -1190,7 +1190,7 @@ class core_message_external extends external_api {
      * @return external_single_structure
      * @since 3.2
      */
-    public static function data_for_messagearea_message_search_users_returns() {
+    public static function message_search_users_returns() {
         return new external_single_structure(
             array(
                 'contacts' => new external_multiple_structure(
