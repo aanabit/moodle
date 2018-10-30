@@ -266,8 +266,8 @@ class core_message_api_testcase extends core_message_messagelib_testcase {
 
         // Check that we retrieved the correct contacts.
         $this->assertEquals(2, count($contacts));
-        $this->assertEquals($user3->id, $contacts[0]->id);
-        $this->assertEquals($user2->id, $contacts[1]->id);
+        $this->assertEquals($user3->id, $contacts[0]->userid);
+        $this->assertEquals($user2->id, $contacts[1]->userid);
 
         // Check that we retrieved the correct courses.
         $this->assertEquals(2, count($courses));
@@ -276,7 +276,7 @@ class core_message_api_testcase extends core_message_messagelib_testcase {
 
         // Check that we retrieved the correct non-contacts.
         $this->assertEquals(1, count($noncontacts));
-        $this->assertEquals($user5->id, $noncontacts[0]->id);
+        $this->assertEquals($user5->id, $noncontacts[0]->userid);
     }
 
     /**
@@ -312,7 +312,7 @@ class core_message_api_testcase extends core_message_messagelib_testcase {
     /**
      * Tests searching users.
      */
-    public function test_message_search_users() {
+    public function test_messagearea_search_users() {
         // Create some users.
         $user1 = new stdClass();
         $user1->firstname = 'User search';
@@ -367,7 +367,7 @@ class core_message_api_testcase extends core_message_messagelib_testcase {
 
         // Perform a search $CFG->messagingallusers setting enabled.
         set_config('messagingallusers', 1);
-        list($contacts, $noncontacts) = \core_message\api::message_search_users($user1->id, 'search');
+        list($contacts, $noncontacts) = \core_message\api::messagearea_search_users($user1->id, 'search');
 
         // Check that we retrieved the correct contacts.
         $this->assertCount(2, $contacts);
@@ -382,7 +382,7 @@ class core_message_api_testcase extends core_message_messagelib_testcase {
 
         // Perform a search $CFG->messagingallusers setting disabled.
         set_config('messagingallusers', 0);
-        list($contacts, $noncontacts) = \core_message\api::message_search_users($user1->id, 'search');
+        list($contacts, $noncontacts) = \core_message\api::messagearea_search_users($user1->id, 'search');
 
         // Check that we retrieved the correct contacts.
         $this->assertCount(2, $contacts);
@@ -455,7 +455,7 @@ class core_message_api_testcase extends core_message_messagelib_testcase {
     /**
      * Tests searching users with and without conversations.
      */
-    public function test_message_search_users_with_and_without_conversations() {
+    public function test_messagearea_search_users_with_and_without_conversations() {
         // Create some users.
         $user1 = new stdClass();
         $user1->firstname = 'User search';
@@ -503,9 +503,7 @@ class core_message_api_testcase extends core_message_messagelib_testcase {
 
         // Perform a search $CFG->messagingallusers setting enabled.
         set_config('messagingallusers', 1);
-        list($contacts, $noncontacts) = \core_message\api::message_search_users($user1->id, 'search');
-
-        var_dump($contacts);
+        list($contacts, $noncontacts) = \core_message\api::messagearea_search_users($user1->id, 'search');
 
         // Check that we retrieved the correct contacts.
         $this->assertCount(1, $contacts);
@@ -526,7 +524,7 @@ class core_message_api_testcase extends core_message_messagelib_testcase {
     /**
      * Tests searching users with empty result.
      */
-    public function test_message_search_users_with_empty_result() {
+    public function test_messagearea_search_users_with_empty_result() {
 
         // Create some users.
         $user1 = new stdClass();
@@ -544,7 +542,7 @@ class core_message_api_testcase extends core_message_messagelib_testcase {
 
         // Perform a search $CFG->messagingallusers setting enabled.
         set_config('messagingallusers', 1);
-        list($contacts, $noncontacts) = \core_message\api::message_search_users($user1->id, 'search');
+        list($contacts, $noncontacts) = \core_message\api::messagearea_search_users($user1->id, 'search');
 
         // Check results are empty.
         $this->assertEquals(0, count($contacts));

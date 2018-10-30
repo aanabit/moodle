@@ -1198,7 +1198,7 @@ class core_message_external extends external_api {
             throw new moodle_exception('You do not have permission to perform this action.');
         }
 
-        list($contacts, $noncontacts) = \core_message\api::message_search_users($userid, $search, $limitnum);
+        list($contacts, $noncontacts) = \core_message\api::messagearea_search_users($userid, $search, $limitnum);
         return array('contacts' => $contacts, 'noncontacts' => $noncontacts);
     }
 

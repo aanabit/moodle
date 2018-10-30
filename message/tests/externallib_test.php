@@ -1821,7 +1821,7 @@ class core_message_externallib_testcase extends externallib_advanced_testcase {
     /**
      * Tests searching users in a course.
      */
-    public function test_messagearea_search_users_in_course() {
+    public function test_data_for_messagearea_search_users_in_course() {
         $this->resetAfterTest(true);
 
         // Create some users.
@@ -1886,7 +1886,7 @@ class core_message_externallib_testcase extends externallib_advanced_testcase {
     /**
      * Tests searching users in course as another user.
      */
-    public function test_messagearea_search_users_in_course_as_other_user() {
+    public function test_data_for_messagearea_search_users_in_course_as_other_user() {
         $this->resetAfterTest(true);
 
         // The person doing the search for another user.
@@ -1946,7 +1946,7 @@ class core_message_externallib_testcase extends externallib_advanced_testcase {
     /**
      * Tests searching users in course as another user without the proper capabilities.
      */
-    public function test_messagearea_search_users_in_course_as_other_user_without_cap() {
+    public function test_data_for_messagearea_search_users_in_course_as_other_user_without_cap() {
         $this->resetAfterTest(true);
 
         // Create some users.
@@ -1968,7 +1968,7 @@ class core_message_externallib_testcase extends externallib_advanced_testcase {
     /**
      * Tests searching users in course with messaging disabled.
      */
-    public function test_messagearea_search_users_in_course_messaging_disabled() {
+    public function test_data_for_messagearea_search_users_in_course_messaging_disabled() {
         global $CFG;
 
         $this->resetAfterTest(true);
@@ -2091,7 +2091,7 @@ class core_message_externallib_testcase extends externallib_advanced_testcase {
     /**
      * Tests searching users as another user.
      */
-    public function test_messagearea_search_users_as_other_user() {
+    public function test_data_for_messagearea_search_users_as_other_user() {
         $this->resetAfterTest(true);
 
         // The person doing the search.
@@ -2179,7 +2179,7 @@ class core_message_externallib_testcase extends externallib_advanced_testcase {
     /**
      * Tests searching users as another user without the proper capabilities.
      */
-    public function test_messagearea_search_users_as_other_user_without_cap() {
+    public function test_data_for_messagearea_search_users_as_other_user_without_cap() {
         $this->resetAfterTest(true);
 
         // Create some users.
@@ -2198,7 +2198,7 @@ class core_message_externallib_testcase extends externallib_advanced_testcase {
     /**
      * Tests searching users with messaging disabled.
      */
-    public function test_messagearea_search_users_messaging_disabled() {
+    public function test_data_for_messagearea_search_users_messaging_disabled() {
         global $CFG;
 
         $this->resetAfterTest(true);
@@ -2324,7 +2324,7 @@ class core_message_externallib_testcase extends externallib_advanced_testcase {
     /**
      * Tests searching users as another user.
      */
-    public function test_message_search_users_as_other_user() {
+    public function test_messagearea_search_users_as_other_user() {
         $this->resetAfterTest(true);
 
         // The person doing the search.
@@ -2428,7 +2428,7 @@ class core_message_externallib_testcase extends externallib_advanced_testcase {
     /**
      * Tests searching users as another user without the proper capabilities.
      */
-    public function test_message_search_users_as_other_user_without_cap() {
+    public function test_messagearea_search_users_as_other_user_without_cap() {
         $this->resetAfterTest(true);
 
         // Create some users.
@@ -2447,7 +2447,7 @@ class core_message_externallib_testcase extends externallib_advanced_testcase {
     /**
      * Tests searching users with and without conversations.
      */
-    public function test_message_search_users_with_and_without_conversations() {
+    public function test_messagearea_search_users_with_and_without_conversations() {
         $this->resetAfterTest(true);
 
         // Create some users.
@@ -2526,7 +2526,7 @@ class core_message_externallib_testcase extends externallib_advanced_testcase {
     /**
      * Tests searching users with messaging disabled.
      */
-    public function test_message_search_users_messaging_disabled() {
+    public function test_messagearea_search_users_messaging_disabled() {
         $this->resetAfterTest(true);
 
         // Create some skeleton data just so we can call the WS.
