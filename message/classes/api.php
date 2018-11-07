@@ -166,8 +166,6 @@ class api {
     public static function search_users_in_course($userid, $courseid, $search, $limitfrom = 0, $limitnum = 0) {
         global $DB;
 
-        debugging('\core_message\api::search_users_in_course is deprecated', DEBUG_DEVELOPER);
-
         // Get all the users in the course.
         list($esql, $params) = get_enrolled_sql(\context_course::instance($courseid), '', 0, true);
         $sql = "SELECT u.*, mub.id as isblocked

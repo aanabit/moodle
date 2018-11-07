@@ -36,7 +36,8 @@ information provided here is intended especially for developers.
   - \core_message\helper::get_messages()
   - \core_message\helper::create_messages()
   - \core_message\api::search_users()
-  - \core_message\api::search_users_in_course()
+  - \core_message\api::search_users_in_course() would be removed once new group messaging UI is in place and old
+    messaging UI is removed. We are not deprecating this function for backwards compatibility with messaging UI.
 * The method \core_message\api::can_delete_conversation() now expects a 'conversationid' to be passed
   as the second parameter.
 * The following web services have been deprecated. Please do not call these any more.
