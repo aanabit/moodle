@@ -18,7 +18,7 @@ Feature: View cohort list
       | Cohort in category 1 | CH1      | Category     | CAT1      |
       | Cohort in category 2 | CH2      | Category     | CAT2      |
       | Cohort in category 3 | CH3      | Category     | CAT3      |
-    Given the following "users" exist:
+    And the following "users" exist:
       | username | firstname | lastname | email           |
       | user1    | First     | User     | first@example.com  |
       | user2    | Second    | User     | second@example.com |
@@ -26,6 +26,10 @@ Feature: View cohort list
       | user  | role    | contextlevel | reference |
       | user1 | manager | System       |           |
       | user2 | manager | Category     | CAT1      |
+    And the following "courses" exist:
+      | fullname | shortname | category |
+      | Course 1 | C1        | CAT1     |
+      | Course 2 | C2        | 0        |
 
   Scenario: Admin can see system cohorts and all cohorts
     When I log in as "admin"
@@ -62,3 +66,31 @@ Feature: View cohort list
     And I should not see "Cohort in category 2"
     And I should not see "Cohort in category 3"
     And I log out
+
+  @javascript
+  Scenario: Admin can see cohorts enrolment instances
+    When I log in as "admin"
+    And I am on "Course 1" course homepage
+    And I add "Cohort sync" enrolment method with:
+      | Cohort | System cohort |
+    And I am on "Course 1" course homepage
+    And I add "Cohort sync" enrolment method with:
+      | Cohort | Cohort in category 1 |
+    And I am on "Course 2" course homepage
+    And I add "Cohort sync" enrolment method with:
+      | Cohort | System cohort |
+    And I am on site homepage
+    And I navigate to "Users > Accounts >Cohorts" in site administration
+    And I should see "System cohort"
+    And I should not see "Cohort in category 1"
+    And I click on "Information" "link" in the "System cohort" "table_row"
+    And I should see "Course 1"
+    And I should see "Course 2"
+    And I follow "Back to cohorts"
+    And I follow "All cohorts"
+    And I should see "Cohort in category 1"
+    And I click on "Information" "link" in the "Cohort in category 1" "table_row"
+    And I should see "Course 1"
+    And I should not see "Course 2"
+    And I log out
+

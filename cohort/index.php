@@ -172,6 +172,9 @@ foreach($cohorts['cohorts'] as $cohort) {
             $buttons[] = html_writer::link(new moodle_url('/cohort/edit.php', $urlparams),
                 $OUTPUT->pix_icon('t/edit', get_string('edit')),
                 array('title' => get_string('edit')));
+            $buttons[] = html_writer::link(new moodle_url('/cohort/instances.php', $urlparams),
+                $OUTPUT->pix_icon('i/info', get_string('info')),
+                array('title' => get_string('info')));
             $editcolumnisempty = false;
         }
         if ($cohortcanassign) {

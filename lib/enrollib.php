@@ -1678,6 +1678,20 @@ function enrol_get_course_users($courseid = false, $onlyactive = false, $usersfi
 }
 
 /**
+ * Implements callback inplace_editable() allowing to edit values in-place
+ *
+ * @param string $itemtype
+ * @param int $itemid
+ * @param mixed $newvalue
+ * @return \core\output\inplace_editable
+ */
+function core_enrol_inplace_editable($itemtype, $itemid, $newvalue) {
+    if ($itemtype === 'instancename') {
+        return \core_enrol\output\instancename::update($itemid, $newvalue);
+    }
+}
+
+/**
  * Enrolment plugins abstract class.
  *
  * All enrol plugins should be based on this class,

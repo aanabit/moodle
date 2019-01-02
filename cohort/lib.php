@@ -488,6 +488,34 @@ function cohort_get_all_cohorts($page = 0, $perpage = 25, $search = '') {
     return array('totalcohorts' => $totalcohorts, 'cohorts' => $cohorts, 'allcohorts' => $allcohorts);
 }
 
+
+/**
+ * Get all instances where cohort is used as enrolment method.
+ *
+ * @param int $cohortid ID of current cohort
+ * @param int $page number of the current page
+ * @param int $perpage items per page
+ * @return array    array(totalinstances => int, instances => array)
+ */
+function cohort_get_enrolment_instances($cohortid, $page = 0, $perpage = 25) {
+    global $DB;
+
+    $fields = "SELECT e.*, c.fullname, r.shortname as rolename, g.name as groupname";
+    $countfields = "SELECT COUNT(DISTINCT e.id)";
+    $sql = " FROM {enrol} e
+             JOIN {course} c ON c.id = e.courseid
+             LEFT JOIN {role} r ON r.id = e.roleid
+             LEFT JOIN {groups} g ON g.id = e.customint2
+             WHERE enrol = 'cohort' AND customint1 = :cohortid";
+    $order = " ORDER BY e.name, c.fullname ASC";
+    $params = array('cohortid' => $cohortid);
+
+    $totalinstances = $DB->count_records_sql($countfields . $sql, $params);
+    $instances = $DB->get_records_sql($fields . $sql . $order, $params, $page * $perpage, $perpage);
+
+    return array('totalinstances' => $totalinstances, 'instances' => $instances);
+}
+
 /**
  * Get all the cohorts where the given user is member of.
  *
