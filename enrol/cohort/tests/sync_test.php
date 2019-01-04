@@ -746,4 +746,94 @@ class sync_test extends \advanced_testcase {
         $this->assertTrue(groups_is_member($group1->id, $user4->id));
         $this->assertTrue(groups_is_member($group2->id, $user4->id));
     }
+
+    /**
+     * Test enrolment period and dates are used to enrol cohort members.
+     */
+    public function test_cohort_enrolment_dates() {
+        global $DB;
+        $this->resetAfterTest();
+
+        $trace = new null_progress_trace();
+        $time = time();
+
+        // Setup a few courses.
+        $cohortplugin = enrol_get_plugin('cohort');
+
+        $studentrole = $DB->get_record('role', ['shortname' => 'student']);
+        $this->assertNotEmpty($studentrole);
+
+        $course1 = $this->getDataGenerator()->create_course();
+
+        $user1 = $this->getDataGenerator()->create_user();
+        $user2 = $this->getDataGenerator()->create_user();
+        $user3 = $this->getDataGenerator()->create_user();
+        $user4 = $this->getDataGenerator()->create_user();
+        $user5 = $this->getDataGenerator()->create_user();
+        $user6 = $this->getDataGenerator()->create_user();
+
+        $cohort1 = $this->getDataGenerator()->create_cohort();
+        $cohort2 = $this->getDataGenerator()->create_cohort();
+        $cohort3 = $this->getDataGenerator()->create_cohort();
+        $cohort4 = $this->getDataGenerator()->create_cohort();
+        $cohort5 = $this->getDataGenerator()->create_cohort();
+        $cohort6 = $this->getDataGenerator()->create_cohort();
+
+        $cohortplugin->add_instance($course1, ['customint1' => $cohort1->id,
+                'roleid' => $studentrole->id,
+                'enrolperiod' => 864000]
+        );
+        $cohortplugin->add_instance($course1, ['customint1' => $cohort2->id,
+                'roleid' => $studentrole->id,
+                'enrolstartdate' => $time,
+                'enrolenddate' => $time + 864000]
+        );
+        $cohortplugin->add_instance($course1, ['customint1' => $cohort3->id,
+                'roleid' => $studentrole->id,
+                'enrolstartdate' => $time]
+        );
+
+        $cohortplugin->add_instance($course1, ['customint1' => $cohort4->id,
+                'roleid' => $studentrole->id,
+                'enrolstartdate' => $time + 864000]
+        );
+
+        $cohortplugin->add_instance($course1, ['customint1' => $cohort5->id,
+                'roleid' => $studentrole->id,
+                'enrolenddate' => $time - 864000]
+        );
+
+        $cohortplugin->add_instance($course1, ['customint1' => $cohort6->id,
+                'roleid' => $studentrole->id,
+                'enrolenddate' => $time + 864000]
+        );
+
+        cohort_add_member($cohort1->id, $user1->id);
+        cohort_add_member($cohort2->id, $user2->id);
+        cohort_add_member($cohort3->id, $user3->id);
+        cohort_add_member($cohort4->id, $user4->id);
+        cohort_add_member($cohort5->id, $user5->id);
+        cohort_add_member($cohort6->id, $user6->id);
+
+        // Test sync.
+        enrol_cohort_sync($trace, $course1->id);
+
+        // All users should be enrolled, active or inactive.
+        $this->assertTrue(is_enrolled(context_course::instance($course1->id), $user1));
+        $this->assertTrue(is_enrolled(context_course::instance($course1->id), $user2));
+        $this->assertTrue(is_enrolled(context_course::instance($course1->id), $user3));
+        $this->assertTrue(is_enrolled(context_course::instance($course1->id), $user4));
+        $this->assertTrue(is_enrolled(context_course::instance($course1->id), $user5));
+        $this->assertTrue(is_enrolled(context_course::instance($course1->id), $user6));
+
+        // Some users should be enrolled and active.
+        $this->assertTrue(is_enrolled(context_course::instance($course1->id), $user1, '', true));
+        $this->assertTrue(is_enrolled(context_course::instance($course1->id), $user2, '', true));
+        $this->assertTrue(is_enrolled(context_course::instance($course1->id), $user3, '', true));
+        $this->assertTrue(is_enrolled(context_course::instance($course1->id), $user6, '', true));
+
+        // Some users should be enrolled and inactive.
+        $this->assertFalse(is_enrolled(context_course::instance($course1->id), $user4, '', true));
+        $this->assertFalse(is_enrolled(context_course::instance($course1->id), $user5, '', true));
+    }
 }

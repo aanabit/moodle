@@ -426,6 +426,7 @@ class enrol_cohort_plugin extends enrol_plugin {
      * @return bool
      */
     public function edit_instance_form($instance, MoodleQuickForm $mform, $coursecontext) {
+        global $DB;
 
         $options = $this->get_status_options();
         $mform->addElement('select', 'status', get_string('status', 'enrol_cohort'), $options);
@@ -445,6 +446,30 @@ class enrol_cohort_plugin extends enrol_plugin {
         $mform->setDefault('roleid', $this->get_config('roleid'));
         $groups = $this->get_group_options($coursecontext);
         $mform->addElement('select', 'customint2', get_string('addgroup', 'enrol_cohort'), $groups);
+
+        // Build the list of options for the starting from dropdown.
+        $now = time();
+        $today = make_timestamp(date('Y', $now), date('m', $now), date('d', $now), 0, 0, 0);
+        $dateformat = get_string('strftimedatefullshort');
+        // Enrolment start.
+        $basemenu = array();
+        $course = $DB->get_record('course', ['id' => $coursecontext->instanceid]);
+        if ($course->startdate > 0) {
+            $basemenu[$course->startdate] = get_string('coursestart') . ' (' . userdate($course->startdate, $dateformat) . ')';
+        }
+        $basemenu[$today] = get_string('now', 'enrol_cohort');
+
+        $periodmenu = enrol_get_period_list();
+        $defaultperiod = get_config('enrol_cohort', 'enrolperiod');
+
+        $mform->addElement('select', 'enrolstartdate', get_string('startingfrom'), $basemenu);
+        $mform->setDefault('enrolstartdate', $today);
+        $mform->addElement('select', 'enrolperiod', get_string('enrolperiod', 'enrol'), $periodmenu);
+        if ($defaultperiod > 0) {
+            $mform->setDefault('enrolperiod', $defaultperiod);
+        }
+        $mform->disabledIf('enrolperiod', 'enrolenddate[enabled]', 'checked', 1);
+        $mform->addElement('date_time_selector', 'enrolenddate', get_string('enroltimeend', 'enrol'), ['optional' => true]);
     }
 
     /**
@@ -473,6 +498,11 @@ class enrol_cohort_plugin extends enrol_plugin {
         if ($DB->record_exists_select('enrol', $sql, $params)) {
             $errors['customint1'] = get_string('instanceexists', 'enrol_cohort');
         }
+
+        if (!empty($data['enrolenddate']) && $data['enrolenddate'] < $data['enrolstartdate']) {
+            $errors['enrolenddate'] = get_string('enrolenddateerror', 'enrol_cohort');
+        }
+
         $validstatus = array_keys($this->get_status_options());
         $validcohorts = array_keys($this->get_cohort_options($instance, $context));
         $validroles = array_keys($this->get_role_options($instance, $context));

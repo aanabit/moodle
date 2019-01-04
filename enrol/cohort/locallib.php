@@ -70,8 +70,21 @@ class enrol_cohort_handler {
                 $instance->roleid = 0;
             }
             unset($instance->roleexists);
+            $enrolstartdate = $instance->enrolstartdate;
+            $enrolenddate = $instance->enrolenddate;
+            if ($instance->enrolperiod) {
+                $enrolenddate = $enrolstartdate + $instance->enrolperiod;
+            }
+
             // No problem if already enrolled.
-            $plugin->enrol_user($instance, $event->relateduserid, $instance->roleid, 0, 0, ENROL_USER_ACTIVE);
+            $plugin->enrol_user(
+                $instance,
+                $event->relateduserid,
+                $instance->roleid,
+                $enrolstartdate,
+                $enrolenddate,
+                ENROL_USER_ACTIVE
+            );
 
             // Sync groups.
             if ($instance->customint2) {
@@ -190,7 +203,7 @@ function enrol_cohort_sync(progress_trace $trace, $courseid = NULL) {
 
     // Iterate through all not enrolled yet users.
     $onecourse = $courseid ? "AND e.courseid = :courseid" : "";
-    $sql = "SELECT cm.userid, e.id AS enrolid, ue.status
+    $sql = "SELECT cm.userid, e.id AS enrolid, e.enrolperiod, e.enrolstartdate, e.enrolenddate, ue.status
               FROM {cohort_members} cm
               JOIN {enrol} e ON (e.customint1 = cm.cohortid AND e.enrol = 'cohort' AND e.status = :enrolstatus $onecourse)
               JOIN {user} u ON (u.id = cm.userid AND u.deleted = 0)
@@ -205,12 +218,18 @@ function enrol_cohort_sync(progress_trace $trace, $courseid = NULL) {
         if (!isset($instances[$ue->enrolid])) {
             $instances[$ue->enrolid] = $DB->get_record('enrol', array('id'=>$ue->enrolid));
         }
+        $enrolstartdate = $ue->enrolstartdate;
+        $enrolenddate = $ue->enrolenddate;
+        if ($ue->enrolperiod) {
+            $enrolenddate = $enrolstartdate + $ue->enrolperiod;
+        }
+
         $instance = $instances[$ue->enrolid];
         if ($ue->status == ENROL_USER_SUSPENDED) {
-            $plugin->update_user_enrol($instance, $ue->userid, ENROL_USER_ACTIVE);
+            $plugin->update_user_enrol($instance, $ue->userid, ENROL_USER_ACTIVE, $enrolstartdate, $enrolenddate);
             $trace->output("unsuspending: $ue->userid ==> $instance->courseid via cohort $instance->customint1", 1);
         } else {
-            $plugin->enrol_user($instance, $ue->userid);
+            $plugin->enrol_user($instance, $ue->userid, null, $enrolstartdate, $enrolenddate);
             $trace->output("enrolling: $ue->userid ==> $instance->courseid via cohort $instance->customint1", 1);
         }
     }
