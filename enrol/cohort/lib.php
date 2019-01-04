@@ -439,6 +439,46 @@ class enrol_cohort_plugin extends enrol_plugin {
         $mform->setDefault('roleid', $this->get_config('roleid'));
         $groups = $this->get_group_options($coursecontext);
         $mform->addElement('select', 'customint2', get_string('addgroup', 'enrol_cohort'), $groups);
+
+        if (!$instance->id || $instance->enrolperiod > 0) {
+            $options = array('optional' => true, 'defaultunit' => 86400);
+
+            $mform->addElement('duration', 'enrolperiod', get_string('enrolperiod', 'enrol_self'), $options);
+            $enrolperiod = get_config('enrol_cohort', 'enrolperiod');
+            if ($enrolperiod > 0) {
+                $mform->setDefault('enrolperiod', $enrolperiod);
+            }
+            $mform->addHelpButton('enrolperiod', 'enrolperiod', 'enrol_self');
+            $mform->disabledIf('enrolperiod', 'enrolenddate[enabled]', 'checked');
+            $mform->disabledIf('enrolperiod', 'enrolstartdate[enabled]', 'checked');
+
+            if ($instance->id) {
+                // We don't let user change enrolment dates once enrolment method is created.
+                $mform->hardFreeze('enrolperiod', $instance->enrolperiod);
+            }
+        }
+
+        $options = array('optional' => true);
+        if (!$instance->id || $instance->enrolstartdate > 0) {
+            $mform->addElement('date_time_selector', 'enrolstartdate', get_string('enrolstartdate', 'enrol_self'), $options);
+            $mform->setDefault('enrolstartdate', 0);
+            $mform->addHelpButton('enrolstartdate', 'enrolstartdate', 'enrol_self');
+            $mform->disabledIf('enrolstartdate', 'enrolperiod[enabled]', 'checked');
+            if ($instance->id) {
+                // We don't let user change enrolment dates once enrolment method is created.
+                $mform->hardFreeze('enrolstartdate', $instance->enrolstartdate);
+            }
+        }
+        if (!$instance->id || $instance->enrolenddate > 0) {
+            $mform->addElement('date_time_selector', 'enrolenddate', get_string('enrolenddate', 'enrol_self'), $options);
+            $mform->setDefault('enrolenddate', 0);
+            $mform->addHelpButton('enrolenddate', 'enrolenddate', 'enrol_self');
+            $mform->disabledIf('enrolenddate', 'enrolperiod[enabled]', 'checked');
+            if ($instance->id) {
+                // We don't let user change enrolment dates once enrolment method is created.
+                $mform->hardFreeze('enrolenddate', $instance->enrolenddate);
+            }
+        }
     }
 
     /**
@@ -466,6 +506,11 @@ class enrol_cohort_plugin extends enrol_plugin {
         if ($DB->record_exists_select('enrol', $sql, $params)) {
             $errors['roleid'] = get_string('instanceexists', 'enrol_cohort');
         }
+
+        if (!empty($data['enrolenddate']) and $data['enrolenddate'] < $data['enrolstartdate']) {
+            $errors['enrolenddate'] = get_string('enrolenddaterror', 'enrol_cohort');
+        }
+
         $validstatus = array_keys($this->get_status_options());
         $validcohorts = array_keys($this->get_cohort_options($instance, $context));
         $validroles = array_keys($this->get_role_options($instance, $context));
