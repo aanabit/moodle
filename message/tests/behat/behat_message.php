@@ -37,6 +37,21 @@ require_once(__DIR__ . '/../../../lib/behat/behat_base.php');
  */
 class behat_message extends behat_base {
 
+
+    /**
+     * Open the messaging UI.
+     *
+     * @Given /^I open messaging$/
+     */
+    public function i_open_messaging() {
+
+        // Visit home page and follow messages.
+        $this->execute("behat_general::i_am_on_homepage");
+        $this->execute("behat_general::i_click_on", [get_string('togglemessagemenu', 'core_message'), 'link']);
+        $this->execute('behat_general::i_wait_seconds', 1);
+    }
+
+
     /**
      * View the contact information of a user in the messages ui.
      *
@@ -68,10 +83,7 @@ class behat_message extends behat_base {
      */
     public function i_select_user_in_messaging($userfullname) {
 
-        // Visit home page and follow messages.
-        $this->execute("behat_general::i_am_on_homepage");
-
-        $this->execute("behat_general::i_click_on", [get_string('togglemessagemenu', 'core_message'), 'link']);
+        $this->i_open_messaging();
 
         $this->execute('behat_general::i_click_on', [get_string('search', 'core'), 'field']);
 
@@ -140,4 +152,77 @@ class behat_message extends behat_base {
 
         $this->execute("behat_forms::press_button", get_string('send', 'message'));
     }
+
+    /**
+     * Navigate back in the messages ui drawer.
+     *
+     * @Given /^I go back in "(?P<parent_element_string>(?:[^"]|\\")*)" message drawer$/
+     * @param string $parentelement
+     */
+    public function i_go_back_in_message_drawer($parentelement) {
+        $this->execute('behat_general::i_click_on_in_the',
+            array(
+                'a[data-route-back]',
+                'css_element',
+                '[data-region="'.$this->escape($parentelement).'"]',
+                'css_element',
+            )
+        );
+    }
+
+    /**
+     * This function finds the button node and its parent node with the given text from within messaging drawer.
+     * It checks to make sure the nodes are visible, and then returns them.
+     *
+     * @param string $buttontext
+     * @param string $parentregion
+     * @return \Behat\Mink\Element\NodeElement array
+     */
+    protected function get_text_nodes($buttontext, $parentregion) {
+        $xpath = "//*[@id='message-drawer-view-overview-container']//div[@data-region='" . $parentregion . "']";
+        $parent = $this->find('xpath', $xpath);
+        $this->ensure_node_is_visible($parent);
+
+        $xpath .= "//button[contains(.,'" . $buttontext . "')]";
+        $button = $this->find('xpath', $xpath);
+        $this->ensure_node_is_visible($button);
+
+        return array('parent' => $parent, 'button' => $button);
+    }
+
+    /**
+     * Expands the selected conversation group of the message drawer matches the text.
+     * @Given /^I expand "(?P<grouptext_string>(?:[^"]|\\")*)" group in "(?P<parenttext_string>(?:[^"]|\\")*)"$/
+     *
+     * @param string $buttontext
+     * @param string $parentregion
+     * @return void
+     */
+    public function i_expand_conversation_group_in($buttontext, $parentregion) {
+
+        $this->execute('behat_general::i_wait_seconds', 1);
+        $nodes = $this->get_text_nodes($buttontext, $parentregion);
+        if ($nodes['button'] && $nodes['button']->hasClass('collapsed')) {
+            $nodes['parent']->click();
+            $this->execute('behat_general::i_wait_seconds', 1);
+        }
+    }
+
+    /**
+     * Select a user in the messaging UI.
+     *
+     * @Given /^I select "(?P<conversation_name_string>(?:[^"]|\\")*)" conversation in messaging$/
+     * @param string $conversationname
+     */
+    public function i_select_conversation_in_messaging($conversationname) {
+
+        $this->execute('behat_general::i_wait_seconds', 1);
+        $xpath = "//*[@id='message-drawer-view-overview-container']//div[@class='d-flex']//strong[text()='"
+            .$this->escape($conversationname)."']";
+        $node = $this->find('xpath', $xpath);
+        $this->ensure_node_is_visible($node);
+        $node->click();
+        $this->execute('behat_general::wait_until_the_page_is_ready');
+    }
+
 }
