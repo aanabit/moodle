@@ -24,57 +24,50 @@ Feature: Create conversations for course's groups
       | student2 | C1     | student |
       | student3 | C1     | student |
       | student4 | C1     | student |
-    And I log in as "teacher1"
-    And I am on "Course 1" course homepage
-    And I navigate to "Users > Groups" in current page administration
-    And I press "Create group"
-    And I set the following fields to these values:
-      | Group name      | Big Group |
-      | Group messaging | 1         |
-    And I press "Save changes"
-    And I press "Create group"
-    And I set the following fields to these values:
-      | Group name      | Small Group |
-      | Group messaging | 1           |
-    And I press "Save changes"
-    And I press "Create group"
-    And I set the following fields to these values:
-      | Group name      | Quiet Group |
-      | Group messaging | 0           |
-    And I press "Save changes"
-    And I add "Teacher 1 (teacher1@example.com)" user to "Big Group" group members
-    And I add "Student 0 (student0@example.com)" user to "Big Group" group members
-    And I add "Student 1 (student1@example.com)" user to "Big Group" group members
-    And I add "Student 2 (student2@example.com)" user to "Big Group" group members
-    And I add "Student 3 (student3@example.com)" user to "Big Group" group members
-    And I add "Teacher 1 (teacher1@example.com)" user to "Small Group" group members
-    And I add "Teacher 1 (teacher1@example.com)" user to "Quiet Group" group members
-    And I add "Student 0 (student0@example.com)" user to "Quiet Group" group members
+    And the following "groups" exist:
+      | name        | course | idnumber | enablemessaging |
+      | Group 1   | C1     | G1       | 1               |
+      | Group 2 | C1     | G2       | 1               |
+      | Group 3 | C1     | G3       | 0               |
+    And the following "group members" exist:
+      | user     | group |
+      | teacher1 | G1 |
+      | student0 | G1 |
+      | student1 | G1 |
+      | student2 | G1 |
+      | student3 | G1 |
+      | teacher1 | G2 |
+      | teacher1 | G3 |
+      | student0 | G3 |
 
-  Scenario: View only your groups' conversations
-    Given I open messaging
-    Then I should see "Big Group" in the "[data-region='view-overview-group-messages']" "css_element"
-    And I should see "Small Group" in the "[data-region='view-overview-group-messages']" "css_element"
-    And I should not see "Quiet Group" in the "[data-region='view-overview-group-messages']" "css_element"
+  Scenario: Group conversations are restricted to members
+    Given I log in as "teacher1"
+    Then I open messaging
+    And I should see "Group 1" in the "[data-region='view-overview-group-messages']" "css_element"
+    And I should see "Group 2" in the "[data-region='view-overview-group-messages']" "css_element"
+    And I should not see "Group 3" in the "[data-region='view-overview-group-messages']" "css_element"
     And I log out
     And I log in as "student1"
     And I open messaging
-    And I should see "Big Group" in the "[data-region='view-overview-group-messages']" "css_element"
-    And I should not see "Small Group" in the "[data-region='view-overview-group-messages']" "css_element"
-    And I should not see "Quiet Group" in the "[data-region='view-overview-group-messages']" "css_element"
+    And I should see "Group 1" in the "[data-region='view-overview-group-messages']" "css_element"
+    And I should not see "Group 2" in the "[data-region='view-overview-group-messages']" "css_element"
+    And I should not see "Group 3" in the "[data-region='view-overview-group-messages']" "css_element"
 
   Scenario: View group conversation's participants numbers
-    Given I open messaging
-    Then I select "Big Group" conversation in messaging
+    Given I log in as "teacher1"
+    Then I open messaging
+    And I select "Group 1" conversation in messaging
     And I should see "5 participants" in the "[data-region='message-drawer']" "css_element"
     And I go back in "view-conversation" message drawer
     And I expand "Group" group in "view-overview-group-messages"
-    And I select "Small Group" conversation in messaging
+    And I select "Group 2" conversation in messaging
     And I should see "1 participants" in the "[data-region='message-drawer']" "css_element"
 
   Scenario: View group conversation's participants list
-    Given I open messaging
-    Then I select "Big Group" conversation in messaging
+    Given I log in as "teacher1"
+    Then I open messaging
+    # Check Group 1 participants list.
+    And I select "Group 1" conversation in messaging
     And I click on "[data-action='view-group-info']" "css_element"
     And I should not see "Teacher 1" in the "[data-region='group-info-content-container']" "css_element"
     And I should see "Student 0" in the "[data-region='group-info-content-container']" "css_element"
@@ -85,24 +78,28 @@ Feature: Create conversations for course's groups
     And I go back in "group-info-content-container" message drawer
     And I go back in "view-conversation" message drawer
     And I expand "Group" group in "view-overview-group-messages"
-    And I select "Small Group" conversation in messaging
+    # Check Group 2 participants list.
+    And I select "Group 2" conversation in messaging
     And I click on "[data-action='view-group-info']" "css_element"
     And I should not see "Teacher 1" in the "[data-region='group-info-content-container']" "css_element"
     And I should see "No participants" in the "[data-region='group-info-content-container']" "css_element"
     And I should not see "Student 4" in the "[data-region='group-info-content-container']" "css_element"
-    And I am on "Course 1" course homepage
+
+  Scenario: Check group conversation members are synced when a new group member is added
+    Given I log in as "teacher1"
+    Then I am on "Course 1" course homepage
     And I navigate to "Users > Groups" in current page administration
-    And I add "Student 4 (student4@example.com)" user to "Big Group" group members
-    And I add "Student 4 (student4@example.com)" user to "Small Group" group members
+    And I add "Student 4 (student4@example.com)" user to "Group 1" group members
+    And I add "Student 4 (student4@example.com)" user to "Group 2" group members
     And I open messaging
-    And I select "Big Group" conversation in messaging
+    And I select "Group 1" conversation in messaging
     And I should see "6 participants" in the "[data-region='message-drawer']" "css_element"
     And I click on "[data-action='view-group-info']" "css_element"
     And I should see "Student 4" in the "[data-region='group-info-content-container']" "css_element"
     And I go back in "group-info-content-container" message drawer
     And I go back in "view-conversation" message drawer
     And I expand "Group" group in "view-overview-group-messages"
-    And I select "Small Group" conversation in messaging
+    And I select "Group 2" conversation in messaging
     And I should see "2 participants" in the "[data-region='message-drawer']" "css_element"
     And I click on "[data-action='view-group-info']" "css_element"
     And I should not see "No participants" in the "[data-region='group-info-content-container']" "css_element"
