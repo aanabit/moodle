@@ -171,26 +171,6 @@ class behat_message extends behat_base {
     }
 
     /**
-     * This function finds the button node and its parent node with the given text from within messaging drawer.
-     * It checks to make sure the nodes are visible, and then returns them.
-     *
-     * @param string $buttontext
-     * @param string $parentregion
-     * @return \Behat\Mink\Element\NodeElement array
-     */
-    protected function get_text_nodes($buttontext, $parentregion) {
-        $xpath = "//*[@id='message-drawer-view-overview-container']//div[@data-region='" . $parentregion . "']";
-        $parent = $this->find('xpath', $xpath);
-        $this->ensure_node_is_visible($parent);
-
-        $xpath .= "//button[contains(.,'" . $buttontext . "')]";
-        $button = $this->find('xpath', $xpath);
-        $this->ensure_node_is_visible($button);
-
-        return array('parent' => $parent, 'button' => $button);
-    }
-
-    /**
      * Expands the selected conversation group of the message drawer matches the text.
      * @Given /^I expand "(?P<grouptext_string>(?:[^"]|\\")*)" group in "(?P<parenttext_string>(?:[^"]|\\")*)"$/
      *
@@ -201,9 +181,16 @@ class behat_message extends behat_base {
     public function i_expand_conversation_group_in($buttontext, $parentregion) {
 
         $this->execute('behat_general::i_wait_seconds', 1);
-        $nodes = $this->get_text_nodes($buttontext, $parentregion);
-        if ($nodes['button'] && $nodes['button']->hasClass('collapsed')) {
-            $nodes['parent']->click();
+
+        $parentxpath = "//*[@id='message-drawer-view-overview-container']//div[@data-region='" . $parentregion . "']";
+        $buttonxpath = $parentxpath."//button[contains(.,'" . $buttontext . "')]";
+        $button = $this->find('xpath', $buttonxpath);
+        $this->ensure_node_is_visible($button);
+
+        if ($button && $button->hasClass('collapsed')) {
+            $parent = $this->find('xpath', $parentxpath);
+            $this->ensure_node_is_visible($parent);
+            $parent->click();
             $this->execute('behat_general::i_wait_seconds', 1);
         }
     }
