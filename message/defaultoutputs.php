@@ -113,6 +113,7 @@ $renderer = $PAGE->get_renderer('core', 'message');
 // Display the manage message outputs interface
 $preferences = get_message_output_default_preferences();
 $messageoutputs = $renderer->manage_defaultmessageoutputs($processors, $providers, $preferences);
+$messageoutputs .= $renderer->render_general_notification_preferences($processors, $providers, $preferences);
 
 // Display the page
 echo $OUTPUT->header();

@@ -186,6 +186,8 @@ class core_message_renderer extends plugin_renderer_base {
                         $cellcontent .= html_writer::end_tag('div');
                     }
                 }
+
+//                $cellcontent = $this->render_from_template('message/notification_preferences_component', $processors);
                 $row->cells[] = new html_table_cell($cellcontent);
             }
             $disableprovider = html_writer::checkbox($disableprovidersetting, 1, !$providerdisabled, '',
@@ -202,6 +204,24 @@ class core_message_renderer extends plugin_renderer_base {
         $output .= html_writer::end_tag('form');
         return $output;
     }
+
+
+    /**
+     * Display the interface for notification preferences
+     *
+     * @param object $user instance of a user
+     * @return string The text to render
+     */
+    public function render_general_notification_preferences($processors, $providers, $preferences) {
+        global $USER;
+
+        $settingslistoutput = new \core_message\output\preferences\notification_settings_list($processors, $providers, $preferences);
+//        $notificationlistoutput = new \core_message\output\preferences\notification_list($processors, $providers,
+//            $preferences, $USER);
+        return $this->render_from_template('message/notification_settings',
+            $settingslistoutput->export_for_template($this));
+    }
+
 
     /**
      * Display the interface for notification preferences
