@@ -49,6 +49,21 @@ class behat_message extends behat_base {
     }
 
     /**
+     * Open the messaging tab.
+     *
+     * @Given /^I open "(?P<tab_string>(?:[^"]|\\")*)" messaging tab/
+     * @param string $tab
+     */
+    public function i_open_messaging_tab($tab) {
+        $this->execute('behat_general::wait_until_the_page_is_ready');
+        $this->execute('behat_general::i_click_on', [
+            $this->escape($tab),
+            'group_message_tab'
+        ]);
+        $this->execute('behat_general::wait_until_the_page_is_ready');
+    }
+
+    /**
      * Open the messaging UI.
      *
      * @Given /^I open messaging information$/
@@ -153,7 +168,7 @@ class behat_message extends behat_base {
             array("//textarea[@data-region='send-message-txt']", $this->escape($messagecontent))
         );
 
-        $this->execute("behat_forms::press_button", get_string('send', 'message'));
+        $this->execute("behat_forms::press_button", get_string('sendmessage', 'message'));
     }
 
     /**
@@ -186,5 +201,21 @@ class behat_message extends behat_base {
                 'group_message',
             )
         );
+    }
+
+    /**
+     * Select a user in a specific messaging UI tab.
+     *
+     * @Given /^I select "(?P<conv_name_string>(?:[^"]|\\")*)" conversation in "(?P<tab_name_string>(?:[^"]|\\")*)" messaging tab$/
+     * @param string $convname
+     * @param string $tabname
+     */
+    public function i_select_conversation_in_messaging_tab($convname, $tabname) {
+        $this->execute('behat_general::wait_until_the_page_is_ready');
+        $xpath = '//*[@data-region="message-drawer"]//div[@data-region="view-overview-'.
+            $this->escape($tabname).
+            '"]//*[@data-conversation-id]//img[contains(@alt,"'.
+            $this->escape($convname).'")]';
+        $this->execute('behat_general::i_click_on', array($xpath, 'xpath_element'));
     }
 }
