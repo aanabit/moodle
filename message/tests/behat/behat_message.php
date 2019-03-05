@@ -35,17 +35,35 @@ require_once(__DIR__ . '/../../../lib/behat/behat_base.php');
  * @copyright  2013 David Monllaó
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class behat_message extends behat_base {
+class behat_message extends behat_base
+{
 
     /**
      * Open the messaging UI.
      *
      * @Given /^I open messaging$/
      */
-    public function i_open_messaging() {
+    public function i_open_messaging()
+    {
         // Visit home page and follow messages.
         $this->execute("behat_general::i_am_on_homepage");
         $this->execute("behat_general::i_click_on", [get_string('togglemessagemenu', 'core_message'), 'link']);
+    }
+
+    /**
+     * Open the messaging tab.
+     *
+     * @Given /^I open "(?P<tab_string>(?:[^"]|\\")*)" messaging tab/
+     * @param string $tab
+     */
+    public function i_open_messaging_tab($tab)
+    {
+        $this->execute('behat_general::wait_until_the_page_is_ready');
+        $this->execute('behat_general::i_click_on', [
+            $this->escape($tab),
+            'group_message_tab'
+        ]);
+        $this->execute('behat_general::wait_until_the_page_is_ready');
     }
 
     /**
@@ -53,7 +71,8 @@ class behat_message extends behat_base {
      *
      * @Given /^I open messaging information$/
      */
-    public function i_open_messaging_information() {
+    public function i_open_messaging_information()
+    {
         $this->execute('behat_general::i_click_on', ["[data-action='view-group-info']", 'css_element']);
     }
 
@@ -63,7 +82,8 @@ class behat_message extends behat_base {
      * @Given /^I view the "(?P<user_full_name_string>(?:[^"]|\\")*)" contact in the message area$/
      * @param string $userfullname
      */
-    public function i_view_contact_in_messages($userfullname) {
+    public function i_view_contact_in_messages($userfullname)
+    {
         // Visit home page and follow messages.
         $this->i_select_user_in_messaging($userfullname);
 
@@ -86,7 +106,8 @@ class behat_message extends behat_base {
      * @Given /^I select "(?P<user_full_name_string>(?:[^"]|\\")*)" user in messaging$/
      * @param string $userfullname
      */
-    public function i_select_user_in_messaging($userfullname) {
+    public function i_select_user_in_messaging($userfullname)
+    {
         $this->i_open_messaging();
 
         $this->execute('behat_general::i_click_on', [get_string('search', 'core'), 'field']);
@@ -123,7 +144,8 @@ class behat_message extends behat_base {
      * @param string $messagecontent
      * @param string $userfullname
      */
-    public function i_send_message_to_user($messagecontent, $userfullname) {
+    public function i_send_message_to_user($messagecontent, $userfullname)
+    {
         $this->i_select_user_in_messaging($userfullname);
 
         $this->execute('behat_forms::i_set_the_field_with_xpath_to',
@@ -146,14 +168,15 @@ class behat_message extends behat_base {
      * @Given /^I send "(?P<message_contents_string>(?:[^"]|\\")*)" message in the message area$/
      * @param string $messagecontent
      */
-    public function i_send_message_in_the_message_area($messagecontent) {
+    public function i_send_message_in_the_message_area($messagecontent)
+    {
         $this->execute('behat_general::wait_until_the_page_is_ready');
 
         $this->execute('behat_forms::i_set_the_field_with_xpath_to',
             array("//textarea[@data-region='send-message-txt']", $this->escape($messagecontent))
         );
 
-        $this->execute("behat_forms::press_button", get_string('send', 'message'));
+        $this->execute("behat_forms::press_button", get_string('sendmessage', 'message'));
     }
 
     /**
@@ -162,12 +185,13 @@ class behat_message extends behat_base {
      * @Given /^I go back in "(?P<parent_element_string>(?:[^"]|\\")*)" message drawer$/
      * @param string $parentelement
      */
-    public function i_go_back_in_message_drawer($parentelement) {
+    public function i_go_back_in_message_drawer($parentelement)
+    {
         $this->execute('behat_general::i_click_on_in_the',
             array(
                 'a[data-route-back]',
                 'css_element',
-                '[data-region="'.$this->escape($parentelement).'"]',
+                '[data-region="' . $this->escape($parentelement) . '"]',
                 'css_element',
             )
         );
@@ -179,11 +203,46 @@ class behat_message extends behat_base {
      * @Given /^I select "(?P<conversation_name_string>(?:[^"]|\\")*)" conversation in messaging$/
      * @param string $conversationname
      */
-    public function i_select_conversation_in_messaging($conversationname) {
+    public function i_select_conversation_in_messaging($conversationname)
+    {
         $this->execute('behat_general::i_click_on',
             array(
                 $this->escape($conversationname),
                 'group_message',
+            )
+        );
+    }
+
+    /**
+     * Select a user in a specific messaging UI tab.
+     *
+     * @Given /^I select "(?P<conv_name_string>(?:[^"]|\\")*)" conversation in "(?P<tab_name_string>(?:[^"]|\\")*)" messaging tab$/
+     * @param string $convname
+     * @param string $tabname
+     */
+    public function i_select_conversation_in_messaging_tab($convname, $tabname)
+    {
+        $this->execute('behat_general::wait_until_the_page_is_ready');
+        $xpath = '//*[@data-region="message-drawer"]//div[@data-region="view-overview-' .
+            $this->escape($tabname) .
+            '"]//*[@data-conversation-id]//img[contains(@alt,"' .
+            $this->escape($convname) . '")]';
+        $this->execute('behat_general::i_click_on', array($xpath, 'xpath_element'));
+    }
+
+    /**
+     * Open the contact menu.
+     *
+     * @Given /^I open contact menu$/
+     */
+    public function i_open_contact_menu()
+    {
+        $this->execute('behat_general::i_click_on_in_the',
+            array(
+                '',
+                'button',
+                '[data-region="header-container"]',
+                'css_element',
             )
         );
     }
