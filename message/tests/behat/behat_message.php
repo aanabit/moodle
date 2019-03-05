@@ -180,6 +180,8 @@ class behat_message extends behat_base {
      * @param string $conversationname
      */
     public function i_select_conversation_in_messaging($conversationname) {
+        $this->execute('behat_general::wait_until_the_page_is_ready');
+
         $this->execute('behat_general::i_click_on',
             array(
                 $this->escape($conversationname),
