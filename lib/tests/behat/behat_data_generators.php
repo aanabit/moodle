@@ -848,6 +848,21 @@ class behat_data_generators extends behat_base {
     }
 
     /**
+     * Create a new private conversation between two users and mark it as favourite
+     *
+     * @param array $data
+     * @return void
+     */
+    protected function process_favourite_private_conv($data) {
+        $conversation = \core_message\api::create_conversation(
+            \core_message\api::MESSAGE_CONVERSATION_TYPE_INDIVIDUAL,
+            [$data['userid'], $data['contactid']]
+        );
+        \core_message\api::send_message_to_conversation($data['userid'], $conversation->id, $data['message'], FORMAT_PLAIN);
+        \core_message\api::set_favourite_conversation($conversation->id, $data['userid']);
+    }
+
+    /**
      * Create a new private conversation between two users
      *
      * @param array $data
@@ -873,4 +888,5 @@ class behat_data_generators extends behat_base {
             throw new Exception('The specified user with username "' . $username . '" does not exist');
         }
         return $id;
-    }}
+    }
+}
