@@ -183,6 +183,16 @@ class behat_data_generators extends behat_base {
                 'category' => 'categoryid',
             )
         ),
+        'favourite private conversation' => array(
+            'datagenerator' => 'favourite_private_conv',
+            'required' => array('user', 'contact', 'message'),
+            'switchids' => array('user' => 'userid', 'contact' => 'contactid')
+        ),
+        'private conversation' => array(
+            'datagenerator' => 'private_conversation',
+            'required' => array('user', 'contact', 'message'),
+            'switchids' => array('user' => 'userid', 'contact' => 'contactid')
+        ),
     );
 
     /**
@@ -837,4 +847,30 @@ class behat_data_generators extends behat_base {
         return $context;
     }
 
-}
+    /**
+     * Create a new private conversation between two users
+     *
+     * @param array $data
+     * @return void
+     */
+    protected function process_private_conversation($data) {
+        $conversation = \core_message\api::create_conversation(
+            \core_message\api::MESSAGE_CONVERSATION_TYPE_INDIVIDUAL,
+            [$data['userid'], $data['contactid']]
+        );
+        \core_message\api::send_message_to_conversation($data['userid'], $conversation->id, $data['message'], FORMAT_PLAIN);
+    }
+
+    /**
+     * Gets the contact id from it's username.
+     * @throws Exception
+     * @param string $username
+     * @return int
+     */
+    protected function get_contact_id($username) {
+        global $DB;
+        if (!$id = $DB->get_field('user', 'id', array('username' => $username))) {
+            throw new Exception('The specified user with username "' . $username . '" does not exist');
+        }
+        return $id;
+    }}
