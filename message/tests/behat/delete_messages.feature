@@ -1,8 +1,8 @@
 @core @core_message @javascript
-Feature: Star and unstar conversations
+Feature: Delete messages from conversations
   In order to manage a course group in a course
   As a user
-  I need to be able to star and unstar conversations
+  I need to be able to delete messages from conversations
 
   Background:
     Given the following "courses" exist:
@@ -23,70 +23,305 @@ Feature: Star and unstar conversations
       | user     | group |
       | student1 | G1 |
       | student2 | G1 |
+    And the following "group messages" exist:
+      | user     | group  | message                   |
+      | student1 | G1     | Hi!                       |
+      | student2 | G1     | How are you?              |
+      | student1 | G1     | Can somebody help me?     |
+    And the following "private messages" exist:
+      | user     | contact  | message       |
+      | student1 | student2 | Hi!           |
+      | student2 | student1 | Hello!        |
+      | student1 | student2 | Are you free? |
     And the following config values are set as admin:
       | messaging | 1 |
 
-  Scenario: Star a group conversation
-    Given I log in as "student1"
-    Then I open messaging
-    And "Group 1" "group_message" should exist
-    And I select "Group 1" conversation in messaging
-    And I open contact menu
-    And I click on "Star" "link" in the "//div[@data-region='header-container']" "xpath_element"
-    And I go back in "view-conversation" message drawer
-    And I open "Starred" messaging tab
-    And I should see "Group 1" in the "//div[@data-region='view-overview-favourites']" "xpath_element"
-    And I open "Group" messaging tab
-    And I should not see "Group 1" in the "//div[@data-region='view-overview-group-messages']" "xpath_element"
-
-  Scenario: Unstar a group conversation
-    Given I log in as "student1"
-    Then I open messaging
-    And "Group 1" "group_message" should exist
-    And I select "Group 1" conversation in messaging
-    And I open contact menu
-    And I click on "Star" "link" in the "//div[@data-region='header-container']" "xpath_element"
-    And I go back in "view-conversation" message drawer
-    And I open "Starred" messaging tab
-    And I should see "Group 1" in the "//div[@data-region='view-overview-favourites']" "xpath_element"
-    And I select "Group 1" conversation in messaging
-    And I open contact menu
-    And I click on "Unstar" "link" in the "//div[@data-region='header-container']" "xpath_element"
-    And I go back in "view-conversation" message drawer
-    And I open "Starred" messaging tab
-    And I should not see "Group 1" in the "//div[@data-region='view-overview-favourites']" "xpath_element"
-    And I open "Group" messaging tab
-    And I should see "Group 1" in the "//div[@data-region='view-overview-group-messages']" "xpath_element"
-
-  Scenario: Star a private conversation
-    Given the following "private conversation" exist:
-      | user     | contact  | message |
-      | student1 | student2 | Hi!     |
-    Then I log in as "student1"
+  Scenario: Delete a message sent by the user from a group conversation
+    When I log in as "student1"
     And I open messaging
-    And I open "Private" messaging tab
-    And "Student 2" "group_message" should exist
-    And I select "Student 2" conversation in messaging
-    And I open contact menu
-    And I click on "Star" "link" in the "//div[@data-region='header-container']" "xpath_element"
-    And I go back in "view-conversation" message drawer
-    And I open "Starred" messaging tab
-    And I should see "Student 2" in the "//div[@data-region='view-overview-favourites']" "xpath_element"
-    And I open "Private" messaging tab
-    And I should not see "Student 2" in the "//div[@data-region='view-overview-messages']" "xpath_element"
+    Then "Group 1" "group_message" should exist
+    And I select "Group 1" conversation in messaging
+    And I click on "Hi!" "group_message_message_content"
+    And I should see "1" in the "//*[@data-region='message-drawer']//*[@data-region='message-selected-court']" "xpath_element"
+    And "Delete selected messages" "button" should exist
+    And I click on "Delete selected messages" "button"
+#   Deleting, so messages should not be there
+    And I should see "Delete"
+    And I click on "//button[@data-action='confirm-delete-selected-messages']" "xpath_element"
+    And I should not see "Delete"
+    And I should not see "Hi!"
+    And I should see "##today##j F##" in the "Group 1" "group_message_conversation"
+    And I should see "How are you?" in the "Group 1" "group_message_conversation"
+    And I should not see "Messages selected"
 
-  Scenario: Unstar a private conversation
-    Given the following "favourite private conversation" exist:
-      | user     | contact  | message |
-      | student1 | student2 | Hi!     |
-    Then I log in as "student1"
+  Scenario: Delete a message sent by another user from a group conversation
+    When I log in as "student1"
     And I open messaging
-    And I should see "Student 2" in the "//div[@data-region='view-overview-favourites']" "xpath_element"
+    Then "Group 1" "group_message" should exist
+    And I select "Group 1" conversation in messaging
+    And I click on "How are you?" "group_message_message_content"
+    And I should see "1" in the "//*[@data-region='message-drawer']//*[@data-region='message-selected-court']" "xpath_element"
+    And "Delete selected messages" "button" should exist
+    And I click on "Delete selected messages" "button"
+#   Deleting, so messages should not be there
+    And I should see "Delete"
+    And I click on "//button[@data-action='confirm-delete-selected-messages']" "xpath_element"
+    And I should not see "Delete"
+    And I should see "Hi!"
+    And I should see "##today##j F##" in the "Group 1" "group_message_conversation"
+    And I should not see "How are you?" in the "Group 1" "group_message_conversation"
+    And I should not see "Messages selected"
+
+  Scenario: Cancel deleting a message from a group conversation
+    Given I log in as "student1"
+    When I open messaging
+    Then "Group 1" "group_message" should exist
+    And I select "Group 1" conversation in messaging
+    And I click on "Hi!" "group_message_message_content"
+    And "Delete selected messages" "button" should exist
+    And I click on "Delete selected messages" "button"
+#   Canceling deletion, so messages should be there
+    And I should see "Cancel"
+    And I click on "//button[@data-action='cancel-confirm']" "xpath_element"
+    And I should not see "Cancel"
+    And I should see "Hi!" in the "Group 1" "group_message_conversation"
+    And I should see "1" in the "//*[@data-region='message-drawer']//*[@data-region='message-selected-court']" "xpath_element"
+
+  Scenario: Delete two messages from a group conversation
+    Given I log in as "student1"
+    When I open messaging
+    Then "Group 1" "group_message" should exist
+    And I select "Group 1" conversation in messaging
+    And I click on "Hi!" "group_message_message_content"
+    And I should see "1" in the "//*[@data-region='message-drawer']//*[@data-region='message-selected-court']" "xpath_element"
+    And I click on "How are you?" "group_message_message_content"
+    And I should see "2" in the "//*[@data-region='message-drawer']//*[@data-region='message-selected-court']" "xpath_element"
+    And "Delete selected messages" "button" should exist
+    And I click on "Delete selected messages" "button"
+#   Deleting, so messages should not be there
+    And I should see "Delete"
+    And I click on "//button[@data-action='confirm-delete-selected-messages']" "xpath_element"
+    And I should not see "Delete"
+    And I should not see "Hi!"
+    And I should see "##today##j F##" in the "Group 1" "group_message_conversation"
+    And I should not see "How are you?" in the "Group 1" "group_message_conversation"
+    And I should see "Can somebody help me?" in the "Group 1" "group_message_conversation"
+    And I should not see "Messages selected"
+
+  Scenario: Cancel deleting two messages from a group conversation
+    Given I log in as "student1"
+    When I open messaging
+    Then "Group 1" "group_message" should exist
+    And I select "Group 1" conversation in messaging
+    And I click on "Hi!" "group_message_message_content"
+    And I click on "How are you?" "group_message_message_content"
+    And "Delete selected messages" "button" should exist
+    And I click on "Delete selected messages" "button"
+#   Canceling deletion, so messages should be there
+    And I should see "Cancel"
+    And I click on "//button[@data-action='cancel-confirm']" "xpath_element"
+    And I should not see "Cancel"
+    And I should see "Hi!"
+    And I should see "How are you?" in the "Group 1" "group_message_conversation"
+    And I should see "2" in the "//*[@data-region='message-drawer']//*[@data-region='message-selected-court']" "xpath_element"
+
+  Scenario: Delete a message sent by the user from a private conversation
+    Given I log in as "student1"
+    When I open messaging
+    Then I should see "Private"
+    And I open the "Private" conversations list
+    And I should see "Student 2"
     And I select "Student 2" conversation in messaging
-    And I open contact menu
-    And I click on "Unstar" "link" in the "//div[@data-region='header-container']" "xpath_element"
-    And I go back in "view-conversation" message drawer
-    And I open "Starred" messaging tab
-    And I should not see "Group 1" in the "//div[@data-region='view-overview-favourites']" "xpath_element"
-    And I open "Private" messaging tab
-    And I should see "Student 2" in the "//div[@data-region='view-overview-messages']" "xpath_element"
+    And I click on "Hi!" "group_message_message_content"
+    And I should see "1" in the "//*[@data-region='message-drawer']//*[@data-region='message-selected-court']" "xpath_element"
+    And "Delete selected messages" "button" should exist
+    And I click on "Delete selected messages" "button"
+#   Deleting, so messages should not be there
+    And I should see "Delete"
+    And I click on "//button[@data-action='confirm-delete-selected-messages']" "xpath_element"
+    And I should not see "Delete"
+    And I should not see "Hi!"
+    And I should see "##today##j F##" in the "Student 2" "group_message_conversation"
+    And I should see "Hello!" in the "Student 2" "group_message_conversation"
+    And I should not see "Messages selected"
+
+  Scenario: Delete a message sent by another user from a private conversation
+    Given I log in as "student1"
+    When I open messaging
+    Then I should see "Private"
+    And I open the "Private" conversations list
+    And I should see "Student 2"
+    And I select "Student 2" conversation in messaging
+    And I click on "Hello!" "group_message_message_content"
+    And I should see "1" in the "//*[@data-region='message-drawer']//*[@data-region='message-selected-court']" "xpath_element"
+    And "Delete selected messages" "button" should exist
+    And I click on "Delete selected messages" "button"
+#   Deleting, so messages should not be there
+    And I should see "Delete"
+    And I click on "//button[@data-action='confirm-delete-selected-messages']" "xpath_element"
+    And I should not see "Delete"
+    And I should see "Hi!"
+    And I should see "##today##j F##" in the "Student 2" "group_message_conversation"
+    And I should not see "Hello!" in the "Student 2" "group_message_conversation"
+
+  Scenario: Cancel deleting a message from a private conversation
+    Given I log in as "student1"
+    When I open messaging
+    Then I should see "Private"
+    And I open the "Private" conversations list
+    And I should see "Student 2"
+    And I select "Student 2" conversation in messaging
+    And I click on "Hi!" "group_message_message_content"
+    And "Delete selected messages" "button" should exist
+    And I click on "Delete selected messages" "button"
+#   Canceling deletion, so messages should be there
+    And I should see "Cancel"
+    And I click on "//button[@data-action='cancel-confirm']" "xpath_element"
+    And I should not see "Cancel"
+    And I should see "Hi!" in the "Student 2" "group_message_conversation"
+    And I should see "1" in the "//*[@data-region='message-drawer']//*[@data-region='message-selected-court']" "xpath_element"
+
+  Scenario: Delete two messages from a private conversation
+    Given I log in as "student1"
+    When I open messaging
+    Then I should see "Private"
+    And I open the "Private" conversations list
+    And I should see "Student 2"
+    And I select "Student 2" conversation in messaging
+    And I click on "Hi!" "group_message_message_content"
+    And I should see "1" in the "//*[@data-region='message-drawer']//*[@data-region='message-selected-court']" "xpath_element"
+    And I click on "Hello!" "group_message_message_content"
+    And I should see "2" in the "//*[@data-region='message-drawer']//*[@data-region='message-selected-court']" "xpath_element"
+    And "Delete selected messages" "button" should exist
+    And I click on "Delete selected messages" "button"
+#   Deleting, so messages should not be there
+    And I should see "Delete"
+    And I click on "//button[@data-action='confirm-delete-selected-messages']" "xpath_element"
+    And I should not see "Delete"
+    And I should not see "Hi!"
+    And I should not see "Hello!" in the "Student 2" "group_message_conversation"
+    And I should see "##today##j F##" in the "Student 2" "group_message_conversation"
+    And I should see "Are you free?" in the "Student 2" "group_message_conversation"
+    And I should not see "Messages selected"
+
+  Scenario: Cancel deleting two messages from a private conversation
+    Given I log in as "student1"
+    When I open messaging
+    Then I should see "Private"
+    And I open the "Private" conversations list
+    And I should see "Student 2"
+    And I select "Student 2" conversation in messaging
+    And I click on "Hi!" "group_message_message_content"
+    And I click on "Hello!" "group_message_message_content"
+    And "Delete selected messages" "button" should exist
+    And I click on "Delete selected messages" "button"
+#   Canceling deletion, so messages should be there
+    And I should see "Cancel"
+    And I click on "//button[@data-action='cancel-confirm']" "xpath_element"
+    And I should not see "Cancel"
+    And I should see "Hi!"
+    And I should see "Hello!" in the "Student 2" "group_message_conversation"
+    And I should see "2" in the "//*[@data-region='message-drawer']//*[@data-region='message-selected-court']" "xpath_element"
+
+  Scenario: Delete a message sent by the user from a favorite conversation
+    Given the following "favourite conversations" exist:
+      | user     | contact  |
+      | student1 | student2 |
+    When I log in as "student1"
+    And I open messaging
+    Then I should see "Student 2"
+    And I select "Student 2" conversation in messaging
+    And I click on "Hi!" "group_message_message_content"
+    And I should see "1" in the "//*[@data-region='message-drawer']//*[@data-region='message-selected-court']" "xpath_element"
+    And "Delete selected messages" "button" should exist
+    And I click on "Delete selected messages" "button"
+#   Deleting, so messages should not be there
+    And I should see "Delete"
+    And I click on "//button[@data-action='confirm-delete-selected-messages']" "xpath_element"
+    And I should not see "Delete"
+    And I should not see "Hi!"
+    And I should see "##today##j F##" in the "Student 2" "group_message_conversation"
+    And I should see "Hello!" in the "Student 2" "group_message_conversation"
+    And I should not see "Messages selected"
+
+  Scenario: Delete a message sent by another user from a favourite conversation
+    Given the following "favourite conversations" exist:
+      | user     | contact  |
+      | student1 | student2 |
+    When I log in as "student1"
+    And I open messaging
+    Then I should see "Student 2"
+    And I select "Student 2" conversation in messaging
+    And I click on "Hello!" "group_message_message_content"
+    And I should see "1" in the "//*[@data-region='message-drawer']//*[@data-region='message-selected-court']" "xpath_element"
+    And "Delete selected messages" "button" should exist
+    And I click on "Delete selected messages" "button"
+#   Deleting, so messages should not be there
+    And I should see "Delete"
+    And I click on "//button[@data-action='confirm-delete-selected-messages']" "xpath_element"
+    And I should not see "Delete"
+    And I should see "Hi!"
+    And I should see "##today##j F##" in the "Student 2" "group_message_conversation"
+    And I should not see "Hello!" in the "Student 2" "group_message_conversation"
+
+  Scenario: Cancel deleting a message from a favourite conversation
+    Given the following "favourite conversations" exist:
+      | user     | contact  |
+      | student1 | student2 |
+    When I log in as "student1"
+    And I open messaging
+    Then I should see "Student 2"
+    And I select "Student 2" conversation in messaging
+    And I click on "Hi!" "group_message_message_content"
+    And "Delete selected messages" "button" should exist
+    And I click on "Delete selected messages" "button"
+#   Canceling deletion, so messages should be there
+    And I should see "Cancel"
+    And I click on "//button[@data-action='cancel-confirm']" "xpath_element"
+    And I should not see "Cancel"
+    And I should see "Hi!" in the "Student 2" "group_message_conversation"
+    And I should see "1" in the "//*[@data-region='message-drawer']//*[@data-region='message-selected-court']" "xpath_element"
+
+  Scenario: Delete two messages from a favourite conversation
+    Given the following "favourite conversations" exist:
+      | user     | contact  |
+      | student1 | student2 |
+    When I log in as "student1"
+    And I open messaging
+    Then I should see "Student 2"
+    And I select "Student 2" conversation in messaging
+    And I click on "Hi!" "group_message_message_content"
+    And I should see "1" in the "//*[@data-region='message-drawer']//*[@data-region='message-selected-court']" "xpath_element"
+    And I click on "Hello!" "group_message_message_content"
+    And I should see "2" in the "//*[@data-region='message-drawer']//*[@data-region='message-selected-court']" "xpath_element"
+    And "Delete selected messages" "button" should exist
+    And I click on "Delete selected messages" "button"
+#   Deleting, so messages should not be there
+    And I should see "Delete"
+    And I click on "//button[@data-action='confirm-delete-selected-messages']" "xpath_element"
+    And I should not see "Delete"
+    And I should not see "Hi!"
+    And I should not see "Hello!" in the "Student 2" "group_message_conversation"
+    And I should see "##today##j F##" in the "Student 2" "group_message_conversation"
+    And I should see "Are you free?" in the "Student 2" "group_message_conversation"
+    And I should not see "Messages selected"
+
+  Scenario: Cancel deleting two messages from a favourite conversation
+    Given the following "favourite conversations" exist:
+      | user     | contact  |
+      | student1 | student2 |
+    When I log in as "student1"
+    And I open messaging
+    Then I should see "Student 2"
+    And I select "Student 2" conversation in messaging
+    And I click on "Hi!" "group_message_message_content"
+    And I click on "Hello!" "group_message_message_content"
+    And "Delete selected messages" "button" should exist
+    And I click on "Delete selected messages" "button"
+#   Canceling deletion, so messages should be there
+    And I should see "Cancel"
+    And I click on "//button[@data-action='cancel-confirm']" "xpath_element"
+    And I should not see "Cancel"
+    And I should see "Hi!"
+    And I should see "Hello!" in the "Student 2" "group_message_conversation"
+    And I should see "2" in the "//*[@data-region='message-drawer']//*[@data-region='message-selected-court']" "xpath_element"
