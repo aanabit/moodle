@@ -225,16 +225,21 @@ class mod_feedback_structure {
      *
      * @param bool $anycourseid if true checks if this feedback was submitted in any course, otherwise checks $this->courseid .
      *     Applicable to frontpage feedbacks only
+     * @param int $userid User id to use for all capability checks, etc. Set to 0 for current user (default).
      * @return bool true if the feedback already is submitted otherwise false
      */
-    public function is_already_submitted($anycourseid = false) {
+    public function is_already_submitted($anycourseid = false, int $userid = 0) {
         global $USER, $DB;
 
         if (!isloggedin() || isguestuser()) {
             return false;
         }
 
-        $params = array('userid' => $USER->id, 'feedback' => $this->feedback->id);
+        if (empty($userid)) {
+            $userid = $USER->id;
+        }
+
+        $params = array('userid' => $userid, 'feedback' => $this->feedback->id);
         if (!$anycourseid && $this->courseid) {
             $params['courseid'] = $this->courseid;
         }

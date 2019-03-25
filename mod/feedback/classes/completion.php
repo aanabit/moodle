@@ -604,7 +604,7 @@ class mod_feedback_completion extends mod_feedback_structure {
     }
 
     /**
-     * Checks if current user has capability to submit the feedback
+     * Checks if user has capability to submit the feedback
      *
      * There is an exception for fully anonymous feedbacks when guests can complete
      * feedback without the proper capability.
@@ -613,20 +613,25 @@ class mod_feedback_completion extends mod_feedback_structure {
      * user has capablity to complete, they may have already submitted feedback
      * and can not re-submit
      *
+     * @param int $userid User id to use for all capability checks, etc. Set to 0 for current user (default).
      * @return bool
      */
-    public function can_complete() {
-        global $CFG;
+    public function can_complete($userid = 0) {
+        global $CFG, $USER;
+
+        if (empty($userid)) {
+            $userid = $USER->id;
+        }
 
         $context = context_module::instance($this->cm->id);
-        if (has_capability('mod/feedback:complete', $context)) {
+        if (has_capability('mod/feedback:complete', $context, $userid)) {
             return true;
         }
 
         if (!empty($CFG->feedback_allowfullanonymous)
                     AND $this->feedback->course == SITEID
                     AND $this->feedback->anonymous == FEEDBACK_ANONYMOUS_YES
-                    AND (!isloggedin() OR isguestuser())) {
+                    AND (!isloggedin() OR isguestuser($userid))) {
             // Guests are allowed to complete fully anonymous feedback without having 'mod/feedback:complete' capability.
             return true;
         }
