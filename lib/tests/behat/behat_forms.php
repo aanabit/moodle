@@ -250,6 +250,23 @@ class behat_forms extends behat_base {
         $this->ensure_node_is_visible($fieldnode);
         $field = behat_field_manager::get_form_field($fieldnode, $this->getSession());
         $field->set_value($value);
+
+        // Exception if it timesout and the element has not the set value.
+        $msg = 'The "' . $fieldxpath . '" element has not the value '.$value;
+        $exception = new ExpectationException($msg, $this->getSession());
+
+        $this->spin(
+            function($context, $args) {
+                if ($args[0]->get_value() == $args[1]) {
+                    return true;
+                }
+                return false;
+            },
+            [$field, $value],
+            self::get_timeout(),
+            $exception,
+            true
+        );
     }
 
     /**
