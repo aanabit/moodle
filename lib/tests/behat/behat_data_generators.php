@@ -208,6 +208,11 @@ class behat_data_generators extends behat_base {
             'required' => array('user', 'contact'),
             'switchids' => array('user' => 'userid', 'contact' => 'contactid')
         ),
+        'group messages' => array(
+            'datagenerator' => 'group_messages',
+            'required' => array('user', 'group', 'message'),
+            'switchids' => array('user' => 'userid', 'group' => 'groupid')
+        ),
     );
 
     /**
@@ -919,5 +924,32 @@ class behat_data_generators extends behat_base {
             $conversationid = $conversation->id;
         }
         \core_message\api::set_favourite_conversation($conversationid, $data['userid']);
+    }
+
+    /**
+     * Send a new message from user to a group conversation
+     *
+     * @param array $data
+     * @return void
+     */
+    protected function process_group_messages(array $data) {
+        global $DB;
+
+        $group = $DB->get_record('groups', ['id' => $data['groupid']]);
+        $members = $DB->get_records_menu('groups_members', ['groupid' => $data['groupid']], '', 'userid, id');
+        $coursecontext = context_course::instance($group->courseid);
+        if (!$conversation = \core_message\api::get_conversation_by_area('core_group', 'groups', $data['groupid'],
+            $coursecontext->id)) {
+            $conversation = \core_message\api::create_conversation(
+                \core_message\api::MESSAGE_CONVERSATION_TYPE_GROUP,
+                array_keys($members),
+                $group->name,
+                \core_message\api::MESSAGE_CONVERSATION_ENABLED,
+                'core_group',
+                'groups',
+                $group->id,
+                $coursecontext->id);
+        }
+        \core_message\api::send_message_to_conversation($data['userid'], $conversation->id, $data['message'], FORMAT_PLAIN);
     }
 }
