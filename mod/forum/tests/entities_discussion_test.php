@@ -166,13 +166,13 @@ class mod_forum_entities_discussion_testcase extends advanced_testcase {
         $base = time() + 10;
         return array(
             ["No dates set set", $base, 0, 0, true, false, true],
-            ["Only started date in the future", $base, $base + 100, 0, false, false, false],
-            ["Only started date in the past", $base, $base - 100, 0, true, false, true],
-            ["Only end date in the future", $base, 0, $base + 100, true, false, true],
-            ["Only end date in the past", $base, 0, $base - 100, true, true, false],
-            ["Start date in the past, end date in the future", $base, $base - 100, $base + 100, true, false, true],
-            ["Both dates in the past", $base, $base - 100, $base - 50, true, true, false],
-            ["Both dates in the future", $base, $base + 100, $base + 150, false, false, false],
+            ["Only started date in the future", $base, $base + DAYSECS, 0, false, false, false],
+            ["Only started date in the past", $base, $base - DAYSECS, 0, true, false, true],
+            ["Only end date in the future", $base, 0, $base + DAYSECS, true, false, true],
+            ["Only end date in the past", $base, 0, $base - DAYSECS, true, true, false],
+            ["Start date in the past, end date in the future", $base, $base - DAYSECS, $base + DAYSECS, true, false, true],
+            ["Both dates in the past", $base, $base - (DAYSECS * 2), $base - DAYSECS, true, true, false],
+            ["Both dates in the future", $base, $base + DAYSECS, $base + (DAYSECS * 2), false, false, false],
         );
     }
 }
