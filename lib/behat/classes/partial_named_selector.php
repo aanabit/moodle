@@ -72,6 +72,7 @@ class behat_partial_named_selector extends \Behat\Mink\Selector\PartialNamedSele
         'table_row' => 'table_row',
         'xpath_element' => 'xpath_element',
         'form_row' => 'form_row',
+        'group_message' => 'group_message',
     );
 
     /**
@@ -93,6 +94,7 @@ class behat_partial_named_selector extends \Behat\Mink\Selector\PartialNamedSele
         'group_message_header' => 'group_message_header',
         'group_message_member' => 'group_message_member',
         'group_message_tab' => 'group_message_tab',
+        'message_icon' => 'message_icon',
         'icon' => 'icon',
         'link' => 'link',
         'link_or_button' => 'link_or_button',
@@ -169,6 +171,9 @@ XPATH
 XPATH
     , 'group_message_tab' => <<<XPATH
         .//*[@data-region='message-drawer']//button[@data-toggle='collapse' and contains(string(), %locator%)]
+XPATH
+    , 'message_icon' => <<<XPATH
+        .//span[contains(@data-region, concat(%locator%,'-icon-container'))]
 XPATH
         , 'icon' => <<<XPATH
 .//*[contains(concat(' ', normalize-space(@class), ' '), ' icon ') and ( contains(normalize-space(@title), %locator%))]

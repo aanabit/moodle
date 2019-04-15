@@ -946,6 +946,38 @@ class behat_general extends behat_base {
     }
 
     /**
+     * Checks the provided element and selector type exists and is visible.
+     *
+     * @Then /^"(?P<element_string>(?:[^"]|\\")*)" "(?P<selector_string>[^"]*)" should exist in the "(?P<parent_element_string>(?:[^"]|\\")*)" "(?P<parent_selector_string>[^"]*)" and be visible$/
+     * @throws ElementNotFoundException Thrown by behat_base::find
+     * @param string $element The locator of the specified selector
+     * @param string $selectortype The selector type
+     * @param string $parentelement The locator of the parent selector
+     * @param string $parentselectortype The parent selector type
+     */
+    public function should_exist_and_visible($element, $selectortype, $parentelement, $parentselectortype) {
+
+        $node = $this->get_node_in_container($selectortype, $element, $parentselectortype, $parentelement);
+        $this->ensure_node_is_visible($node);
+    }
+
+    /**
+     * Checks the provided element and selector type exists but is not visible.
+     *
+     * @Then /^"(?P<element_string>(?:[^"]|\\")*)" "(?P<selector_string>[^"]*)" should exist in the "(?P<parent_element_string>(?:[^"]|\\")*)" "(?P<parent_selector_string>[^"]*)" but is hidden$/
+     * @throws ElementNotFoundException Thrown by behat_base::find
+     * @param string $element The locator of the specified selector
+     * @param string $selectortype The selector type
+     * @param string $parentelement The locator of the parent selector
+     * @param string $parentselectortype The parent selector type
+     */
+    public function should_exist_but_is_hidden($element, $selectortype, $parentelement, $parentselectortype) {
+
+        $node = $this->get_node_in_container($selectortype, $element, $parentselectortype, $parentelement);
+        $this->ensure_node_attribute_contains($node, 'class', 'hidden');
+    }
+
+    /**
      * This step triggers cron like a user would do going to admin/cron.php.
      *
      * @Given /^I trigger cron$/
