@@ -212,6 +212,11 @@ class behat_data_generators extends behat_base {
             'datagenerator' => 'customlang',
             'required' => array('component', 'stringid', 'value'),
         ),
+        'user preferences' => array(
+            'datagenerator' => 'user_preferences',
+            'required' => array('user', 'preference', 'value'),
+            'switchids' => array('user' => 'userid')
+        ),
     );
 
     /**
@@ -981,5 +986,15 @@ class behat_data_generators extends behat_base {
             $conversationid = $conversation->id;
         }
         \core_message\api::set_favourite_conversation($conversationid, $data['userid']);
+    }
+
+    /**
+     * Set a preference value for user
+     *
+     * @param array $data
+     * @return void
+     */
+    protected function process_user_preferences(array $data) {
+        set_user_preference($data['preference'], $data['value'], $data['userid']);
     }
 }
