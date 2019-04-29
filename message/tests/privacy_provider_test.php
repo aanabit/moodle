@@ -211,6 +211,15 @@ class core_message_privacy_provider_testcase extends \core_privacy\tests\provide
         $this->resetAfterTest();
 
         $user = $this->getDataGenerator()->create_user();
+
+        $contextlist = provider::get_contexts_for_userid($user->id);
+        $this->assertCount(1, $contextlist);
+
+        // Remove user self-conversations
+        $selfconversation = \core_message\api::get_self_conversation($user->id);
+        \core_message\api::unset_favourite_conversation($selfconversation->id, $user->id);
+        \core_message\api::delete_all_conversation_data($selfconversation->id);
+
         $contextlist = provider::get_contexts_for_userid($user->id);
         $this->assertEmpty($contextlist);
     }
@@ -224,6 +233,17 @@ class core_message_privacy_provider_testcase extends \core_privacy\tests\provide
         $user1 = $this->getDataGenerator()->create_user();
         $user2 = $this->getDataGenerator()->create_user();
         $user3 = $this->getDataGenerator()->create_user();
+
+        // Remove user self-conversations
+        $selfconversation1 = \core_message\api::get_self_conversation($user1->id);
+        \core_message\api::unset_favourite_conversation($selfconversation1->id, $user1->id);
+        \core_message\api::delete_all_conversation_data($selfconversation1->id);
+        $selfconversation2 = \core_message\api::get_self_conversation($user2->id);
+        \core_message\api::unset_favourite_conversation($selfconversation2->id, $user2->id);
+        \core_message\api::delete_all_conversation_data($selfconversation2->id);
+        $selfconversation3 = \core_message\api::get_self_conversation($user3->id);
+        \core_message\api::unset_favourite_conversation($selfconversation3->id, $user3->id);
+        \core_message\api::delete_all_conversation_data($selfconversation3->id);
 
         // Test nothing is found before group conversations is created or message is sent.
         $contextlist = provider::get_contexts_for_userid($user1->id);
@@ -267,6 +287,20 @@ class core_message_privacy_provider_testcase extends \core_privacy\tests\provide
         $user3 = $this->getDataGenerator()->create_user();
         $user4 = $this->getDataGenerator()->create_user();
 
+        // Remove user self-conversations
+/*        $selfconversation1 = \core_message\api::get_self_conversation($user1->id);
+        \core_message\api::unset_favourite_conversation($selfconversation1->id, $user1->id);
+        \core_message\api::delete_all_conversation_data($selfconversation1->id);
+        $selfconversation2 = \core_message\api::get_self_conversation($user2->id);
+        \core_message\api::unset_favourite_conversation($selfconversation2->id, $user2->id);
+        \core_message\api::delete_all_conversation_data($selfconversation2->id);
+        $selfconversation3 = \core_message\api::get_self_conversation($user3->id);
+        \core_message\api::unset_favourite_conversation($selfconversation3->id, $user3->id);
+        \core_message\api::delete_all_conversation_data($selfconversation3->id);
+        $selfconversation4 = \core_message\api::get_self_conversation($user4->id);
+        \core_message\api::unset_favourite_conversation($selfconversation4->id, $user4->id);
+        \core_message\api::delete_all_conversation_data($selfconversation4->id);*/
+
         // Test nothing is found before group conversations is created or message is sent.
         $contextlist = provider::get_contexts_for_userid($user1->id);
         $this->assertCount(0, $contextlist);
@@ -308,26 +342,26 @@ class core_message_privacy_provider_testcase extends \core_privacy\tests\provide
 
         // Test for user1 (although is member of the conversation, hasn't any private message).
         $contextlist = provider::get_contexts_for_userid($user1->id);
-        $this->assertCount(0, $contextlist);
+        $this->assertCount(1, $contextlist);
 
         // Test for user2 (although is member of the conversation, hasn't any private message).
         $contextlist = provider::get_contexts_for_userid($user2->id);
-        $this->assertCount(0, $contextlist);
+        $this->assertCount(1, $contextlist);
 
         // Test for user3 (although is member of the conversation, hasn't any private message).
         $contextlist = provider::get_contexts_for_userid($user3->id);
-        $this->assertCount(0, $contextlist);
+        $this->assertCount(1, $contextlist);
 
         // Test for user4 (doesn't belong to the conversation).
         $contextlist = provider::get_contexts_for_userid($user4->id);
-        $this->assertCount(0, $contextlist);
+        $this->assertCount(1, $contextlist);
 
         // Send some private messages.
         $pm1id = $this->create_message($user1->id, $user2->id, time() - (9 * DAYSECS));
 
         // Test user1 now has the user context because of the private message.
         $contextlist = provider::get_contexts_for_userid($user1->id);
-        $this->assertCount(1, $contextlist);
+        $this->assertCount(2, $contextlist);
         $contextforuser = $contextlist->current();
         $this->assertEquals(
                 \context_user::instance($user1->id)->id,
@@ -335,7 +369,7 @@ class core_message_privacy_provider_testcase extends \core_privacy\tests\provide
 
         // Test user2 now has the user context because of the private message.
         $contextlist = provider::get_contexts_for_userid($user2->id);
-        $this->assertCount(1, $contextlist);
+        $this->assertCount(2, $contextlist);
         $contextforuser = $contextlist->current();
         $this->assertEquals(
                 \context_user::instance($user2->id)->id,
@@ -343,11 +377,11 @@ class core_message_privacy_provider_testcase extends \core_privacy\tests\provide
 
         // Test for user3 (although is member of the conversation, hasn't still any private message).
         $contextlist = provider::get_contexts_for_userid($user3->id);
-        $this->assertCount(0, $contextlist);
+        $this->assertCount(1, $contextlist);
 
         // Test for user4 (doesn't belong to the conversation and hasn't any private message).
         $contextlist = provider::get_contexts_for_userid($user4->id);
-        $this->assertCount(0, $contextlist);
+        $this->assertCount(1, $contextlist);
     }
 
     /**
@@ -358,6 +392,14 @@ class core_message_privacy_provider_testcase extends \core_privacy\tests\provide
 
         $user1 = $this->getDataGenerator()->create_user();
         $user2 = $this->getDataGenerator()->create_user();
+
+        // Remove user self-conversations
+        $selfconversation1 = \core_message\api::get_self_conversation($user1->id);
+        \core_message\api::unset_favourite_conversation($selfconversation1->id, $user1->id);
+        \core_message\api::delete_all_conversation_data($selfconversation1->id);
+        $selfconversation2 = \core_message\api::get_self_conversation($user2->id);
+        \core_message\api::unset_favourite_conversation($selfconversation2->id, $user2->id);
+        \core_message\api::delete_all_conversation_data($selfconversation2->id);
 
         // Test nothing is found before notification is created.
         $contextlist = provider::get_contexts_for_userid($user1->id);
@@ -393,6 +435,14 @@ class core_message_privacy_provider_testcase extends \core_privacy\tests\provide
         $user1 = $this->getDataGenerator()->create_user();
         $user2 = $this->getDataGenerator()->create_user();
 
+        // Remove user self-conversations
+        $selfconversation1 = \core_message\api::get_self_conversation($user1->id);
+        \core_message\api::unset_favourite_conversation($selfconversation1->id, $user1->id);
+        \core_message\api::delete_all_conversation_data($selfconversation1->id);
+        $selfconversation2 = \core_message\api::get_self_conversation($user2->id);
+        \core_message\api::unset_favourite_conversation($selfconversation2->id, $user2->id);
+        \core_message\api::delete_all_conversation_data($selfconversation2->id);
+
         // Test nothing is found before contact is created.
         $contextlist = provider::get_contexts_for_userid($user1->id);
         $this->assertCount(0, $contextlist);
@@ -427,6 +477,14 @@ class core_message_privacy_provider_testcase extends \core_privacy\tests\provide
         $user1 = $this->getDataGenerator()->create_user();
         $user2 = $this->getDataGenerator()->create_user();
 
+        // Remove user self-conversations
+        $selfconversation1 = \core_message\api::get_self_conversation($user1->id);
+        \core_message\api::unset_favourite_conversation($selfconversation1->id, $user1->id);
+        \core_message\api::delete_all_conversation_data($selfconversation1->id);
+        $selfconversation2 = \core_message\api::get_self_conversation($user2->id);
+        \core_message\api::unset_favourite_conversation($selfconversation2->id, $user2->id);
+        \core_message\api::delete_all_conversation_data($selfconversation2->id);
+
         // Test nothing is found before request is created.
         $contextlist = provider::get_contexts_for_userid($user1->id);
         $this->assertCount(0, $contextlist);
@@ -460,6 +518,14 @@ class core_message_privacy_provider_testcase extends \core_privacy\tests\provide
 
         $user1 = $this->getDataGenerator()->create_user();
         $user2 = $this->getDataGenerator()->create_user();
+
+        // Remove user self-conversations
+        $selfconversation1 = \core_message\api::get_self_conversation($user1->id);
+        \core_message\api::unset_favourite_conversation($selfconversation1->id, $user1->id);
+        \core_message\api::delete_all_conversation_data($selfconversation1->id);
+        $selfconversation2 = \core_message\api::get_self_conversation($user2->id);
+        \core_message\api::unset_favourite_conversation($selfconversation2->id, $user2->id);
+        \core_message\api::delete_all_conversation_data($selfconversation2->id);
 
         // Test nothing is found before user is blocked.
         $contextlist = provider::get_contexts_for_userid($user1->id);
@@ -498,6 +564,20 @@ class core_message_privacy_provider_testcase extends \core_privacy\tests\provide
         $user3 = $this->getDataGenerator()->create_user();
         $user4 = $this->getDataGenerator()->create_user();
 
+        // Remove user self-conversations
+        $selfconversation1 = \core_message\api::get_self_conversation($user1->id);
+        \core_message\api::unset_favourite_conversation($selfconversation1->id, $user1->id);
+        \core_message\api::delete_all_conversation_data($selfconversation1->id);
+        $selfconversation2 = \core_message\api::get_self_conversation($user2->id);
+        \core_message\api::unset_favourite_conversation($selfconversation2->id, $user2->id);
+        \core_message\api::delete_all_conversation_data($selfconversation2->id);
+        $selfconversation3 = \core_message\api::get_self_conversation($user3->id);
+        \core_message\api::unset_favourite_conversation($selfconversation3->id, $user3->id);
+        \core_message\api::delete_all_conversation_data($selfconversation3->id);
+        $selfconversation4 = \core_message\api::get_self_conversation($user4->id);
+        \core_message\api::unset_favourite_conversation($selfconversation4->id, $user4->id);
+        \core_message\api::delete_all_conversation_data($selfconversation4->id);
+
         \core_message\api::add_contact($user1->id, $user2->id);
         \core_message\api::add_contact($user1->id, $user3->id);
         \core_message\api::add_contact($user1->id, $user4->id);
@@ -534,6 +614,20 @@ class core_message_privacy_provider_testcase extends \core_privacy\tests\provide
         $user2 = $this->getDataGenerator()->create_user();
         $user3 = $this->getDataGenerator()->create_user();
         $user4 = $this->getDataGenerator()->create_user();
+
+        // Remove user self-conversations
+        $selfconversation1 = \core_message\api::get_self_conversation($user1->id);
+        \core_message\api::unset_favourite_conversation($selfconversation1->id, $user1->id);
+        \core_message\api::delete_all_conversation_data($selfconversation1->id);
+        $selfconversation2 = \core_message\api::get_self_conversation($user2->id);
+        \core_message\api::unset_favourite_conversation($selfconversation2->id, $user2->id);
+        \core_message\api::delete_all_conversation_data($selfconversation2->id);
+        $selfconversation3 = \core_message\api::get_self_conversation($user3->id);
+        \core_message\api::unset_favourite_conversation($selfconversation3->id, $user3->id);
+        \core_message\api::delete_all_conversation_data($selfconversation3->id);
+        $selfconversation4 = \core_message\api::get_self_conversation($user4->id);
+        \core_message\api::unset_favourite_conversation($selfconversation4->id, $user4->id);
+        \core_message\api::delete_all_conversation_data($selfconversation4->id);
 
         \core_message\api::create_contact_request($user1->id, $user2->id);
         \core_message\api::create_contact_request($user3->id, $user1->id);
@@ -574,6 +668,20 @@ class core_message_privacy_provider_testcase extends \core_privacy\tests\provide
         $user3 = $this->getDataGenerator()->create_user();
         $user4 = $this->getDataGenerator()->create_user();
 
+        // Remove user self-conversations
+        $selfconversation1 = \core_message\api::get_self_conversation($user1->id);
+        \core_message\api::unset_favourite_conversation($selfconversation1->id, $user1->id);
+        \core_message\api::delete_all_conversation_data($selfconversation1->id);
+        $selfconversation2 = \core_message\api::get_self_conversation($user2->id);
+        \core_message\api::unset_favourite_conversation($selfconversation2->id, $user2->id);
+        \core_message\api::delete_all_conversation_data($selfconversation2->id);
+        $selfconversation3 = \core_message\api::get_self_conversation($user3->id);
+        \core_message\api::unset_favourite_conversation($selfconversation3->id, $user3->id);
+        \core_message\api::delete_all_conversation_data($selfconversation3->id);
+        $selfconversation4 = \core_message\api::get_self_conversation($user4->id);
+        \core_message\api::unset_favourite_conversation($selfconversation4->id, $user4->id);
+        \core_message\api::delete_all_conversation_data($selfconversation4->id);
+
         \core_message\api::block_user($user1->id, $user2->id);
         \core_message\api::block_user($user1->id, $user3->id);
         \core_message\api::block_user($user1->id, $user4->id);
@@ -610,6 +718,17 @@ class core_message_privacy_provider_testcase extends \core_privacy\tests\provide
         $user1 = $this->getDataGenerator()->create_user();
         $user2 = $this->getDataGenerator()->create_user();
         $user3 = $this->getDataGenerator()->create_user();
+
+        // Remove user self-conversations
+        $selfconversation1 = \core_message\api::get_self_conversation($user1->id);
+        \core_message\api::unset_favourite_conversation($selfconversation1->id, $user1->id);
+        \core_message\api::delete_all_conversation_data($selfconversation1->id);
+        $selfconversation2 = \core_message\api::get_self_conversation($user2->id);
+        \core_message\api::unset_favourite_conversation($selfconversation2->id, $user2->id);
+        \core_message\api::delete_all_conversation_data($selfconversation2->id);
+        $selfconversation3 = \core_message\api::get_self_conversation($user3->id);
+        \core_message\api::unset_favourite_conversation($selfconversation3->id, $user3->id);
+        \core_message\api::delete_all_conversation_data($selfconversation3->id);
 
         $now = time();
 
@@ -718,6 +837,17 @@ class core_message_privacy_provider_testcase extends \core_privacy\tests\provide
         $user3 = $this->getDataGenerator()->create_user();
         $user1context = \context_user::instance($user1->id);
 
+        // Remove user self-conversations
+        $selfconversation1 = \core_message\api::get_self_conversation($user1->id);
+        \core_message\api::unset_favourite_conversation($selfconversation1->id, $user1->id);
+        \core_message\api::delete_all_conversation_data($selfconversation1->id);
+        $selfconversation2 = \core_message\api::get_self_conversation($user2->id);
+        \core_message\api::unset_favourite_conversation($selfconversation2->id, $user2->id);
+        \core_message\api::delete_all_conversation_data($selfconversation2->id);
+        $selfconversation3 = \core_message\api::get_self_conversation($user3->id);
+        \core_message\api::unset_favourite_conversation($selfconversation3->id, $user3->id);
+        \core_message\api::delete_all_conversation_data($selfconversation3->id);
+
         $course1 = $this->getDataGenerator()->create_course();
         $course2 = $this->getDataGenerator()->create_course();
         $coursecontext1 = \context_course::instance($course1->id);
@@ -813,6 +943,17 @@ class core_message_privacy_provider_testcase extends \core_privacy\tests\provide
         $user1 = $this->getDataGenerator()->create_user();
         $user2 = $this->getDataGenerator()->create_user();
         $user3 = $this->getDataGenerator()->create_user();
+
+        // Remove user self-conversations
+        $selfconversation1 = \core_message\api::get_self_conversation($user1->id);
+        \core_message\api::unset_favourite_conversation($selfconversation1->id, $user1->id);
+        \core_message\api::delete_all_conversation_data($selfconversation1->id);
+        $selfconversation2 = \core_message\api::get_self_conversation($user2->id);
+        \core_message\api::unset_favourite_conversation($selfconversation2->id, $user2->id);
+        \core_message\api::delete_all_conversation_data($selfconversation2->id);
+        $selfconversation3 = \core_message\api::get_self_conversation($user3->id);
+        \core_message\api::unset_favourite_conversation($selfconversation3->id, $user3->id);
+        \core_message\api::delete_all_conversation_data($selfconversation3->id);
 
         $now = time();
         $timeread = $now - DAYSECS;
