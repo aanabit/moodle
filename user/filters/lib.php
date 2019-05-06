@@ -154,7 +154,7 @@ class user_filtering {
             case 'nevermodified': return new user_filter_checkbox('nevermodified', get_string('nevermodified', 'filters'), $advanced, array('timemodified', 'timecreated'), array('timemodified_sck', 'timemodified_eck'));
             case 'cohort':      return new user_filter_cohort($advanced);
             case 'idnumber':    return new user_filter_text('idnumber', get_string('idnumber'), $advanced, 'idnumber');
-            case 'lastip':    return new user_filter_text('lastip', get_string('lastip'), $advanced, 'lastip');
+            case 'lastip':  return new user_filter_text('lastip', get_string('lastip'), $advanced, 'lastip');
             case 'auth':
                 $plugins = core_component::get_plugin_list('auth');
                 $choices = array();
