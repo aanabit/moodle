@@ -23,6 +23,7 @@
  */
 
 $string['acceptandaddcontact'] = 'Accept and add to contacts';
+$string['accepted'] = 'Accepted';
 $string['addcontact'] = 'Add contact';
 $string['addcontactconfirm'] = 'Are you sure you want to add {$a} to your contacts?';
 $string['addtoyourcontacts'] = 'Add to contacts';
@@ -50,7 +51,10 @@ $string['contactrequestsent'] = 'Contact request sent';
 $string['contacts'] = 'Contacts';
 $string['conversationactions'] = 'Conversation actions menu';
 $string['decline'] = 'Decline';
+$string['declined'] = 'Declined';
+$string['declinedrequest'] = 'Declined request';
 $string['defaultmessageoutputs'] = 'Default message outputs';
+$string['defaultmessageoutputs'] = 'Notification settings';
 $string['defaults'] = 'Defaults';
 $string['deleteallconfirm'] = "Are you sure you would like to delete this entire conversation? This will not delete it for other conversation participants.";
 $string['deleteallmessages'] = "Delete all messages";

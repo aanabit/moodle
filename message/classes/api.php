@@ -2493,7 +2493,7 @@ class api {
         $userfrom = \core_user::get_user($userid);
         $userfromfullname = fullname($userfrom);
         $userto = \core_user::get_user($requesteduserid);
-        $url = new \moodle_url('/message/pendingcontactrequests.php');
+        $url = new \moodle_url('/message/pendingcontactrequests.php', array('userid' => $userid));
 
         $subject = get_string('messagecontactrequestsnotificationsubject', 'core_message', $userfromfullname);
         $fullmessage = get_string('messagecontactrequestsnotification', 'core_message', $userfromfullname);
