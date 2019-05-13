@@ -40,20 +40,8 @@ if (empty($CFG->messaging)) {
 $userid = optional_param('userid', '', PARAM_INT); // The userid of the request.
 $action = optional_param('action', '', PARAM_ALPHA);
 
-// Confirm the request is able to be approved/disapproved.
-if ($userid) {
-    $request = $DB->get_record('message_contact_requests', ['userid' => $userid, 'requesteduserid' => $USER->id], '*', MUST_EXIST);
-}
-
-// Use external functions as these are what we will be using in the new UI.
-if ($userid && $action && confirm_sesskey()) {
-    if ($action == 'approve') {
-        core_message_external::confirm_contact_request($request->userid, $USER->id);
-    } else if ($action == 'decline') {
-        core_message_external::decline_contact_request($request->userid, $USER->id);
-    }
-
-    redirect(new moodle_url('/message/pendingcontactrequests.php'));
+if ($userid == $USER->id || ($userid && !($user = core_user::get_user($userid)))) {
+    throw new moodle_exception('invaliduser', 'error');
 }
 
 $table = new html_table();
@@ -64,23 +52,60 @@ $headers[] = '';
 
 $table->head = $headers;
 
-// Use external functions as these are what we will be using in the new UI.
-if ($contactrequests = core_message_external::get_contact_requests($USER->id)) {
-    foreach ($contactrequests as $contactrequest) {
-        $approvelink = new moodle_url('/message/pendingcontactrequests.php', ['userid' => $contactrequest->id,
+if (!$userid) {
+    // Old notifications with no userid parameter. List all pending contact requests.
+    if ($contactrequests = core_message_external::get_contact_requests($USER->id)) {
+        foreach ($contactrequests as $contactrequest) {
+            $approvelink = new moodle_url('/message/pendingcontactrequests.php', ['userid' => $contactrequest->id,
+                'action' => 'approve', 'sesskey' => sesskey()]);
+            $declinelink = new moodle_url('/message/pendingcontactrequests.php', ['userid' => $contactrequest->id,
+                'action' => 'decline', 'sesskey' => sesskey()]);
+            $cells = array();
+            $cells[] = $contactrequest->fullname;
+            $cells[] = html_writer::link($approvelink, get_string('approve')) . " | " .
+                html_writer::link($declinelink, get_string('cancel'));
+            $table->data[] = new html_table_row($cells);
+        }
+    }
+} else {
+    // For new contact requests.
+    if ($request = $DB->get_record('message_contact_requests', ['userid' => $userid, 'requesteduserid' => $USER->id])) {
+        // Use external functions as these are what we will be using in the new UI.
+        if ($userid && $action && confirm_sesskey()) {
+            if ($action == 'approve') {
+                core_message_external::confirm_contact_request($userid, $USER->id);
+            } else if ($action == 'decline') {
+                core_message_external::decline_contact_request($userid, $USER->id);
+            }
+
+            redirect(new moodle_url('/message/pendingcontactrequests.php', array('userid' => $userid)));
+        }
+
+        $approvelink = new moodle_url('/message/pendingcontactrequests.php', ['userid' => $userid,
             'action' => 'approve', 'sesskey' => sesskey()]);
-        $declinelink = new moodle_url('/message/pendingcontactrequests.php', ['userid' => $contactrequest->id,
+        $declinelink = new moodle_url('/message/pendingcontactrequests.php', ['userid' => $userid,
             'action' => 'decline', 'sesskey' => sesskey()]);
 
         $cells = array();
-        $cells[] = $contactrequest->fullname;
-        $cells[] = html_writer::link($approvelink, get_string('approve')) . " | " .
-            html_writer::link($declinelink, get_string('cancel'));
+        $cells[] = fullname($user);
+        $cells[] = html_writer::link($approvelink, get_string('acceptandaddcontact', 'message')) . " | " .
+            html_writer::link($declinelink, get_string('decline', 'message'));
+        $table->data[] = new html_table_row($cells);
+    } else {
+        // Request has been approved or declined.
+        $cells = array();
+        if ($contact = $DB->get_record('message_contacts', ['userid' => $userid, 'contactid' => $USER->id])) {
+            $cells[] = fullname($user);
+            $cells[] = get_string('accepted', 'message');
+        } else {
+            $cells[] = get_string('declinedrequest', 'message');
+            $cells[] = get_string('declined', 'message');
+        }
         $table->data[] = new html_table_row($cells);
     }
 }
 
-$url = new moodle_url('/message/pendingcontactrequests.php');
+$url = new moodle_url('/message/pendingcontactrequests.php', array('userid' => $userid));
 $PAGE->set_url($url);
 
 $PAGE->set_context(context_user::instance($USER->id));
