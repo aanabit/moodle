@@ -1064,7 +1064,7 @@ function badges_send_verification_email($email, $backpackid, $backpackpassword) 
     $messagetext = get_string('backpackemailverifyemailbody', 'badges', $args);
     $messagehtml = text_to_html($messagetext, false, false, true);
 
-    return email_to_user($tempuser, $noreplyuser, $messagesubject, $messagetext, $messagehtml);
+    return email_to_user($tempuser, $noreplyuser, $messagesubject, html_to_text($messagetext), $messagehtml);
 }
 
 /**

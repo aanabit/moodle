@@ -193,7 +193,7 @@ class api {
         $confirmationurl = new moodle_url('/auth/oauth2/confirm-linkedlogin.php', $params);
 
         $data->link = $confirmationurl->out(false);
-        $message = get_string('confirmlinkedloginemail', 'auth_oauth2', $data);
+        $message = html_to_text(get_string('confirmlinkedloginemail', 'auth_oauth2', $data));
 
         $data->link = $confirmationurl->out();
         $messagehtml = text_to_html(get_string('confirmlinkedloginemail', 'auth_oauth2', $data), false, false, true);

@@ -947,11 +947,12 @@ function login_lock_account($user) {
         $data->admin     = generate_email_signoff();
 
         $message = get_string('lockoutemailbody', 'admin', $data);
+        $messagehtml = text_to_html($message, null, false, true);
         $subject = get_string('lockoutemailsubject', 'admin', format_string($site->fullname));
 
         if ($message) {
             // Directly email rather than using the messaging system to ensure its not routed to a popup or jabber.
-            email_to_user($user, $supportuser, $subject, $message);
+            email_to_user($user, $supportuser, $subject, html_to_text($message), $messagehtml);
         }
 
         force_current_language($oldforcelang);

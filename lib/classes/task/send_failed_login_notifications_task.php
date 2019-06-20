@@ -169,12 +169,13 @@ class send_failed_login_notifications_task extends scheduled_task {
                     (($CFG->lastnotifyfailure != 0) ? '('.userdate($CFG->lastnotifyfailure).')' : '')."\n\n" .
                     $messages .
                     "\n\n".get_string('notifyloginfailuresmessageend', '',  $url->out(false).' ')."\n\n";
+            $bodyhtml = text_to_html($body, null, false, true);
 
             // For each destination, send mail.
             mtrace('Emailing admins about '. $count .' failed login attempts');
             foreach ($recip as $admin) {
                 // Emailing the admins directly rather than putting these through the messaging system.
-                email_to_user($admin, \core_user::get_noreply_user(), $subject, $body);
+                email_to_user($admin, \core_user::get_noreply_user(), $subject, html_to_text($body), $bodyhtml);
             }
         }
 

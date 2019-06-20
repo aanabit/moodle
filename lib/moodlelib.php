@@ -6336,11 +6336,12 @@ function setnew_password_and_mail($user, $fasthash = false) {
     $a->signoff     = generate_email_signoff();
 
     $message = (string)new lang_string('newusernewpasswordtext', '', $a, $lang);
+    $messagehtml = text_to_html($message, false, false, true);
 
     $subject = format_string($site->fullname) .': '. (string)new lang_string('newusernewpasswordsubj', '', $a, $lang);
 
     // Directly email rather than using the messaging system to ensure its not routed to a popup or jabber.
-    return email_to_user($user, $supportuser, $subject, $message);
+    return email_to_user($user, $supportuser, $subject, html_to_text($message), $messagehtml);
 
 }
 
@@ -6378,13 +6379,14 @@ function reset_password_and_mail($user) {
     $a->signoff     = generate_email_signoff();
 
     $message = get_string('newpasswordtext', '', $a);
+    $messagehtml = text_to_html($message, false, false, true);
 
     $subject  = format_string($site->fullname) .': '. get_string('changedpassword');
 
     unset_user_preference('create_password', $user); // Prevent cron from generating the password.
 
     // Directly email rather than using the messaging system to ensure its not routed to a popup or jabber.
-    return email_to_user($user, $supportuser, $subject, $message);
+    return email_to_user($user, $supportuser, $subject, html_to_text($message), $messagehtml);
 }
 
 /**
@@ -6428,12 +6430,12 @@ function send_confirmation_email($user, $confirmationurl = null) {
     $data->link = $confirmationpath . ( $hasquerystring ? '&' : '?') . 'data='. $user->secret .'/'. $username;
 
     $message     = get_string('emailconfirmation', '', $data);
-    $messagehtml = text_to_html(get_string('emailconfirmation', '', $data), false, false, true);
+    $messagehtml = text_to_html($message, false, false, true);
 
     $user->mailformat = 1;  // Always send HTML version as well.
 
     // Directly email rather than using the messaging system to ensure its not routed to a popup or jabber.
-    return email_to_user($user, $supportuser, $subject, $message, $messagehtml);
+    return email_to_user($user, $supportuser, $subject, html_to_text($message), $messagehtml);
 }
 
 /**
@@ -6460,10 +6462,12 @@ function send_password_change_confirmation_email($user, $resetrecord) {
     $data->resetminutes = $pwresetmins;
 
     $message = get_string('emailresetconfirmation', '', $data);
+    $messagehtml = text_to_html($message, false, false, true);
+
     $subject = get_string('emailresetconfirmationsubject', '', format_string($site->fullname));
 
     // Directly email rather than using the messaging system to ensure its not routed to a popup or jabber.
-    return email_to_user($user, $supportuser, $subject, $message);
+    return email_to_user($user, $supportuser, $subject, html_to_text($message), $messagehtml);
 
 }
 
@@ -6486,16 +6490,17 @@ function send_password_change_info($user) {
 
     if (!is_enabled_auth($user->auth)) {
         $message = get_string('emailpasswordchangeinfodisabled', '', $data);
+        $messagehtml = text_to_html($message, false, false, true);
         $subject = get_string('emailpasswordchangeinfosubject', '', format_string($site->fullname));
         // Directly email rather than using the messaging system to ensure its not routed to a popup or jabber.
-        return email_to_user($user, $supportuser, $subject, $message);
+        return email_to_user($user, $supportuser, $subject, html_to_text($message), $messagehtml);
     }
 
     $userauth = get_auth_plugin($user->auth);
     ['subject' => $subject, 'message' => $message] = $userauth->get_password_change_info($user);
 
     // Directly email rather than using the messaging system to ensure its not routed to a popup or jabber.
-    return email_to_user($user, $supportuser, $subject, $message);
+    return email_to_user($user, $supportuser, $subject, html_to_text($message), text_to_html($message, false, false, true));
 }
 
 /**

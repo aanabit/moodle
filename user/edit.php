@@ -268,11 +268,18 @@ if ($userform->is_cancelled()) {
         $a->supportemail = $supportuser->email;
 
         $emailupdatemessage = get_string('emailupdatemessage', 'auth', $a);
+        $emailupdatemessagehtml = text_to_html($emailupdatemessage, null, false, true);
         $emailupdatetitle = get_string('emailupdatetitle', 'auth', $a);
 
         // Email confirmation directly rather than using messaging so they will definitely get an email.
         $noreplyuser = core_user::get_noreply_user();
-        if (!$mailresults = email_to_user($tempuser, $noreplyuser, $emailupdatetitle, $emailupdatemessage)) {
+        if (!$mailresults = email_to_user(
+            $tempuser,
+            $noreplyuser,
+            $emailupdatetitle,
+            html_to_text($emailupdatemessage),
+            $emailupdatemessagehtml
+        )) {
             die("could not send email!");
         }
     }
