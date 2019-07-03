@@ -29,12 +29,20 @@ require_once($CFG->libdir.'/adminlib.php');
 admin_externalpage_setup('defaultmessageoutputs');
 
 // Fetch processors
-$processors = get_message_processors(true);
+$allprocessors = get_message_processors();
+$processors = array_filter($allprocessors, function($processor) {
+    return $processor->enabled;
+});
+$disabledprocessors = array_filter($allprocessors, function($processor) {
+    return !$processor->enabled;
+});
+$preferences = get_message_output_default_preferences();
+
 // Fetch message providers
 $providers = get_message_providers();
 
 if (($form = data_submitted()) && confirm_sesskey()) {
-    $preferences = array();
+    $newpreferences = array();
     // Prepare default message outputs settings
     foreach ( $providers as $provider) {
         $componentproviderbase = $provider->component.'_'.$provider->name;
@@ -42,9 +50,9 @@ if (($form = data_submitted()) && confirm_sesskey()) {
         $providerdisabled = false;
         if (!isset($form->$disableprovidersetting)) {
             $providerdisabled = true;
-            $preferences[$disableprovidersetting] = 1;
+            $newpreferences[$disableprovidersetting] = 1;
         } else {
-            $preferences[$disableprovidersetting] = 0;
+            $newpreferences[$disableprovidersetting] = 0;
         }
 
         foreach (array('permitted', 'loggedin', 'loggedoff') as $setting){
@@ -71,27 +79,44 @@ if (($form = data_submitted()) && confirm_sesskey()) {
                         $form->{$componentproviderbase.'_loggedoff'}[$processor->name] = 1;
                     }
                     // record the site preference
-                    $preferences[$processor->name.'_provider_'.$componentprovidersetting] = $value;
+                    $newpreferences[$processor->name.'_provider_'.$componentprovidersetting] = $value;
                 }
-            } else if (array_key_exists($componentprovidersetting, $form)) {
-                // we must be processing loggedin or loggedoff checkboxes. Store
-                // defained comma-separated processors as setting value.
-                // Using array_filter eliminates elements set to 0 above
-                $value = join(',', array_keys(array_filter($form->{$componentprovidersetting})));
+            } else {
+                $newsettings = array();
+                if (array_key_exists($componentprovidersetting, $form)) {
+                    // We must be processing loggedin or loggedoff checkboxes.
+                    // Store defained comma-separated processors as setting value.
+                    // Using array_filter eliminates elements set to 0 above.
+                    $newsettings = array_keys(array_filter($form->{$componentprovidersetting}));
+
+                }
+
+                // Let's join existing setting values for disabled processors.
+                $property = 'message_provider_'.$componentprovidersetting;
+                if (property_exists($preferences, $property)) {
+                    $existingsetting = $preferences->$property;
+                    foreach ($disabledprocessors as $disable) {
+                        if (strpos($existingsetting, $disable->name) > -1) {
+                            $newsettings[] = $disable->name;
+                        }
+                    }
+                }
+
+                $value = join(',', $newsettings);
                 if (empty($value)) {
                     $value = null;
                 }
             }
             if ($setting != 'permitted') {
                 // we have already recoded site preferences for 'permitted' type
-                $preferences['message_provider_'.$componentprovidersetting] = $value;
+                $newpreferences['message_provider_'.$componentprovidersetting] = $value;
             }
         }
     }
 
     // Update database
     $transaction = $DB->start_delegated_transaction();
-    foreach ($preferences as $name => $value) {
+    foreach ($newpreferences as $name => $value) {
         set_config($name, $value, 'message');
     }
     $transaction->allow_commit();
@@ -111,7 +136,6 @@ $PAGE->requires->js_init_call('M.core_message.init_defaultoutputs');
 $renderer = $PAGE->get_renderer('core', 'message');
 
 // Display the manage message outputs interface
-$preferences = get_message_output_default_preferences();
 $messageoutputs = $renderer->manage_defaultmessageoutputs($processors, $providers, $preferences);
 
 // Display the page
