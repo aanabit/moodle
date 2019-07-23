@@ -198,8 +198,6 @@ class api {
         $data->link = $confirmationurl->out();
         $messagehtml = text_to_html(get_string('confirmlinkedloginemail', 'auth_oauth2', $data), false, false, true);
 
-        $user->mailformat = 1;  // Always send HTML version as well.
-
         // Directly email rather than using the messaging system to ensure its not routed to a popup or jabber.
         return email_to_user($user, $supportuser, $subject, $message, $messagehtml);
     }
