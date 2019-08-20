@@ -15,15 +15,18 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Atto text editor integration version file.
+ * Strings for component 'atto_h5p', language 'en'.
  *
- * @package    editor_atto
+ * @package    atto_h5p
  * @copyright  2013 Damyon Wiese  <damyon@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
-
-$plugin->version   = 2019082000;        // The current plugin version (Date: YYYYMMDDXX).
-$plugin->requires  = 2019051100;        // Requires this Moodle version.
-$plugin->component = 'editor_atto';  // Full name of the plugin (used for diagnostics).
+$string['createh5p'] = 'Insert h5p';
+$string['enterurl'] = 'Enter URL';
+$string['h5pproperties'] = 'H5P properties';
+$string['invalidh5purl'] = 'Invalid H5P url';
+$string['pluginname'] = 'Insert h5p';
+$string['privacy:metadata'] = 'The atto_h5p plugin does not store any personal data.';
+$string['h5p:addembed'] = 'Add an embedded h5p resource';
+$string['saveh5p'] = 'Insert h5p';

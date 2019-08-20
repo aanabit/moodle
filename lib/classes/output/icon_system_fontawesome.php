@@ -118,6 +118,7 @@ class icon_system_fontawesome extends icon_system_font {
             'core:e/insert_row_after' => 'fa-plus',
             'core:e/insert_row_before' => 'fa-plus',
             'core:e/insert' => 'fa-plus',
+            'core:e/insert_h5p' => 'fa-hand-spock-o',
             'core:e/insert_time' => 'fa-clock-o',
             'core:e/italic' => 'fa-italic',
             'core:e/justify' => 'fa-align-justify',
