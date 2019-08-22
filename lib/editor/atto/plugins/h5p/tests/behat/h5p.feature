@@ -16,6 +16,6 @@ Feature: Add h5ps to Atto
   Scenario: Insert a h5p as a file
     Given I set the field "Enter URL" to "https://h5p.org/h5p/embed/576651"
     And I wait until the page is ready
-    And I click on "Save h5p" "button"
+    And I click on "Insert h5p" "button" in the "H5P properties" "dialogue"
     When I click on "Save changes" "button"
     Then "Lorum ipsum" "text" should exist in the "#fitem_id_summary_editor" "css_element"
