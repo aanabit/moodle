@@ -29,4 +29,4 @@ $string['invalidh5purl'] = 'Invalid H5P url';
 $string['pluginname'] = 'Insert h5p';
 $string['privacy:metadata'] = 'The atto_h5p plugin does not store any personal data.';
 $string['h5p:addembed'] = 'Add an embedded h5p resource';
-$string['saveh5p'] = 'Insert h5p';
+$string['saveh5p'] = 'Save h5p';
