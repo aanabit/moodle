@@ -21,6 +21,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 require_once("../config.php");
+require_once($CFG->dirroot.'/h5p/classes/framework.php');
 
 $id = required_param('id', PARAM_INT);
 
@@ -28,13 +29,13 @@ $disabledownload = false;
 $disablefullscreen = false;
 
 // Set up view assets.
-$h5p    = new \core_h5p($id);
+$h5p    = new \core_h5p\view_assets($id);
 $content = $h5p->getcontent();
 
 // Configure page.
 require_login(0, false);
 $PAGE->set_context(context_system::instance());
-$PAGE->set_url(new \moodle_url('/h5p/view.php', array('id' => $id)));
+$PAGE->set_url(new moodle_url ('/h5p/view.php', array('id' => $id)));
 $PAGE->set_title('render h5p');
 $PAGE->set_heading('h5p rendering');
 

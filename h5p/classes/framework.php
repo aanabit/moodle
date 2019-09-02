@@ -26,7 +26,7 @@ namespace core_h5p;
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once(__DIR__ . '/../autoloader.php');
+use core_h5p\file_storage;
 
 /**
  * Moodle's implementation of the H5P framework interface.
@@ -49,7 +49,7 @@ class framework implements \H5PFrameworkInterface {
 
         if (!isset($interface)) {
             $interface = new \core_h5p\framework();
-            $fs = new \core_h5p\file_storage();
+            $fs = new file_storage();
             $language = self::get_language();
 
             $context = \context_system::instance();

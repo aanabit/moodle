@@ -3537,7 +3537,7 @@ function xmldb_main_upgrade($oldversion) {
         upgrade_main_savepoint(true, 2019081600.01);
     }
 
-    if ($oldversion < 2019081600.03) {
+    if ($oldversion < 2019081600.05) {
 
         // Define field relativedatesmode to be added to course.
         $table = new xmldb_table('h5p_libraries');
@@ -3547,12 +3547,6 @@ function xmldb_main_upgrade($oldversion) {
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }
-
-        // Main savepoint reached.
-        upgrade_main_savepoint(true, 2019081600.03);
-    }
-
-    if ($oldversion < 2019081600.04) {
 
         // Define table h5p_contents_libraries to be created.
         $table = new xmldb_table('h5p_contents_libraries');
@@ -3577,7 +3571,7 @@ function xmldb_main_upgrade($oldversion) {
         }
 
         // h5p savepoint reached.
-        upgrade_main_savepoint(true, 2019081600.04);
+        upgrade_main_savepoint(true, 2019081600.05);
     }
 
     return true;

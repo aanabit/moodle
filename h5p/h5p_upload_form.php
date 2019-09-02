@@ -28,7 +28,7 @@ defined('MOODLE_INTERNAL') || die();
 
 // Load moodleform class.
 require_once("$CFG->libdir/formslib.php");
-require_once("$CFG->libdir/classes/h5p.php");
+//require_once("$CFG->libdir/classes/h5p.php");
 
 /**
  * Form to upload new H5P libraries and upgrade existing once
@@ -94,7 +94,7 @@ class upload_form extends \moodleform {
 
         // Add file so that core framework can find it.
         $file = reset($files);
-        $interface = \core_h5p_framework::instance('interface');
+        $interface = \core_h5p\framework::instance('interface');
 
         $path = $CFG->tempdir . uniqid('/h5p-');
         $interface->getUploadedH5pFolderPath($path);
@@ -103,14 +103,14 @@ class upload_form extends \moodleform {
         $file->copy_content_to($path);
 
         // Validate package.
-        $h5pvalidator = \core_h5p_framework::instance('validator');
+        $h5pvalidator = \core_h5p\framework::instance('validator');
         if (!$h5pvalidator->isValidPackage(false, isset($data['onlyupdate']))) {
             // Errors while validating the package.
             $errors = array_map(function ($message) {
                 return $message->message;
-            }, \core_h5p_framework::messages('error'));
+            }, \core_h5p\framework::messages('error'));
 
-            $messages = array_merge(\core_h5p_framework::messages('info'), $errors);
+            $messages = array_merge(\core_h5p\framework::messages('info'), $errors);
             $errors['h5pfile'] = implode('<br/>', $messages);
             $errors['h5pfile'] .= 'H5P file invalid';
         }
