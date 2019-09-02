@@ -55,80 +55,12 @@ function core_h5p_pluginfile($course, $cm, $context, $filearea, $args, $forcedow
         case 'libraries':
             $itemid = 0;
             break;
-        case 'cachedassets':
+        case 'content':
             if ($context->contextlevel != CONTEXT_SYSTEM) {
                 return false; // Invalid context.
             }
 
-            // Check permissions.
-            if (!has_capability('mod/hvp:getcachedassets', $context)) {
-                return false;
-            }
-
-            $itemid = 0;
-            break;
-
-        case 'content':
-            if ($context->contextlevel != CONTEXT_MODULE) {
-                return false; // Invalid context.
-            }
-
-            // Check permissions.
-            if (!has_capability('mod/hvp:view', $context)) {
-                return false;
-            }
-
             $itemid = array_shift($args);
-            break;
-
-        case 'exports':
-            if ($context->contextlevel != CONTEXT_MODULE) {
-                return false; // Invalid context.
-            }
-
-            // Check permission.
-            if (!has_capability('mod/hvp:view', $context)) {
-                return false;
-            }
-            // Note that the getexport permission is checked after loading the content.
-
-            // Get core.
-            $h5pinterface = \core_hvp\framework::instance('interface');
-            $h5pcore = \core_hvp\framework::instance('core');
-
-            $matches = array();
-
-            // Get content id from filename.
-            if (!preg_match('/(\d*).h5p$/', $args[0], $matches)) {
-                // Did not find any content ID.
-                return false;
-            }
-
-            $contentid = $matches[1];
-            $content = $h5pinterface->loadContent($contentid);
-            $displayoptions = $h5pcore->getDisplayOptionsForView($content['disable'], $context->instanceid);
-
-            // Check permissions.
-            if (!$displayoptions['export']) {
-                return false;
-            }
-
-            $itemid = 0;
-
-            // Change context to course for retrieving file.
-            $cm = get_coursemodule_from_id('hvp', $context->instanceid);
-            $context = context_course::instance($cm->course);
-            break;
-
-        case 'editor':
-            $cap = ($context->contextlevel === CONTEXT_COURSE ? 'addinstance' : 'manage');
-
-            // Check permissions.
-            if (!has_capability("mod/hvp:$cap", $context)) {
-                return false;
-            }
-
-            $itemid = 0;
             break;
     }
 

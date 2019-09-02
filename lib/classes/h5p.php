@@ -48,6 +48,8 @@ function h5p_autoloader($class) {
     if (isset($classmap[$class])) {
         require_once($CFG->libdir . '/h5p/' . $classmap[$class]);
     }
+
+    require_once($CFG->dirroot . '/h5p/classes/file_storage.php');
 }
 
 spl_autoload_register('h5p_autoloader');
@@ -61,6 +63,7 @@ class core_h5p {
     private $jsrequires;
     private $cssrequires;
     private $testidnumber;
+    private $files;
 
     protected $settings;
 
@@ -221,7 +224,7 @@ class core_h5p {
     private function getdependencyfiles() {
         global $PAGE;
 
-        $preloadeddeps = $this->core->loadContentDependencies($this->testidnumber);
+        $preloadeddeps = $this->core->loadContentDependencies($this->testidnumber, 'preloaded');
         $files         = $this->core->getDependenciesFiles($preloadeddeps);
 
         return $files;
@@ -277,7 +280,7 @@ class core_h5p_framework implements \H5PFrameworkInterface {
 
         if (!isset($interface)) {
             $interface = new core_h5p_framework();
-            $fs = new core_h5p_file_storage();
+            $fs = new \core_h5p\file_storage();
             $core = new \H5PCore($interface, $fs, '', '', '');
         }
         switch ($type) {
@@ -398,7 +401,7 @@ class core_h5p_framework implements \H5PFrameworkInterface {
         $queryargs = array($id);
 
         if ($type !== null) {
-            $query .= " AND hcl.dependency_type = ?";
+            $query .= " AND hcl.dependencytype = ?";
             $queryargs[] = $type;
         }
 
@@ -722,17 +725,32 @@ class core_h5p_framework implements \H5PFrameworkInterface {
     }
 
     public function saveLibraryDependencies($libraryid, $dependencies, $dependencytype) {
+        global $DB;
+        foreach ($dependencies as $dependency) {
+            // Find dependency library.
+            $dependencylibrary = $DB->get_record('h5p_libraries', array(
+                'machinename' => $dependency['machineName'],
+                'majorversion' => $dependency['majorVersion'],
+                'minorversion' => $dependency['minorVersion']
+            ));
+            // Create relation.
+            $DB->insert_record('h5p_library_dependencies', array(
+                'libraryid' => $libraryid,
+                'requiredlibraryid' => $dependencylibrary->id,
+                'dependencytype' => $dependencytype
+            ));
+        }
     }
 
     public function updateContent($content, $contentmainid = null) {
         global $DB;
 
-        $data = array_merge(\H5PMetadata::toDBArray($content['metadata'], false), array(
+        $data = array(
             'jsoncontent' => $content['params'],
             'embedtype' => 'div',
             'mainlibraryid' => $content['library']['libraryId'],
             'timemodified' => time(),
-        ));
+        );
 
         if (!isset($content['id'])) {
             $data['slug'] = '';
@@ -850,10 +868,10 @@ class core_h5p_framework implements \H5PFrameworkInterface {
                    JOIN {h5p_libraries} hl ON hll.requiredlibraryid = hl.id
                   WHERE hll.libraryid = ?', array($library->id));
         foreach ($dependencies as $dependency) {
-            $librarydata[$dependency->dependency_type . 'Dependencies'][] = array(
-                'machineName' => $dependency->machine_name,
-                'majorVersion' => $dependency->major_version,
-                'minorVersion' => $dependency->minor_version
+            $librarydata[$dependency->dependencytype . 'Dependencies'][] = array(
+                'machineName' => $dependency->machinename,
+                'majorVersion' => $dependency->majorversion,
+                'minorVersion' => $dependency->minorversion
             );
         }
 
@@ -934,154 +952,255 @@ class core_h5p_framework implements \H5PFrameworkInterface {
     }
 }
 
-class core_h5p_file_storage implements \H5PFileStorage {
-
-    public $contentId;
-
-    public function saveLibrary($library) {
-        // Libraries are stored in a system context.
-        $context = \context_system::instance();
-        $options = array(
-            'contextid' => $context->id,
-            'component' => 'core_h5p',
-            'filearea' => 'libraries',
-            'itemid' => 0,
-            'filepath' => '/' . \H5PCore::libraryToString($library, true) . '/',
-        );
-
-        // Remove any old existing library files.
-        self::deleteFileTree($context->id, $options['filearea'], $options['filepath']);
-
-        // Move library folder.
-        self::readFileTree($library['uploadDirectory'], $options);
-    }
-
-    public function saveContent($source, $content) {
-        // Remove any old content.
-        $this->deleteContent($content);
-        // Contents are stored in a course context.
-        $context = \context_system::instance();
-        $options = array(
-            'contextid' => $context->id,
-            'component' => 'core_h5p',
-            'filearea' => 'content',
-            'itemid' => $content['id'],
-            'filepath' => '/',
-        );
-
-        $this->contentId = $content['id'];
-        // Move content folder.
-        self::readFileTree($source, $options);
-    }
-
-    public function deleteContent($content) {
-    }
-
-    public function cloneContent($id, $newid) {
-    }
-
-    public function getTmpPath() {
-    }
-
-    public function exportContent($id, $target) {
-    }
-
-    public function exportLibrary($library, $target) {
-    }
-
-    public function saveExport($source, $filename) {
-    }
-
-    private function getExportFile($filename) {
-    }
-
-    public function deleteExport($filename) {
-    }
-
-    public function hasExport($filename) {
-    }
-
-    public function cacheAssets(&$files, $key) {
-    }
-
-    public function getCachedAssets($key) {
-    }
-
-    public function deleteCachedAssets($keys) {
-    }
-
-    public function getContent($filepath) {
-    }
-
-    public function saveFile($file, $contentid, $contextid = null) {
-    }
-
-    public function cloneContentFile($file, $fromid, $tocontent) {
-    }
-
-    public function getContentFile($file, $content) {
-    }
-
-    public function removeContentFile($file, $content) {
-    }
-
-    private static function readFileTree($source, $options) {
-        $dir = opendir($source);
-        if ($dir === false) {
-            trigger_error('Unable to open directory ' . $source, E_USER_WARNING);
-            throw new \Exception('unabletocopy');
-        }
-
-        while (false !== ($file = readdir($dir))) {
-            if (($file != '.') && ($file != '..') && $file != '.git' && $file != '.gitignore') {
-                if (is_dir($source . DIRECTORY_SEPARATOR . $file)) {
-                    $suboptions = $options;
-                    $suboptions['filepath'] .= $file . '/';
-                    self::readFileTree($source . '/' . $file, $suboptions);
-                } else {
-                    $record = $options;
-                    $record['filename'] = $file;
-                    $fs = get_file_storage();
-                    $fs->create_file_from_pathname($record, $source . '/' . $file);
-                }
-            }
-        }
-        closedir($dir);
-    }
-
-    private static function exportFileTree($target, $contextid, $filearea, $filepath, $itemid = 0) {
-    }
-
-    private static function deleteFileTree($contextid, $filearea, $filepath, $itemid = 0) {
-    }
-
-    private function getFile($filearea, $itemid, $file) {
-    }
-
-    private function getFilepath($file) {
-    }
-
-    private function getFilename($file) {
-    }
-
-    public static function fileExists($contextid, $filearea, $filepath, $filename) {
-    }
-
-    public function hasWriteAccess() {
-    }
-
-    public function moveContentDirectory($source, $contentid = null) {
-    }
-
-    private static function moveFile($sourcefile, $contextid, $contentid) {
-    }
-
-    private static function moveFileTree($sourcefiletree, $contextid, $contentid) {
-    }
-
-    public function hasPresave($libraryname, $developmentpath = null) {
-    }
-
-    public function getUpgradeScript($machinename, $majorversion, $minorversion) {
-    }
-}
+//class core_h5p_file_storage implements \H5PFileStorage {
+//
+//    public $contentId;
+//
+//    public function saveLibrary($library) {
+//        // Libraries are stored in a system context.
+//        $context = \context_system::instance();
+//        $options = array(
+//            'contextid' => $context->id,
+//            'component' => 'core_h5p',
+//            'filearea' => 'libraries',
+//            'itemid' => 0,
+//            'filepath' => '/' . \H5PCore::libraryToString($library, true) . '/',
+//        );
+//
+//        // Remove any old existing library files.
+//        self::deleteFileTree($context->id, $options['filearea'], $options['filepath']);
+//
+//        // Move library folder.
+//        self::readFileTree($library['uploadDirectory'], $options);
+//    }
+//
+//    public function saveContent($source, $content) {
+//        // Remove any old content.
+//        $this->deleteContent($content);
+//        // Contents are stored in a course context.
+//        $context = \context_system::instance();
+//        $options = array(
+//            'contextid' => $context->id,
+//            'component' => 'core_h5p',
+//            'filearea' => 'content',
+//            'itemid' => $content['id'],
+//            'filepath' => '/',
+//        );
+//
+//        $this->contentId = $content['id'];
+//        // Move content folder.
+//        self::readFileTree($source, $options);
+//    }
+//
+//    public function deleteContent($content) {
+//    }
+//
+//    public function cloneContent($id, $newid) {
+//    }
+//
+//    public function getTmpPath() {
+//    }
+//
+//    public function exportContent($id, $target) {
+//    }
+//
+//    public function exportLibrary($library, $target) {
+//    }
+//
+//    public function saveExport($source, $filename) {
+//    }
+//
+//    private function getExportFile($filename) {
+//    }
+//
+//    public function deleteExport($filename) {
+//    }
+//
+//    public function hasExport($filename) {
+//    }
+//
+//    public function cacheAssets(&$files, $key) {
+//    }
+//
+//    public function getCachedAssets($key) {
+//    }
+//
+//    public function deleteCachedAssets($keys) {
+//    }
+//
+//    public function getContent($filepath) {
+//    }
+//
+//    public function saveFile($file, $contentid, $contextid = null) {
+//    }
+//
+//    public function cloneContentFile($file, $fromid, $tocontent) {
+//    }
+//
+//    public function getContentFile($file, $content) {
+//    }
+//
+//    public function removeContentFile($file, $content) {
+//    }
+//
+//    private static function readFileTree($source, $options) {
+//        $dir = opendir($source);
+//        if ($dir === false) {
+//            trigger_error('Unable to open directory ' . $source, E_USER_WARNING);
+//            throw new \Exception('unabletocopy');
+//        }
+//
+//        while (false !== ($file = readdir($dir))) {
+//            if (($file != '.') && ($file != '..') && $file != '.git' && $file != '.gitignore') {
+//                if (is_dir($source . DIRECTORY_SEPARATOR . $file)) {
+//                    $suboptions = $options;
+//                    $suboptions['filepath'] .= $file . '/';
+//                    self::readFileTree($source . '/' . $file, $suboptions);
+//                } else {
+//                    $record = $options;
+//                    $record['filename'] = $file;
+//                    $fs = get_file_storage();
+//                    $fs->create_file_from_pathname($record, $source . '/' . $file);
+//                }
+//            }
+//        }
+//        closedir($dir);
+//    }
+//
+//    private static function exportFileTree($target, $contextid, $filearea, $filepath, $itemid = 0) {
+//    }
+//
+//    private static function deleteFileTree($contextid, $filearea, $filepath, $itemid = 0) {
+//    }
+//
+//    private function getFile($filearea, $itemid, $file) {
+//    }
+//
+//    private function getFilepath($file) {
+//    }
+//
+//    private function getFilename($file) {
+//    }
+//
+//    public static function fileExists($contextid, $filearea, $filepath, $filename) {
+//    }
+//
+//    public function hasWriteAccess() {
+//    }
+//
+//    public function moveContentDirectory($source, $contentid = null) {
+//        if ($source === null) {
+//            return null;
+//        }
+//
+//        // Default to 0 (editor).
+//        if (!isset($contentid)) {
+//            $contentid = 0;
+//        }
+//
+//        // Find content context.
+//        if ($contentid > 0) {
+//            // Grab cm context.
+//            $cm = \get_coursemodule_from_instance('hvp', $contentid);
+//            $context = \context_module::instance($cm->id);
+//            $contextid = $context->id;
+//        }
+//
+//        // Get context from parameters.
+//        if (!isset($contextid)) {
+//            $contextid = required_param('contextId', PARAM_INT);
+//        }
+//
+//        // Get h5p and content json.
+//        $contentsource = $source . DIRECTORY_SEPARATOR . 'content';
+//
+//        // Move all temporary content files to editor.
+//        $contentfiles = array_diff(scandir($contentsource), array('.', '..', 'content.json'));
+//        foreach ($contentfiles as $file) {
+//            if (is_dir("{$contentsource}/{$file}")) {
+//                self::moveFileTree("{$contentsource}/{$file}", $contextid, $contentid);
+//            } else {
+//                self::moveFile("{$contentsource}/{$file}", $contextid, $contentid);
+//            }
+//        }
+//
+//        // TODO: Return list of all files so they can be marked as temporary. JI-366
+//    }
+//
+//    private static function moveFile($sourcefile, $contextid, $contentid) {
+//        $fs = get_file_storage();
+//
+//        $pathparts = pathinfo($sourcefile);
+//        $filename  = $pathparts['basename'];
+//        $filepath  = $pathparts['dirname'];
+//        $foldername = basename($filepath);
+//
+//        if ($contentid > 0) {
+//            // Create file record for content.
+//            $record = array(
+//                'contextid' => $contextid,
+//                'component' => 'mod_hvp',
+//                'filearea' => $contentid > 0 ? 'content' : 'editor',
+//                'itemid' => $contentid,
+//                'filepath' => '/' . $foldername . '/',
+//                'filename' => $filename
+//            );
+//        } else {
+//            // Create file record for editor.
+//            $record = array(
+//                'contextid' => $contextid,
+//                'component' => 'mod_hvp',
+//                'filearea' => 'editor',
+//                'itemid' => 0,
+//                'filepath' => '/' . $foldername . '/',
+//                'filename' => $filename
+//            );
+//        }
+//
+//        $sourcedata = file_get_contents($sourcefile);
+//
+//        // Check if file already exists.
+//        $fileexists = $fs->file_exists($record['contextid'], 'mod_hvp',
+//            $record['filearea'], $record['itemid'], $record['filepath'],
+//            $record['filename']
+//        );
+//
+//        if ($fileexists) {
+//            // Delete it to make sure that it is replaced with correct content.
+//            $file = $fs->get_file($record['contextid'], 'mod_hvp',
+//                $record['filearea'], $record['itemid'], $record['filepath'],
+//                $record['filename']
+//            );
+//            if ($file) {
+//                $file->delete();
+//            }
+//        }
+//
+//        $fs->create_file_from_string($record, $sourcedata);
+//    }
+//
+//    private static function moveFileTree($sourcefiletree, $contextid, $contentid) {
+//        $dir = opendir($sourcefiletree);
+//        if ($dir === false) {
+//            trigger_error('Unable to open directory ' . $sourcefiletree, E_USER_WARNING);
+//            throw new \Exception('unabletocopy');
+//        }
+//
+//        while (false !== ($file = readdir($dir))) {
+//            if (($file != '.') && ($file != '..') && $file != '.git' && $file != '.gitignore') {
+//                if (is_dir("{$sourcefiletree}/{$file}")) {
+//                    self::moveFileTree("{$sourcefiletree}/{$file}", $contextid, $contentid);
+//                } else {
+//                    self::moveFile("{$sourcefiletree}/{$file}", $contextid, $contentid);
+//                }
+//            }
+//        }
+//        closedir($dir);
+//    }
+//
+//    public function hasPresave($libraryname, $developmentpath = null) {
+//    }
+//
+//    public function getUpgradeScript($machinename, $majorversion, $minorversion) {
+//    }
+//}
