@@ -24,6 +24,7 @@
 require_once("../config.php");
 require_once($CFG->libdir.'/adminlib.php');
 require_once($CFG->dirroot.'/h5p/h5p_upload_form.php');
+require_once($CFG->dirroot.'/h5p/classes/framework.php');
 
 // No guest autologin.
 require_login(0, false);
@@ -37,7 +38,7 @@ $uploadform = new \core_h5p\upload_form();
 $h5pstorage = false;
 if ($formdata = $uploadform->get_data()) {
     // Handle submitted valid form.
-    $h5pstorage = \core_h5p_framework::instance('storage');
+    $h5pstorage = \core_h5p\framework::instance('storage');
     $h5pstorage->savePackage(null, null, false);
 
 }
@@ -50,8 +51,8 @@ if ($h5pstorage) {
 
 echo $OUTPUT->header();
 
-\core_h5p_framework::printMessages('info', \core_h5p_framework::messages('info'));
-\core_h5p_framework::printMessages('error', \core_h5p_framework::messages('error'));
+\core_h5p\framework::print_messages('info', \core_h5p\framework::messages('info'));
+\core_h5p\framework::print_messages('error', \core_h5p\framework::messages('error'));
 
 if ($h5pstorage) {
 	echo $h5p->outputview();
