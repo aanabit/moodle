@@ -3574,6 +3574,45 @@ function xmldb_main_upgrade($oldversion) {
         upgrade_main_savepoint(true, 2019081600.05);
     }
 
+    if ($oldversion < 2019090600.01) {
+        $table = new xmldb_table('h5p');
+        $field = new xmldb_field('displayoptions', XMLDB_TYPE_TEXT, null, null, null, null, null, 'mainlibraryid');
+
+        // Conditionally launch add field displayoptions.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Rename preloaded_js and preloaded_css fields on table h5p_libraries to remove underscore.
+        $table = new xmldb_table('h5p_libraries');
+        $field = new xmldb_field('preloaded_js', XMLDB_TYPE_TEXT, null, null, null, null, null, 'fullscreen');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->rename_field($table, $field, 'preloadedjs');
+        }
+        $field = new xmldb_field('preloaded_css', XMLDB_TYPE_TEXT, null, null, null, null, null, 'fullscreen');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->rename_field($table, $field, 'preloadedcss');
+        }
+
+        // Define index meta (not unique) to be dropped and fixed from h5p_contents_libraries.
+        $table = new xmldb_table('h5p_contents_libraries');
+        $index = new xmldb_index('meta', XMLDB_INDEX_NOTUNIQUE, ['dropcss']);
+
+        // Drop index meta.
+        if ($dbman->index_exists($table, $index)) {
+            $dbman->drop_index($table, $index);
+        }
+
+        $index = new xmldb_index('dropcss', XMLDB_INDEX_NOTUNIQUE, ['dropcss']);
+        // Conditionally launch add index meta.
+        if (!$dbman->index_exists($table, $index)) {
+            $dbman->add_index($table, $index);
+        }
+
+        // h5p savepoint reached.
+        upgrade_main_savepoint(true, 2019090600.01);
+    }
+
     return true;
 
 }
