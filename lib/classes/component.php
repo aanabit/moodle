@@ -90,6 +90,17 @@ class core_component {
         'RedeyeVentures\\GeoPattern' => 'lib/geopattern-php/GeoPattern',
         'MongoDB' => 'cache/stores/mongodb/MongoDB',
         'Firebase\\JWT' => 'lib/php-jwt/src',
+        'H5PCore' => '/lib/h5p/h5p.classes',
+        'H5PFrameworkInterface' => '/lib/h5p/h5p.classes',
+        'H5PContent/Validator' => 'lib/h5p/h5p.classes',
+        'H5PValidator' => '/lib/h5p/h5p.classes',
+        'H5PStorage' => '/lib/h5p/h5p.classes',
+//        'H5PExport' => '/lib/h5p/h5p.classes.php',
+        'H5PDevelopment' => '/lib/h5p/h5p-development.class',
+        'H5PFileStorage' => '/lib/h5p/h5p-file-storage.interface',
+//        'H5PDefaultStorage' => '/lib/h5p/h5p-default-storage.class.php',
+//        'H5PEventBase' => '/lib/h5p/h5p-event-base.class.php',
+        'H5PMetadata' => '/lib/h5p/h5p-metadata.class',
     );
 
     /**
