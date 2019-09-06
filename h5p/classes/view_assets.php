@@ -34,31 +34,32 @@ class view_assets {
     private $content;
     private $jsrequires;
     private $cssrequires;
-    private $testidnumber;
+    private $idnumber;
     private $files;
 
     protected $settings;
 
     public function __construct($idnumber) {
         global $CFG;
-        $this->testidnumber = $idnumber;
+        $this->idnumber = $idnumber;
         $this->core        = \core_h5p\framework::instance();
-        $this->content     = $this->core->loadContent($this->testidnumber);
+        $this->content     = $this->core->loadContent($this->idnumber);
         $this->jsrequires  = [];
         $this->cssrequires = [];
         $this->settings = $this->get_core_assets(\context_system::instance());
         $context        = \context_system::instance();
-        $this->settings['contents'][ 'cid-' . $this->testidnumber ]   = array(
+        $displayoptions = $this->core->getDisplayOptionsForView(0, $idnumber);
+        $this->settings['contents'][ 'cid-' . $this->idnumber ]   = array(
             'library'         => \H5PCore::libraryToString($this->content['library']),
             'jsonContent'     => $this->getfilteredparameters(),
             'fullScreen'      => $this->content['library']['fullscreen'],
             'exportUrl'       => "",
             'embedCode'       => "No Embed Code",
-            'resizeCode'      => $this->getresizecode($this->testidnumber),
+            'resizeCode'      => $this->getresizecode($this->idnumber),
             'title'           => $this->content['slug'],
-            'displayOptions'  => '',
-            'url'             => "{$CFG->wwwroot}/lib/classes/output/h5p_embed.php?id={$this->testidnumber}",
-            'contentUrl'      => "{$CFG->wwwroot}/pluginfile.php/{$context->id}/core_h5p/content/{$this->testidnumber}",
+            'displayOptions'  => $displayoptions,
+            'url'             => "{$CFG->wwwroot}/lib/classes/output/h5p_embed.php?id={$this->idnumber}",
+            'contentUrl'      => "{$CFG->wwwroot}/pluginfile.php/{$context->id}/core_h5p/content/{$this->idnumber}",
             'metadata'        => '',
             'contentUserData' => array()
         );
@@ -196,7 +197,7 @@ class view_assets {
     private function getdependencyfiles() {
         global $PAGE;
 
-        $preloadeddeps = $this->core->loadContentDependencies($this->testidnumber, 'preloaded');
+        $preloadeddeps = $this->core->loadContentDependencies($this->idnumber, 'preloaded');
         $files         = $this->core->getDependenciesFiles($preloadeddeps);
 
         return $files;
@@ -235,6 +236,6 @@ class view_assets {
     }
 
     public function outputview() {
-        return "<div class=\"h5p-content\" data-content-id=\"{$this->testidnumber}\"></div>";
+        return "<div class=\"h5p-content\" data-content-id=\"{$this->idnumber}\"></div>";
     }
 }
