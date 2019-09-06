@@ -63,7 +63,11 @@ lib/amd/src/popper.js
 lib/geopattern-php/
 lib/php-jwt/
 lib/babel-polyfill/
+<<<<<<< HEAD
 lib/emoji-data/
+=======
+lib/h5p/
+>>>>>>> MDL-66609 core_h5p: New core_h5p subsystem
 media/player/videojs/amd/src/video-lazy.js
 media/player/videojs/amd/src/Youtube-lazy.js
 media/player/videojs/videojs/
