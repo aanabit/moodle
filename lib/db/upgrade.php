@@ -3641,9 +3641,6 @@ function xmldb_main_upgrade($oldversion) {
         $table->add_key('h5pid', XMLDB_KEY_FOREIGN, ['h5pid'], 'h5p', ['id']);
         $table->add_key('libraryid', XMLDB_KEY_FOREIGN, ['libraryid'], 'h5p_libraries', ['id']);
 
-        // Adding indexes to table h5p_contents_libraries.
-        $table->add_index('dropcss', XMLDB_INDEX_NOTUNIQUE, ['dropcss']);
-
         // Conditionally launch create table for h5p_contents_libraries.
         if (!$dbman->table_exists($table)) {
             $dbman->create_table($table);
@@ -3659,6 +3656,7 @@ function xmldb_main_upgrade($oldversion) {
 
         // Adding keys to table h5p_libraries_cachedassets.
         $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table->add_key('libraryid', XMLDB_KEY_FOREIGN, ['libraryid'], 'h5p_libraries_cachedassets', ['id']);
 
         // Conditionally launch create table for h5p_libraries_cachedassets.
         if (!$dbman->table_exists($table)) {

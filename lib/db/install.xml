@@ -4200,9 +4200,6 @@
         <KEY NAME="h5pid" TYPE="foreign" FIELDS="h5pid" REFTABLE="h5p" REFFIELDS="id"/>
         <KEY NAME="libraryid" TYPE="foreign" FIELDS="libraryid" REFTABLE="h5p_libraries" REFFIELDS="id"/>
       </KEYS>
-      <INDEXES>
-        <INDEX NAME="dropcss" UNIQUE="false" FIELDS="dropcss"/>
-      </INDEXES>
     </TABLE>
     <TABLE NAME="h5p_libraries_cachedassets" COMMENT="H5P cached library assets">
       <FIELDS>
@@ -4212,6 +4209,7 @@
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="libraryid" TYPE="foreign" FIELDS="libraryid" REFTABLE="h5p_libraries" REFFIELDS="id"/>
       </KEYS>
     </TABLE>
   </TABLES>
