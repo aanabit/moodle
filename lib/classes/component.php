@@ -92,7 +92,7 @@ class core_component {
         'Firebase\\JWT' => 'lib/php-jwt/src',
         'H5PCore' => '/lib/h5p/h5p.classes',
         'H5PFrameworkInterface' => '/lib/h5p/h5p.classes',
-        'H5PContent/Validator' => 'lib/h5p/h5p.classes',
+        'H5PContentValidator' => 'lib/h5p/h5p.classes',
         'H5PValidator' => '/lib/h5p/h5p.classes',
         'H5PStorage' => '/lib/h5p/h5p.classes',
         'H5PDevelopment' => '/lib/h5p/h5p-development.class',

@@ -13,3 +13,5 @@ Removed:
 
 Added:
  * readme_moodle.txt
+
+Downloaded version: 1.23.1 release
