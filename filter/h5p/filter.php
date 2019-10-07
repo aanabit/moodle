@@ -61,7 +61,7 @@ class filter_h5p extends moodle_text_filter {
         $allowedsources = get_config('filter_h5p', 'allowedsources');
         $allowedsources = array_filter(array_map('trim', explode("\n", $allowedsources)));
 
-        $localsource = '('.$CFG->wwwroot.'/[^<]*\.h5p([?][^ <]*)?)';
+        $localsource = '('.$CFG->wwwroot.'/[^ &<]*\.h5p([?][^ <]*)?[^ &<]*)';
         $allowedsources[] = $localsource;
 
         $params = array(
@@ -83,7 +83,7 @@ class filter_h5p extends moodle_text_filter {
             if (($source == $localsource)) {
                 $params['urlmodifier'] = '';
                 $params['tagbegin'] = '<iframe src="'.$CFG->wwwroot.'/h5p/embed.php?url=';
-                $ultimatepattern = '#('.$source.')#';
+                $ultimatepattern = '#'.$source.'#';
             } else {
                 // Convert special chars.
                 $sourceid = str_replace('[id]', '[0-9]+', $source);
@@ -101,7 +101,7 @@ class filter_h5p extends moodle_text_filter {
         $result = filter_phrases($text, $h5pcontents, null, null, false, true);
 
         // Encoding H5P file URLs.
-        $localsource = '#\?url=([^<]*[\/]+[^<]*\.h5p)([?][^"]*)?#';
+        $localsource = '#\?url=([^" <]*[\/]+[^" <]*\.h5p)([?][^"]*)?#';
         $result = preg_replace_callback($localsource,
             function ($matches) {
                 // Remove possible parameter in the url link.
