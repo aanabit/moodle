@@ -61,7 +61,7 @@ class filter_h5p extends moodle_text_filter {
         $allowedsources = get_config('filter_h5p', 'allowedsources');
         $allowedsources = array_filter(array_map('trim', explode("\n", $allowedsources)));
 
-        $localsource = $CFG->wwwroot.'/[^<]\.h5p';
+        $localsource = '('.$CFG->wwwroot.'/[^<]*\.h5p([?][^ <]*)?)';
         $allowedsources[] = $localsource;
 
         $params = array(
@@ -71,14 +71,6 @@ class filter_h5p extends moodle_text_filter {
 
         $specialchars = ['*', '?', '&', '[^<]'];
         $escapedspecialchars = ['[^.]+', '\?', '&amp;', '[^<]*'];
-
-        // Encoding H5P file URLs.
-        $text = preg_replace_callback("#([^/]*\.h5p[?[^ ]*]?)#",
-            function ($matches) {
-                // Remove possible parameter in the url link.
-                $match = explode('?', $matches[1]);
-                return urlencode($match[0]);
-            }, $text);
 
         // Check all allowed external sources.
         foreach ($allowedsources as $source) {
@@ -91,12 +83,13 @@ class filter_h5p extends moodle_text_filter {
             if (($source == $localsource)) {
                 $params['urlmodifier'] = '';
                 $params['tagbegin'] = '<iframe src="'.$CFG->wwwroot.'/h5p/embed.php?url=';
+                $ultimatepattern = '#('.$source.')#';
+            } else {
+                // Convert special chars.
+                $sourceid = str_replace('[id]', '[0-9]+', $source);
+                $escapechars = str_replace($specialchars, $escapedspecialchars, $sourceid);
+                $ultimatepattern = '#(' . $escapechars . ')#';
             }
-
-            // Convert special chars.
-            $sourceid = str_replace('[id]', '[0-9]+', $source);
-            $escapechars = str_replace($specialchars, $escapedspecialchars, $sourceid);
-            $ultimatepattern = '#(' . $escapechars . ')#';
 
             $h5pcontenturl = new filterobject($source, null, null, false,
                    false, null, [$this, 'filterobject_prepare_replacement_callback'], $params);
@@ -105,7 +98,18 @@ class filter_h5p extends moodle_text_filter {
             $h5pcontents[] = $h5pcontenturl;
         }
 
-        return filter_phrases($text, $h5pcontents, null, null, false, true);
+        $result = filter_phrases($text, $h5pcontents, null, null, false, true);
+
+        // Encoding H5P file URLs.
+        $localsource = '#\?url=([^<]*[\/]+[^<]*\.h5p)([?][^"]*)?#';
+        $result = preg_replace_callback($localsource,
+            function ($matches) {
+                // Remove possible parameter in the url link.
+                $match = explode('?', $matches[1]);
+                return "?url=".rawurlencode($match[0]);
+            }, $result);
+
+        return $result;
     }
 
     /**
@@ -117,6 +121,7 @@ class filter_h5p extends moodle_text_filter {
      * @return array [$hreftagbegin, $hreftagend, $replacementphrase] for filterobject.
      */
     public function filterobject_prepare_replacement_callback($tagbegin, $tagend, $urlmodifier) {
+        global $CFG;
 
         // Encoding URL to be sure we've got the right value to parse.
         $sourceurl = "$1";
@@ -124,11 +129,11 @@ class filter_h5p extends moodle_text_filter {
             $sourceurl .= $urlmodifier;
         }
 
-        $h5piframesrc = $sourceurl."\" width=\"100%\" height=\"637\" allowfullscreen=\"allowfullscreen\" style=\"border: 0;\">";
+        $h5piframesrc = $sourceurl."\" class=\"h5p-iframe\" style=\"height:1px; min-width: 100%\" allowfullscreen=\"allowfullscreen\" style=\"border: 0;\">";
 
         // We want to request the resizing script only once.
         if (self::$loadresizerjs) {
-            $tagend .= '<script src="https://h5p.org/sites/all/modules/h5p/library/js/h5p-resizer.js"></script>';
+            $tagend .= '<script src="'.$CFG->wwwroot.'/lib/h5p/js/h5p-resizer.js"></script>';
             self::$loadresizerjs = false;
         }
 
