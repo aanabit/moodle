@@ -179,6 +179,31 @@ class behat_general extends behat_base {
     }
 
     /**
+     * Switches to the iframe containing specified class.
+     *
+     * @Given /^I switch to "(?P<iframe_name_string>(?:[^"]|\\")*)" class iframe$/
+     * @param string $classname
+     */
+    public function switch_to_class_iframe($classname) {
+
+        // We spin to give time to the iframe to be loaded.
+        // Using extended timeout as we don't know about which
+        // kind of iframe will be loaded.
+        $this->spin(
+            function($context, $classname) {
+                $iframe = $this->find('iframe', $classname);
+                $iframename = $iframe->getAttribute('id');
+                $context->getSession()->switchToIFrame($iframename);
+
+                // If no exception we are done.
+                return true;
+            },
+            $classname,
+            behat_base::get_extended_timeout()
+        );
+    }
+
+    /**
      * Switches to the main Moodle frame.
      *
      * @Given /^I switch to the main frame$/
