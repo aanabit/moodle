@@ -54,19 +54,7 @@ function core_h5p_pluginfile($course, $cm, $context, string $filearea, array $ar
                  return false; // Invalid context because the libraries are loaded always in the context system.
             }
 
-            $itemid = null;
-
-            // The files that can be delivered to this function are unfortunately out of our control. Some of the
-            // references are embedded into the JavaScript of the files and we have no ability to inject an item id.
-            // We also don't know the location of the item id when we do include it, so we look for the first numeric
-            // value and try to serve that file.
-            foreach ($args as $key => $value) {
-                if (is_numeric($value)) {
-                    $itemid = $value;
-                    unset($args[$key]);
-                    break;
-                }
-            }
+            $itemid = array_shift($args);
 
             if (!isset($itemid)) {
                 // We didn't find an item id to use, so we fall back to retrieving the record using all the other

@@ -203,7 +203,6 @@ class file_storage implements \H5PFileStorage {
      * @param string $key Hashed key for cached asset
      */
     public function cacheAssets(&$files, $key) {
-
         foreach ($files as $type => $assets) {
             if (empty($assets)) {
                 continue;
@@ -521,19 +520,15 @@ class file_storage implements \H5PFileStorage {
         $content = '';
         foreach ($assets as $asset) {
             // Find location of asset.
-            list(
+            [
                 'filearea' => $filearea,
                 'filepath' => $filepath,
-                'filename' => $filename
-            ) = $this->get_file_elements_from_filepath($asset->path);
-
-            $fileid = $this->get_itemid_for_file($filearea, $filepath, $filename);
-            if ($fileid === false) {
-                continue;
-            }
+                'filename' => $filename,
+                'itemid' => $itemid,
+            ] = $this->get_file_elements_from_filepath($asset->path);
 
             // Locate file.
-            $file = $this->fs->get_file($context->id, self::COMPONENT, $filearea, $fileid, $filepath, $filename);
+            $file = $this->fs->get_file($context->id, self::COMPONENT, $filearea, $itemid, $filepath, $filename);
 
             // Get file content and concatenate.
             if ($type === 'scripts') {
@@ -542,7 +537,7 @@ class file_storage implements \H5PFileStorage {
                 // Rewrite relative URLs used inside stylesheets.
                 $content .= preg_replace_callback(
                     '/url\([\'"]?([^"\')]+)[\'"]?\)/i',
-                    function ($matches) use ($filearea, $filepath, $fileid) {
+                    function ($matches) use ($filearea, $filepath, $itemid) {
                         if (preg_match("/^(data:|([a-z0-9]+:)?\/)/i", $matches[1]) === 1) {
                             return $matches[0]; // Not relative, skip.
                         }
@@ -566,7 +561,7 @@ class file_storage implements \H5PFileStorage {
                             array_shift($pathfilename);
                             $matches[1] = implode('/', $pathfilename);
                         }
-                        return 'url("../' . $filearea . $filepath . $fileid . '/' . $matches[1] . '")';
+                        return 'url("../' . $filearea . $filepath . $itemid . '/' . $matches[1] . '")';
                     },
                     $file->get_content()) . "\n";
             }
@@ -590,7 +585,7 @@ class file_storage implements \H5PFileStorage {
      * @param  string $filepath The system filepath to get information from.
      * @return array File information.
      */
-    private function get_file_elements_from_filepath(string $filepath): array {
+    private function get_file_elements_from_filepath(string $filepath) : array {
         $sections = explode('/', $filepath);
         // Get the filename.
         $filename = array_pop($sections);
@@ -599,12 +594,17 @@ class file_storage implements \H5PFileStorage {
             array_shift($sections);
         }
         // Get the filearea.
-        $filearea = array_shift($sections);
+        $itemid = array_shift($sections);
         // Get the filepath.
         $filepath = implode('/', $sections);
         $filepath = '/' . $filepath . '/';
 
-        return ['filearea' => $filearea, 'filepath' => $filepath, 'filename' => $filename];
+        return [
+            'filearea' => $filearea,
+            'filepath' => $filepath,
+            'filename' => $filename,
+            'itemid' => $itemid,
+        ];
     }
 
     /**
