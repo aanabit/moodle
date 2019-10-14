@@ -26,6 +26,7 @@ namespace core_h5p;
 
 use H5PCore;
 use stdClass;
+use moodle_url;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -46,7 +47,25 @@ class core extends \H5PCore {
         return "libraries/{$library->id}/{$library->machinename}-{$library->majorversion}.{$library->minorversion}";
     }
 
-    private function find_library($dependency): \stdClass {
+    public function get_dependency_roots(int $id): array {
+        $dependencies = $this->h5pF->loadContentDependencies($id);
+        $context = \context_system::instance();
+        foreach ($dependencies as $dependency) {
+            $library = $this->find_library($dependency);
+            $roots[self::libraryToString($dependency, true)] = (moodle_url::make_pluginfile_url(
+                $context->id,
+                'core_h5p',
+                'libraries',
+                $library->id,
+                "/" . self::libraryToString($dependency, true),
+                ''
+            ))->out(false);
+        }
+
+        return $roots;
+    }
+
+    protected function find_library($dependency): \stdClass {
         global $DB;
         if (null === $this->libraries) {
             $this->libraries = $DB->get_records('h5p_libraries');
@@ -75,5 +94,19 @@ class core extends \H5PCore {
         }
 
         return null;
+    }
+
+    public static function get_scripts(): array {
+        global $CFG;
+        $cachebuster = '?ver=12345';
+        $liburl = $CFG->wwwroot . '/lib/h5p/';
+        $urls = [];
+
+        foreach (self::$scripts as $script) {
+            $urls[] = new moodle_url($liburl . $script . $cachebuster);
+        }
+        $urls[] = new moodle_url("/h5p/js/h5p_overrides.js");
+
+        return $urls;
     }
 }
