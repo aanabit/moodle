@@ -177,7 +177,7 @@ class behat_general extends behat_base {
             behat_base::get_extended_timeout()
         );
     }
-
+    
     /**
      * Switches to the iframe containing specified class.
      *
@@ -185,7 +185,6 @@ class behat_general extends behat_base {
      * @param string $classname
      */
     public function switch_to_class_iframe($classname) {
-
         // We spin to give time to the iframe to be loaded.
         // Using extended timeout as we don't know about which
         // kind of iframe will be loaded.
