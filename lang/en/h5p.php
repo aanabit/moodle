@@ -79,6 +79,9 @@ $string['h5ptitle'] = 'Visit H5P.org to check out more cool content.';
 $string['h5pfilenotfound'] = 'H5P file not found';
 $string['h5pinvalidurl'] = 'Invalid H5P content URL.';
 $string['h5pprivatefile'] = 'This H5P content can\'t be displayed because you don\'t have access to the .h5p file.';
+$string['h5pmanage'] = 'Manage H5P';
+$string['h5ppackage'] = 'H5P content package';
+$string['h5ppackage_help'] = 'H5P content package should be a file with H5P or ZIP extensions containing all libraries needed by the H5P content';
 $string['hideadvanced'] = 'Hide advanced';
 $string['invalidcontextid'] = 'H5P file not found (invalid contextid)';
 $string['invalidfile'] = 'File "{$a->%filename}" not allowed. Only files with the following extensions are allowed: {$a->%files-allowed}.';
@@ -92,11 +95,16 @@ $string['invalidlibraryoption'] = 'Illegal option {$a->%option} in {$a->%library
 $string['invalidlibraryproperty'] = 'Can\'t read the property {$a->%property} in {$a->%library}';
 $string['invalidmainjson'] = 'A valid main h5p.json file is missing';
 $string['invalidmultiselectoption'] = 'Invalid selected option in multi-select.';
+$string['invalidpackage'] = 'Invalid H5P content package.';
 $string['invalidselectoption'] = 'Invalid selected option in select.';
 $string['invalidsemanticsjson'] = 'Invalid semantics.json file has been included in the library {$a->%name}';
 $string['invalidsemanticstype'] = 'H5P internal error: unknown content type "{$a->@type}" in semantics. Removing content!';
 $string['invalidstring'] = 'Provided string is not valid according to regexp in semantics. (value: "{$a->%value}", regexp: "{$a->%regexp}")';
 $string['librarydirectoryerror'] = 'Library directory name must match machineName or machineName-majorVersion.minorVersion (from library.json). (Directory: {$a->%directoryName} , machineName: {$a->%machineName}, majorVersion: {$a->%majorVersion}, minorVersion: {$a->%minorVersion})';
+$string['librariesmanagerdescription'] = 'H5P are HTML5 Packages that can be used to create interactive content that can be reused and shared on many platforms. 
+    Each HTML5 Package contains a number of JavaScript libraries which are required to render the Package. 
+    To ensure your Moodle install only runs trusted H5P you should upload the example packages from H5P.org turn on the Scheduled Tasks that downloads all available Packages from H5P.org. 
+    Teacher are only able to use uploaded H5P Content types that are already installed in Moodle.';
 $string['license'] = 'License';
 $string['licenseCC010'] = 'CC0 1.0 Universal (CC0 1.0) Public Domain Dedication';
 $string['licenseCC010U'] = 'CC0 1.0 Universal';
@@ -125,6 +133,8 @@ $string['nocopyright'] = 'No copyright information available for this content.';
 $string['noextension'] = 'The file you uploaded is not a valid HTML5 Package (It does not have the .h5p file extension)';
 $string['nopermissiontodeploy'] = 'This file can\'t be displayed because it has been uploaded by a user without the required capability to deploy H5P content.';
 $string['nojson'] = 'The main h5p.json file is not valid';
+$string['notrustablefile'] = 'This file can\'t be displayed because it has been uploaded by a user without the required capability to update libraries.
+	In order to display this H5P file, you can ask the admin to install the required libraries.';
 $string['nounzip'] = 'The file you uploaded is not a valid HTML5 Package (We are unable to unzip it)';
 $string['offlineDialogBody'] = 'We were unable to send information about your completion of this task. Please check your internet connection.';
 $string['offlineDialogHeader'] = 'Your connection to the server was lost';
@@ -154,6 +164,7 @@ $string['undisclosed'] = 'Undisclosed';
 $string['unpackedFilesExceedsMaxSize'] = 'The total size of the unpacked files exceeds the maximum size allowed. ({$a->%used} > {$a->%max})';
 $string['updatedlibraries'] = 'Updated {$a->%old} H5P libraries.';
 $string['updatedlibrary'] = 'Updated {$a->%old} H5P library.';
+$string['uploadlibraries'] = 'Upload H5P libraries';
 $string['wrongversion'] = 'The version of the H5P library {$a->%machineName} used in this content is not valid. Content contains {$a->%contentLibrary}, but it should be {$a->%semanticsLibrary}.';
 $string['year'] = 'Year';
 $string['years'] = 'Year(s)';
