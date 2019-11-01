@@ -62,20 +62,30 @@ class helper {
 
         // Check if the h5p file is valid before saving it.
         $h5pvalidator = $factory->get_validator();
-        if ($h5pvalidator->isValidPackage($skipcontent, $onlyupdatelibs)) {
-            $h5pstorage = $factory->get_storage();
+        // Handling warnings as exceptions because for .h5p packages with an invalid structure,
+        // isValidPackage() is throwing some warnings but returning true without raising any error.
+        set_error_handler('h5p_error_handler', E_WARNING);
+        try {
+            if ($h5pvalidator->isValidPackage($skipcontent, $onlyupdatelibs)) {
+                $h5pstorage = $factory->get_storage();
 
-            $content = [
-                'pathnamehash' => $file->get_pathnamehash(),
-                'contenthash' => $file->get_contenthash(),
-            ];
-            $options = ['disable' => self::get_display_options($core, $config)];
+                $content = [
+                    'pathnamehash' => $file->get_pathnamehash(),
+                    'contenthash' => $file->get_contenthash(),
+                ];
+                $options = ['disable' => self::get_display_options($core, $config)];
 
-            $h5pstorage->savePackage($content, null, $skipcontent, $options);
+                $h5pstorage->savePackage($content, null, $skipcontent, $options);
+                $result = $h5pstorage->contentId;
 
-            return $h5pstorage->contentId;
+                restore_error_handler();
+                return $result;
+            }
+        } catch (\moodle_exception $e) {
+            // It's just a warning we are trying to catch. Unset it.
+            unset($e);
         }
-
+        restore_error_handler();
         return false;
     }
 
@@ -106,5 +116,5 @@ class helper {
 
         return $core->getStorableDisplayOptions($disableoptions, 0);
     }
-
 }
+

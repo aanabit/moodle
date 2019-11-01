@@ -113,3 +113,25 @@ function core_h5p_pluginfile($course, $cm, $context, string $filearea, array $ar
 
     return true;
 }
+
+/**
+ * This error handler is used to convert warnings to exceptions and catch them.
+ *
+ * This is required in order to catch H5P packages with invalid structure, because isValidPackage function
+ * is throwing warnings but no exceptions. It should only ever be used to catch E_WARNING.
+ *
+ * It throws an 'invalid h5p package' moodle exception
+ *
+ * @param int $errno E_WARNING
+ * @param string $errstr
+ * @param string $errfile
+ * @param int $errline
+ * @param array $errcontext
+ * @throws moodle_exception
+ */
+function h5p_error_handler($errno, $errstr, $errfile, $errline, $errcontext) {
+    if ($errno !== E_WARNING) {
+        return false;
+    }
+    throw new \moodle_exception('invalid_h5p_package', 'h5p');
+}
