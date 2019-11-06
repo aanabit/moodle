@@ -26,6 +26,8 @@ namespace core_h5p;
 
 defined('MOODLE_INTERNAL') || die();
 
+autoloader::register();
+
 /**
  * Moodle's implementation of the H5P framework interface.
  *
@@ -513,8 +515,8 @@ class framework implements \H5PFrameworkInterface {
         global $DB;
 
         $results = $DB->get_records('h5p_libraries', [], 'title ASC, majorversion ASC, minorversion ASC',
-            'machinename AS machine_name, majorversion AS major_version, minorversion AS minor_version,
-            patchversion AS patch_version');
+            'id, machinename AS machine_name, majorversion AS major_version, minorversion AS minor_version,
+            patchversion AS patch_version, runnable, title');
 
         $libraries = array();
         foreach ($results as $library) {
