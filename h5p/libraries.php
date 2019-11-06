@@ -64,4 +64,17 @@ if ($data = $form->get_data()) {
     }
 }
 $form->display();
+
+// Load installed Libraries.
+$interface = new \core_h5p\framework();
+$libraries = $interface->loadLibraries();
+$installed = [];
+foreach ($libraries as $key => $value) {
+    $installed[] = $value[0];
+}
+
+if (count($libraries)) {
+    echo $OUTPUT->render_from_template('core_h5p/h5plibraries', (object)['contenttypes' => $installed]);
+}
+
 echo $OUTPUT->footer();
