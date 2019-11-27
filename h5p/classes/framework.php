@@ -267,17 +267,17 @@ class framework implements \H5PFrameworkInterface {
             'Please confirm that you wish to proceed. This action is not reversible.' => 'confirmdialogbody',
             'Cancel' => 'cancellabel',
             'Confirm' => 'confirmlabel',
-            '4.0 International' => 'licenseCC40',
-            '3.0 Unported' => 'licenseCC30',
-            '2.5 Generic' => 'licenseCC25',
-            '2.0 Generic' => 'licenseCC20',
-            '1.0 Generic' => 'licenseCC10',
-            'General Public License' => 'licenseGPL',
-            'Version 3' => 'licenseV3',
-            'Version 2' => 'licenseV2',
-            'Version 1' => 'licenseV1',
-            'CC0 1.0 Universal (CC0 1.0) Public Domain Dedication' => 'licenseCC010',
-            'CC0 1.0 Universal' => 'licenseCC010U',
+            '4.0 International' => 'licensecc40',
+            '3.0 Unported' => 'licensecc30',
+            '2.5 Generic' => 'licensecc25',
+            '2.0 Generic' => 'licensecc20',
+            '1.0 Generic' => 'licensecc10',
+            'General Public License' => 'licensegpl',
+            'Version 3' => 'licensev3',
+            'Version 2' => 'licensev2',
+            'Version 1' => 'licensev1',
+            'CC0 1.0 Universal (CC0 1.0) Public Domain Dedication' => 'licensecc010',
+            'CC0 1.0 Universal' => 'licensecc010U',
             'License Version' => 'licenseversion',
             'Creative Commons' => 'creativecommons',
             'Attribution' => 'ccattribution',
@@ -312,24 +312,24 @@ class framework implements \H5PFrameworkInterface {
             'Comments for the editor of the content (This text will not be published as a part of copyright info)'
                 => 'authorcommentsdescription',
             'Reuse' => 'reuse',
-            'Reuse Content' => 'reuseContent',
-            'Reuse this content.' => 'reuseDescription',
-            'Content is copied to the clipboard' => 'contentCopied',
-            'Connection lost. Results will be stored and sent when you regain connection.' => 'connectionLost',
-            'Connection reestablished.' => 'connectionReestablished',
-            'Attempting to submit stored results.' => 'resubmitScores',
-            'Your connection to the server was lost' => 'offlineDialogHeader',
+            'Reuse Content' => 'reusecontent',
+            'Reuse this content.' => 'reusedescription',
+            'Content is copied to the clipboard' => 'contentcopied',
+            'Connection lost. Results will be stored and sent when you regain connection.' => 'connectionlost',
+            'Connection reestablished.' => 'connectionreestablished',
+            'Attempting to submit stored results.' => 'resubmitscores',
+            'Your connection to the server was lost' => 'offlinedialogheader',
             'We were unable to send information about your completion of this task. Please check your internet connection.'
-                => 'offlineDialogBody',
-            'Retrying in :num....' => 'offlineDialogRetryMessage',
-            'Retry now' => 'offlineDialogRetryButtonLabel',
-            'Successfully submitted results.' => 'offlineSuccessfulSubmit',
+                => 'offlinedialogbody',
+            'Retrying in :num....' => 'offlinedialogretrymessage',
+            'Retry now' => 'offlinedialogretrybuttonlabel',
+            'Successfully submitted results.' => 'offlinesuccessfulsubmit',
             'One of the files inside the package exceeds the maximum file size allowed. (%file %used > %max)'
-                => 'fileExceedsMaxSize',
+                => 'fileexceedsmaxsize',
             'The total size of the unpacked files exceeds the maximum size allowed. (%used > %max)'
-                => 'unpackedFilesExceedsMaxSize',
-            'Unable to read file from the package: %fileName' => 'couldNotReadFileFromZip',
-            'Unable to parse JSON from the package: %fileName' => 'couldNotParseJSONFromZip',
+                => 'unpackedfilesexceedsmaxsize',
+            'Unable to read file from the package: %fileName' => 'couldnotreadfilefromzip',
+            'Unable to parse JSON from the package: %fileName' => 'couldnotparsejsonfromzip',
             'A problem with the server write access was detected. Please make sure that your server can write to your data folder.' => 'nowriteaccess',
             'H5P hub communication has been disabled because one or more H5P requirements failed.' => 'hubcommunicationdisabled',
             'Site could not be registered with the hub. Please contact your site administrator.' => 'sitecouldnotberegistered',
@@ -346,7 +346,7 @@ class framework implements \H5PFrameworkInterface {
         ];
 
         if (isset($translationsmap[$message])) {
-            return get_string($translationsmap[$message], 'core_h5p', $replacements);
+            return get_string(strtolower($translationsmap[$message]), 'core_h5p', $replacements);
         }
 
         debugging("String translation cannot be found. Please add a string definition for '" .
