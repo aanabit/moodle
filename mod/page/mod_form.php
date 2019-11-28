@@ -161,9 +161,8 @@ class mod_page_mod_form extends moodleform_mod {
             // Turn off completion settings if the checkboxes aren't ticked.
             $autocompletion = !empty($data->completion) &&
                 $data->completion == COMPLETION_TRACKING_AUTOMATIC;
-            if (!$autocompletion) {
+        if (!$autocompletion) {
                 $data->completionview = 0;
-            }
+        }
     }
 }
-
