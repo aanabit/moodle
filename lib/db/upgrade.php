@@ -3786,6 +3786,21 @@ function xmldb_main_upgrade($oldversion) {
 
     // Automatically generated Moodle v3.8.0 release upgrade line.
     // Put any upgrade step following this.
+    if ($oldversion < 2019120500.01) {
+
+        // Define table course_completion_defaults to be created.
+        $table = new xmldb_table('course_completion_defaults');
+
+        // Adding fields to table course_completion_defaults.
+        $field = new xmldb_field('completionpassgrade', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0');
+
+        // Conditionally launch create table for course_completion_defaults.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        upgrade_main_savepoint(true, 2019120500.01);
+    }
 
     return true;
 }
