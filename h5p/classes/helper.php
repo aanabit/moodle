@@ -180,4 +180,66 @@ class helper {
         return $fs->create_file_from_pathname($filerecord, $filepath);
     }
 
+    /**
+     * Get information about different H5P tools and their status.
+     *
+     * @return array Data to render by the template
+     */
+    public static function get_h5p_tools_info(): array {
+        $tools = array();
+        $statuschoices = array(
+            TEXTFILTER_DISABLED => [get_string('off', 'core_filters'), 'badge badge-danger'],
+            0 => [get_string('off', 'core_filters'), 'badge badge-danger'],
+            TEXTFILTER_OFF => [get_string('offbutavailable', 'core_filters'), 'badge badge-warning'],
+            TEXTFILTER_ON => [get_string('on', 'core_filters'), 'badge badge-success'],
+        );
+
+        // Getting information from available H5P tools one by one because their enabled/disabled options are totally different.
+        // Check the atto button status.
+        $link = \editor_atto\plugininfo\atto::get_manage_url();
+        $status = strpos(get_config('editor_atto', 'toolbar'), 'h5p') > -1;
+        $tools[] = array(
+            'tool' => 'atto_h5p',
+            'link' => $link,
+            'status' => $statuschoices[$status][0],
+            'status_class' => $statuschoices[$status][1]
+        );
+
+        // Check the Display H5P filter status.
+        $link = \core\plugininfo\filter::get_manage_url();
+        $status = filter_get_active('displayh5p', \context_system::instance()->id);
+        $tools[] = array(
+            'tool' => 'filter_displayh5p',
+            'link' => $link,
+            'status' => $statuschoices[$status][0],
+            'status_class' => $statuschoices[$status][1]
+        );
+
+        // Check H5P scheduled task.
+        $link = '';
+        $status = 0;
+        $statusaction = '';
+        if ($task = \core\task\manager::get_scheduled_task('\core\task\h5p_get_content_types_task')) {
+            $status = !$task->get_disabled();
+            $link = new \moodle_url(
+                '/admin/tool/task/scheduledtasks.php',
+                array('action' => 'edit', 'task' => get_class($task))
+            );
+            if ($status && \tool_task\run_from_cli::is_runnable() && get_config('tool_task', 'enablerunnow')) {
+                $statusaction = \html_writer::link(
+                    new \moodle_url('/admin/tool/task/schedule_task.php',
+                        array('task' => get_class($task))),
+                    get_string('runnow', 'tool_task'));
+            }
+        }
+        $tools[] = array(
+            'tool' => 'task_h5p',
+            'link' => $link,
+            'status' => $statuschoices[$status][0],
+            'status_class' => $statuschoices[$status][1],
+            'status_action' => $statusaction
+        );
+
+        return $tools;
+    }
 }

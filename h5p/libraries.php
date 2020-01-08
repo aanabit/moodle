@@ -34,13 +34,16 @@ $url = new \moodle_url("/h5p/libraries.php");
 
 $PAGE->set_context($context);
 $PAGE->set_url($url);
-$PAGE->set_title($pagetitle);
 $PAGE->set_pagelayout('admin');
-$PAGE->set_heading($pagetitle);
+$PAGE->set_title("$SITE->shortname: " . $pagetitle);
+$PAGE->set_heading($SITE->fullname);
 
 echo $OUTPUT->header();
 echo $OUTPUT->heading($pagetitle);
 echo $OUTPUT->box(get_string('librariesmanagerdescription', 'core_h5p'));
+
+$tools = \core_h5p\helper::get_h5p_tools_info();
+echo $OUTPUT->render_from_template('core_h5p/h5ptoolsoverview', array('tools' => $tools));
 
 $form = new \core_h5p\form\uploadlibraries_form();
 $h5pfactory = new \core_h5p\factory();
@@ -67,10 +70,13 @@ $form->display();
 
 // Load installed Libraries.
 $framework = $h5pfactory->get_framework();
+$filestorage = $h5pfactory->get_core()->fs;
 $libraries = $framework->loadLibraries();
 $installed = [];
 foreach ($libraries as $libraryname => $versions) {
     foreach ($versions as $version) {
+        $filepath = '/'.$version->machine_name.'-'.$version->major_version.'.'.$version->minor_version.'/';
+        $version->icon = $filestorage->get_icon_url($version->id, $filepath);
         $installed[] = $version;
     }
 }
