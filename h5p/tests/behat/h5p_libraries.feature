@@ -4,14 +4,14 @@ Feature: Upload and list H5P libraries and content types installed
   @javascript
   Scenario: No library installed in new installations.
     Given I log in as "admin"
-    When I navigate to "H5P > Manage H5P content types" in site administration
+    When I navigate to "H5P > Manage H5P" in site administration
     Then I should see "Upload H5P content types"
     And I should not see "Installed H5P"
 
   @javascript
   Scenario: Upload an invalid content type.
     Given I log in as "admin"
-    And I navigate to "H5P > Manage H5P content types" in site administration
+    And I navigate to "H5P > Manage H5P" in site administration
     When I upload "h5p/tests/fixtures/h5ptest.zip" file to "H5P content type" filemanager
     And I click on "Upload H5P content types" "button" in the "#fitem_id_uploadlibraries" "css_element"
     And I wait until the page is ready
@@ -21,7 +21,7 @@ Feature: Upload and list H5P libraries and content types installed
   @javascript
   Scenario: Upload a valid content type.
     Given I log in as "admin"
-    And I navigate to "H5P > Manage H5P content types" in site administration
+    And I navigate to "H5P > Manage H5P" in site administration
     When I upload "h5p/tests/fixtures/filltheblanks.h5p" file to "H5P content type" filemanager
     And I click on "Upload H5P content types" "button" in the "#fitem_id_uploadlibraries" "css_element"
     And I wait until the page is ready
