@@ -42,9 +42,6 @@ echo $OUTPUT->header();
 echo $OUTPUT->heading($pagetitle);
 echo $OUTPUT->box(get_string('librariesmanagerdescription', 'core_h5p'));
 
-$tools = \core_h5p\helper::get_h5p_tools_info();
-echo $OUTPUT->render_from_template('core_h5p/h5ptoolsoverview', array('tools' => $tools));
-
 $form = new \core_h5p\form\uploadlibraries_form();
 $h5pfactory = new \core_h5p\factory();
 if ($data = $form->get_data()) {
