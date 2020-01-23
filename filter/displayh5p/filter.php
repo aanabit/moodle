@@ -110,7 +110,14 @@ class filter_displayh5p extends moodle_text_filter {
             return $text;
         }
 
-        $result = filter_phrases($text, $h5pcontents, null, null, false, true);
+        // This ignoretags options are based on 'filter_phrases()' function default values.
+        // We want all of them to be ignored except 'a' tag.
+        $filterignoretagsopen  = array('<head>', '<nolink>', '<span(\s[^>]*?)?class="nolink"(\s[^>]*?)?>',
+            '<script(\s[^>]*?)?>', '<textarea(\s[^>]*?)?>',
+            '<select(\s[^>]*?)?>');
+        $filterignoretagsclose = array('</head>', '</nolink>', '</span>',
+            '</script>', '</textarea>', '</select>');
+        $result = filter_phrases($text, $h5pcontents, $filterignoretagsopen, $filterignoretagsclose, true, true);
 
         // Encoding H5P file URLs.
         // embed.php page is requesting a PARAM_LOCALURL url parameter, so for files/directories use non-alphanumeric

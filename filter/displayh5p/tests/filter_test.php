@@ -77,6 +77,8 @@ class filter_displayh5p_testcase extends advanced_testcase {
             ["https://h5p.org/h5p/embed/547225", "#<iframe src=\"https://h5p.org/h5p/embed/547225\"[^>]+?>#"],
             ["https://moodle.h5p.com/content/1290729733828858779/embed", "#<iframe src=\"https://moodle.h5p.com/content/1290729733828858779/embed\"[^>]+?>#"],
             ["https://moodle.h5p.com/content/1290729733828858779", "#<iframe src=\"https://moodle.h5p.com/content/1290729733828858779/embed\"[^>]+?>#"],
+            ["<a href=\"https://h5p.org/h5p/embed/547225\">https://h5p.org/h5p/embed/547225</a>",
+                    "#<iframe src=\"https://h5p.org/h5p/embed/547225\"[^>]+?>#"],
             ["<a href=\"https://h5p.org/h5p/embed/547225\">link</a>",  "#^((?!iframe).)*$#"],
             ["this is a text with an h5p url https://h5p.org/h5p/embed/547225 inside",
                     "#this is a text with an h5p url <iframe src=\"https://h5p.org/h5p/embed/547225\"(.|\n)*> inside#"],
