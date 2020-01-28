@@ -30,7 +30,7 @@ defined('MOODLE_INTERNAL') || die();
  * @author Darko Miletic
  *
  */
-class enrol_database_admin_setting_category extends admin_setting_configselect {
+class enrol_database_admin_setting_category extends admin_setting_configselect_autocomplete {
     public function __construct($name, $visiblename, $description) {
         parent::__construct($name, $visiblename, $description, 1, null);
     }
@@ -40,7 +40,7 @@ class enrol_database_admin_setting_category extends admin_setting_configselect {
             return true;
         }
 
-        $this->choices = make_categories_options();
+        $this->choices = core_course_category::make_categories_list();
         return true;
     }
 }
