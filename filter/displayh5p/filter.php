@@ -74,6 +74,7 @@ class filter_displayh5p extends moodle_text_filter {
         $specialchars = ['?', '&'];
         $escapedspecialchars = ['\?', '&amp;'];
         $h5pcontents = array();
+        $h5plinks = array();
 
         // Check all allowed sources.
         foreach ($allowedsources as $source) {
@@ -82,7 +83,7 @@ class filter_displayh5p extends moodle_text_filter {
 
             if (($source == $localsource)) {
                 $params['tagbegin'] = '<iframe src="'.$CFG->wwwroot.'/h5p/embed.php?url=';
-                $ultimatepattern = '#'.$source.'#';
+                $ultimatepattern = $source;
             } else {
                 if (!stripos($source, 'embed')) {
                     $params['urlmodifier'] = '/embed';
@@ -90,8 +91,9 @@ class filter_displayh5p extends moodle_text_filter {
                 // Convert special chars.
                 $sourceid = str_replace('[id]', '[0-9]+', $source);
                 $escapechars = str_replace($specialchars, $escapedspecialchars, $sourceid);
-                $ultimatepattern = '#(' . $escapechars . ')#';
+                $ultimatepattern = '(' . $escapechars . ')';
             }
+            $ultimatepatterns[] = $ultimatepattern;
 
             // Improve performance creating filterobjects only when needed.
             if (!preg_match($ultimatepattern, $text)) {
@@ -101,15 +103,27 @@ class filter_displayh5p extends moodle_text_filter {
             $h5pcontenturl = new filterobject($source, null, null, false,
                 false, null, [$this, 'filterobject_prepare_replacement_callback'], $params);
 
-            $h5pcontenturl->workregexp = $ultimatepattern;
+            $h5pcontenturl->workregexp = '#'.$ultimatepattern.'#';
             $h5pcontents[] = $h5pcontenturl;
+
+            // Regex to find h5p patterns in an <a> tag.
+            $linkexp = '~<a [^>]*href="('.$ultimatepattern.'[^"]*)"[^>]*>([^>]*)</a>~is';
+            $h5plinkurl = new filterobject($source, null, null, false,
+                false, null, [$this, 'filterobject_prepare_replacement_callback'], $params);
+
+            $h5plinkurl->workregexp = '#'.$linkexp.'#';
+            $h5plinks[] = $h5plinkurl;
         }
 
-        if (empty($h5pcontents)) {
+        if (empty($h5pcontents) && empty($h5plinks)) {
             // No matches to deal with.
             return $text;
         }
 
+        // Apply filter avoiding tags.
+        $result = filter_phrases($text, $h5plinks, null, null, false, true);
+
+        // Apply filter inside <a> tags.
         // This ignoretags options are based on 'filter_phrases()' function default values.
         // We want all of them to be ignored except 'a' tag.
         $filterignoretagsopen  = array('<head>', '<nolink>', '<span(\s[^>]*?)?class="nolink"(\s[^>]*?)?>',
