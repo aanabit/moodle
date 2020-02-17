@@ -74,7 +74,7 @@ class filter_displayh5p extends moodle_text_filter {
         $specialchars = ['?', '&'];
         $escapedspecialchars = ['\?', '&amp;'];
         $h5pcontents = array();
-        $h5plinks = array();
+        $ultimatepatterns = array();
 
         // Check all allowed sources.
         foreach ($allowedsources as $source) {
@@ -105,33 +105,32 @@ class filter_displayh5p extends moodle_text_filter {
 
             $h5pcontenturl->workregexp = '#'.$ultimatepattern.'#';
             $h5pcontents[] = $h5pcontenturl;
-
-            // Regex to find h5p patterns in an <a> tag.
-            $linkexp = '~<a [^>]*href="('.$ultimatepattern.'[^"]*)"[^>]*>([^>]*)</a>~is';
-            $h5plinkurl = new filterobject($source, null, null, false,
-                false, null, [$this, 'filterobject_prepare_replacement_callback'], $params);
-
-            $h5plinkurl->workregexp = '#'.$linkexp.'#';
-            $h5plinks[] = $h5plinkurl;
         }
 
-        if (empty($h5pcontents) && empty($h5plinks)) {
+        if (empty($h5pcontents)) {
             // No matches to deal with.
             return $text;
         }
 
-        // Apply filter avoiding tags.
-        $result = filter_phrases($text, $h5plinks, null, null, false, true);
+        $result = filter_phrases($text, $h5pcontents, null, null, false, true);
 
-        // Apply filter inside <a> tags.
-        // This ignoretags options are based on 'filter_phrases()' function default values.
-        // We want all of them to be ignored except 'a' tag.
-        $filterignoretagsopen  = array('<head>', '<nolink>', '<span(\s[^>]*?)?class="nolink"(\s[^>]*?)?>',
-            '<script(\s[^>]*?)?>', '<textarea(\s[^>]*?)?>',
-            '<select(\s[^>]*?)?>');
-        $filterignoretagsclose = array('</head>', '</nolink>', '</span>',
-            '</script>', '</textarea>', '</select>');
-        $result = filter_phrases($text, $h5pcontents, $filterignoretagsopen, $filterignoretagsclose, true, true);
+        // Apply filter inside <a> tags' href attribute.
+        // Check all allowed sources.
+        foreach ($ultimatepatterns as $ultimatepattern) {
+
+            // Regex to find h5p extensions in an <a> tag.
+            $linkexp = '~<a [^>]*href="('.$ultimatepattern.'[^"]*)"[^>]*>([^>]*)</a>~is';
+
+            $result = preg_replace_callback($linkexp,
+                function ($matches) {
+                    if ($matches[1] == $matches[2]) {
+                        $baseurl = rawurlencode($matches[0]);
+                        return 'Bingo';
+                    } else {
+                        return $matches[0];
+                    }
+                }, $result);
+        }
 
         // Encoding H5P file URLs.
         // embed.php page is requesting a PARAM_LOCALURL url parameter, so for files/directories use non-alphanumeric
