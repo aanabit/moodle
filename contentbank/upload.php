@@ -30,7 +30,8 @@ require_login();
 $context = \context_system::instance();
 require_capability('moodle/contentbank:upload', $context);
 
-$returnurl = new \moodle_url('/contentbank/index.php');
+$parentid = optional_param('parent', 0, PARAM_INT);
+$returnurl = new \moodle_url('/contentbank/index.php', ['parent' => $parentid]);
 
 $PAGE->set_url('/contentbank/upload.php');
 $PAGE->set_context($context);
@@ -57,16 +58,16 @@ $extensionmanager = core_contentbank\extensions::instance();
 $accepted = $extensionmanager->get_supported_extensions_as_string();
 
 $data = new stdClass();
-$options = array(
+$options = [
     'subdirs' => 1,
     'maxbytes' => $maxbytes,
     'maxfiles' => -1,
     'accepted_types' => $accepted,
     'areamaxbytes' => $maxareabytes
-);
+];
 file_prepare_standard_filemanager($data, 'files', $options, $context, 'contentbank', 'public', 0);
 
-$mform = new contentbank_files_form(null, array('data' => $data, 'options' => $options));
+$mform = new contentbank_files_form(null, ['data' => $data, 'options' => $options, 'parent' => $parentid]);
 
 if ($mform->is_cancelled()) {
     redirect($returnurl);
@@ -84,6 +85,7 @@ if ($mform->is_cancelled()) {
         $plugin = $extensionmanager->get_extension_supporter($extensionmanager->get_extension($filename));
         $content = new stdClass();
         $content->name = $filename;
+        $content->parent = $formdata->parent;
         $manager = $plugin::create_content($content);
         file_save_draft_area_files($formdata->file, $context->id, 'contentbank', 'public', $manager->get_id());
     }

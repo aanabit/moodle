@@ -19,6 +19,25 @@
 
     Example context (json):
     {
+        "actions": [
+            {
+                "name": "Create folder",
+                "icon": "i/folder"
+                "attributes": [
+                    {
+                        "key": "data-action",
+                         "value": "createfolder"
+                    },
+                    {
+                        "key": "data-parentid",
+                         "value": "17"
+                    },
+            },
+            {
+                "name": "Create course presentation",
+                "icon": "i/h5p"
+            }
+        ]
         "tools": [
             {
                 "name": "Upload",
@@ -32,16 +51,20 @@
     }
 
 }}
-<div class="content-bank-toolbar card border-0 mb-3">
+
+<div id="region-cb-toolbar" class="content-bank-toolbar card border-0 mb-3">
     <div class="content-bank">
         <div class="cb-toolbar float-sm-right">
-        {{#tools}}
-            <div class="cb-tool btn btn-secondary btn-sm">
-                {{#link}}<a href="{{{ link }}}" title="{{{ name }}}">{{/link}}
-                    {{#pix}} {{{ icon }}} {{/pix}}
-                {{#link}}</a>{{/link}}
-            </div>
-        {{/tools}}
+            {{#actions}}
+                {{> core/action_menu}}
+            {{/actions}}
+            {{#tools}}
+                <div class="cb-tool btn btn-secondary btn-sm">
+                    {{#link}}<a href="{{{ link }}}" title="{{{ name }}}">{{/link}}
+                        {{#pix}} {{{ icon }}} {{/pix}}
+                    {{#link}}</a>{{/link}}
+                </div>
+            {{/tools}}
         </div>
     </div>
 </div>

@@ -22,10 +22,17 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+$string['add'] = 'Add';
+$string['addnewfolder'] = 'Add new folder';
 $string['author'] = 'Author';
+$string['createfolder'] = 'Create folder';
+$string['duplicatedfoldername'] = 'Folder name exists already';
 $string['file'] = 'Upload content';
 $string['file_help'] = 'Files may be stored in the content bank for use in courses. Only files used by content types enabled on the site may be uploaded.';
+$string['foldercreated'] = 'Folder created';
 $string['name'] = 'Content';
+$string['newfolder'] = 'New folder';
+$string['newfoldername'] = 'New folder name';
 $string['privacy:metadata:userid'] = 'The ID of the user creating or modifying content bank content.';
 $string['privacy:metadata:contentbank:usercreated'] = 'The user has created the content.';
 $string['privacy:metadata:contentbank:usermodified'] = 'Last user has modified the content.';

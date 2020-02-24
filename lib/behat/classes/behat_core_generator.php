@@ -217,6 +217,10 @@ class behat_core_generator extends behat_generator_base {
                 'required' => array('user', 'preference', 'value'),
                 'switchids' => array('user' => 'userid')
             ],
+            'contenbank folders' => [
+                'datagenerator' => 'contentbank_folder',
+                'required' => array('name')
+            ],
         ];
     }
 

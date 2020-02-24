@@ -2482,16 +2482,16 @@ $capabilities = array(
     ],
 
     // Content bank capabilities.
-    'moodle/contentbank:view' => array(
+    'moodle/contentbank:view' => [
         'captype' => 'read',
         'contextlevel' => CONTEXT_SYSTEM,
         'archetypes' => array(
             'manager' => CAP_ALLOW,
             'coursecreator' => CAP_ALLOW,
         )
-    ),
+    ],
 
-    'moodle/contentbank:upload' => array(
+    'moodle/contentbank:upload' => [
         'riskbitmask' => RISK_SPAM,
         'captype' => 'write',
         'contextlevel' => CONTEXT_SYSTEM,
@@ -2499,5 +2499,15 @@ $capabilities = array(
             'manager' => CAP_ALLOW,
             'coursecreator' => CAP_ALLOW,
         )
-    ),
+    ],
+
+    'moodle/contentbank:createfolder' => [
+        'riskbitmask' => RISK_SPAM,
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_SYSTEM,
+        'archetypes' => array(
+            'manager' => CAP_ALLOW,
+            'coursecreator' => CAP_ALLOW,
+        )
+    ],
 );

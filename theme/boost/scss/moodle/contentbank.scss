@@ -69,4 +69,10 @@ $navbar-bg: darken($body-bg, 5%) !default;
     .cb-tool .icon {
         margin: 0.5em;
     }
+    .btn {
+        height: 3.5em;
+    }
+    .btn-primary {
+        padding-top: 0.8em;
+    }
 }
