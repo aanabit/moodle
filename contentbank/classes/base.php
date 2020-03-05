@@ -76,6 +76,7 @@ class base {
         $record->name = $content->name ?? '';
         $record->contenttype = $content->contenttype ?? '';
         $record->contextid = $content->contextid ?? \context_system::instance()->id;
+        $record->parent = $content->parent ?? 17;
         $record->usercreated = $content->usercreated ?? $USER->id;
         $record->timecreated = time();
         $record->usermodified = $record->usercreated;

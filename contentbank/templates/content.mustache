@@ -31,28 +31,37 @@
     along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 }}
 {{!
-    @template core_contentbank/folder
+    @template core_contentbank/content
 
     Example context (json):
     {
-        "name": "H5P content",
-        "link": "http://something/contentbank/index.php?path=/1"
-        "icon" : "<img class='icon iconsize-big' alt='H5P content' aria-hidden='true' src='http://something/theme/image.php/boost/core/1581597850/f/folder-64'>"
+        "contents": [
+            {
+                "name": "accordion.h5p",
+                "link": "http://something/contentbank/content/h5p/view.php?url=http://something/pluginfile.php/1/contentbank/public/accordion.h5p",
+                "icon" : "<img class='icon iconsize-big' alt='accordion.h5p' aria-hidden='true' src='http://something/theme/image.php/boost/core/1581597850/f/h5p-64'>"
+            },
+            {
+                "name": "resume.pdf",
+                "icon": "<img class='icon iconsize-big' alt='resume.pdf' aria-hidden='true' src='http://something/theme/image.php/boost/core/1584597850/f/pdf-64'>"
+            }
+        ]
     }
+
 }}
 <div class="cb-content">
     <div class="cb-iconview">
         <div class="cb-file">
-            <div style="position:relative;">
-                <div class="cb-thumbnail" style="width: 110px; height: 110px;">
-                    <a href="{{{ link }}}" title="{{{ name }}}"">
-                    {{{ icon }}}
-                    </a>
+            {{#link}}<a href="{{{ link }}}">{{/link}}
+                <div style="position:relative;">
+                    <div class="cb-thumbnail" style="width: 110px; height: 110px;">
+                        {{{ icon }}}
+                    </div>
                 </div>
-            </div>
-            <div class="cb-contentname-field">
-                <div class="cb-contentname text-truncate" style="width: 112px;">{{{ name }}}</div>
-            </div>
+                <div class="cb-contentname-field">
+                    <div class="cb-contentname text-truncate" style="width: 112px;">{{{ name }}}</div>
+                </div>
+            {{#link}}</a>{{/link}}
         </div>
     </div>
 </div>

@@ -29,6 +29,9 @@ require_login();
 $context = context_system::instance();
 require_capability('moodle/contentbank:view', $context);
 
+$parentid = optional_param('parent', 0, PARAM_INT);
+$errormsg = optional_param('errormsg', '', PARAM_RAW);
+
 $title = get_string('contentbank');
 $PAGE->set_url('/contentbank/index.php');
 $PAGE->set_context($context);
@@ -37,38 +40,48 @@ $PAGE->set_heading($title);
 $PAGE->set_pagelayout('standard');
 $PAGE->set_pagetype('contentbank');
 
-// Get all contents managed by active plugins to render.
-$foldercontents = array();
-$contents = $DB->get_records('contentbank_content');
-foreach ($contents as $content) {
-    $plugin = core_plugin_manager::instance()->get_plugin_info($content->contenttype);
-    if (!$plugin || !$plugin->is_enabled()) {
-        continue;
-    }
-    $managerclass = "\\$content->contenttype\\plugin";
-    if (class_exists($managerclass)) {
-        $manager = new $managerclass($content);
-        $foldercontents[] = $manager;
-    }
+$PAGE->requires->js_call_amd('core_contentbank/folders', 'init');
+
+// Get all folders in this path.
+$folders = \core_contentbank\api::get_folders_in_parent($parentid);
+
+// Get all contents in this path managed by active plugins to render.
+$foldercontents = \core_contentbank\api::get_contents_in_parent($parentid);
+
+// Get the ADD actions ready.
+$actions = [];
+if (has_capability('moodle/contentbank:createfolder', $context)) {
+    // Add the create folder item to the menu.
+    $actionurl = new moodle_url('#');
+    $actiondata = ['data-action' => 'createfolder', 'data-parentid' => $parentid];
+    $actiontext = get_string('newfolder', 'core_contentbank');
+    $actions[] = new action_menu_link_secondary($actionurl, new pix_icon('i/folder', $actiontext), $actiontext, $actiondata);
+
+    $actionsmenu = new action_menu($actions);
+    $extraclasses = ' btn btn-primary btn-sm float-sm-left px-3';
+    $actionsmenu->set_menu_trigger(get_string('add', 'core_contentbank'), $extraclasses);
+    $actionsmenu->attributes['class'] .= ' float-sm-left mr-2';
 }
 
 // Get the toolbar ready.
-$toolbar = array ();
+$toolbar = [];
 if (has_capability('moodle/contentbank:upload', $context)) {
     // Don' show upload button if there's no plugin to support any file extension.
     $extensionmanager = core_contentbank\extensions::instance();
     $accepted = $extensionmanager->get_supported_extensions_as_string();
     if (!empty($accepted)) {
-        $importurl = new moodle_url('/contentbank/upload.php');
-        $toolbar[] = array('name' => 'Upload', 'link' => $importurl, 'icon' => 'i/upload');
+        $importurl = new moodle_url('/contentbank/upload.php', ['parent' => $parentid]);
+        $toolbar[] = ['name' => 'Upload', 'link' => $importurl, 'icon' => 'i/upload'];
     }
 }
-
 echo $OUTPUT->header();
 echo $OUTPUT->box_start('generalbox');
 
-$folder = new \core_contentbank\output\bankcontent($foldercontents, $toolbar);
+// If needed, display notifications.
+if ($errormsg !== '') {
+    echo $OUTPUT->notification($errormsg);
+}
+$folder = new \core_contentbank\output\bankcontent($parentid, $folders, $foldercontents, $toolbar, $actionsmenu);
 echo $OUTPUT->render($folder);
-
 echo $OUTPUT->box_end();
 echo $OUTPUT->footer();
