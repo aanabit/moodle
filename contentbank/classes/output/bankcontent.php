@@ -40,6 +40,16 @@ use stdClass;
 class bankcontent implements renderable, templatable {
 
     /**
+     * @var string    Path of the folder.
+     */
+    private $path = '/';
+
+    /**
+     * @var \core_contentbank\folder[]    Array of folders.
+     */
+    private $folders;
+
+    /**
      * @var \core_contentbank\base[]    Array of content bank contents.
      */
     private $contents;
@@ -50,12 +60,27 @@ class bankcontent implements renderable, templatable {
     private $toolbar;
 
     /**
+     * @var array   $actions array.
+     */
+    private $actions;
+
+    /**
      * Construct this renderable.
      *
-     * @param \core_contentbank\base[] $contents   Array of content bank contents.
-     * @param array $toolbar     List of content bank toolbar options.
+     * @param int $parentid   Current folder id.
+     * @param \core_contentbank\folder[] $folders   Array of folders.
+     * @param \core_contentbank\base[] $contents   Array of folder contents.
+     * @param array $toolbar     Array of folder toolbar options.
+     * @param \action_menu $actions     Array of menu actions.
      */
-    public function __construct(array $contents, array $toolbar) {
+    public function __construct(int $parentid, array $folders, array $contents, array $toolbar, \action_menu $actions) {
+        global $DB;
+
+        if ($parentid) {
+            $this->path = $DB->get_field('contentbank_folders', 'path', ['id' => $parentid]);
+        }
+        $this->actions = $actions;
+        $this->folders = $folders;
         $this->contents = $contents;
         $this->toolbar = $toolbar;
     }
@@ -67,17 +92,51 @@ class bankcontent implements renderable, templatable {
      * @return stdClass
      */
     public function export_for_template(renderer_base $output): stdClass {
+        global $DB;
+
         $data = new stdClass();
-        $contentdata = array();
+
+        $url = new \moodle_url('/contentbank/index.php');
+        $data->root = $url->out();
+
+        $breadcrumb = [];
+        $levels = explode('/', $this->path);
+        foreach ($levels as $level) {
+            if ($level == '') {
+                continue;
+            }
+            if ($name = $DB->get_field('contentbank_folders', 'name', ['id' => $level])) {
+                $url->params(['parent' => $level]);
+                $breadcrumb[] = [
+                    'name' => $name,
+                    'link' => $url->out()
+                ];
+            }
+        }
+        $data->breadcrumb = $breadcrumb;
+
+        $folderdata = [];
+        foreach ($this->folders as $folder) {
+            $link = new \moodle_url('/contentbank/index.php', ['parent' => $folder->id]);
+            $folderdata[] = [
+                'name' => $folder->name,
+                'link' => $link->out(false),
+                'icon' => \core_contentbank\folder::get_icon()
+            ];
+        }
+        $data->folders = $folderdata;
+
+        $contentdata = [];
         foreach ($this->contents as $manager) {
-            $contentdata[] = array(
+            $contentdata[] = [
                 'name' => $manager->get_name(),
                 'link' => $manager->get_view_url(),
                 'icon' => $manager->get_icon()
-            );
+            ];
         }
         $data->contents = $contentdata;
         $data->tools = $this->toolbar;
+        $data->actions = $this->actions->export_for_template($output);
         return $data;
     }
 }

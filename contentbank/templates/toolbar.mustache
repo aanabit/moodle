@@ -19,6 +19,11 @@
 
     Example context (json):
     {
+        "actions": [
+            "secondary": {
+                "items": [{"createfolder": "New folder"}]
+            }
+        ],
         "tools": [
             {
                 "name": "Upload",
@@ -32,16 +37,20 @@
     }
 
 }}
-<div class="content-bank-toolbar card border-0 mb-3">
+
+<div id="region-cb-toolbar" class="content-bank-toolbar card border-0 mb-3">
     <div class="content-bank">
         <div class="cb-toolbar float-sm-right">
-        {{#tools}}
-            {{#link}}<a href="{{{ link }}}" title="{{{ name }}}">{{/link}}
+            {{#actions}}
+                {{> core/action_menu}}
+            {{/actions}}
+            {{#tools}}
                 <div class="cb-tool btn btn-secondary btn-sm">
-                    {{#pix}} {{{ icon }}} {{/pix}}
+                    {{#link}}<a href="{{{ link }}}" title="{{{ name }}}">{{/link}}
+                        {{#pix}} {{{ icon }}} {{/pix}}
+                    {{#link}}</a>{{/link}}
                 </div>
-            {{#link}}</a>{{/link}}
-        {{/tools}}
+            {{/tools}}
         </div>
     </div>
 </div>
