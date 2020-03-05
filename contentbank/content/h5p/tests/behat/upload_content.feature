@@ -11,7 +11,7 @@ Feature: H5P file upload to content bank
     And I click on "Save changes" "button"
 
   Scenario: Admins can upload .h5p extension files to content bank
-    Given I click on "Content bank" "link"
+    Given I am viewing content bank
     And I should not see "filltheblanks.h5p"
     When I click on "Upload" "link"
     And I click on "Choose a file..." "button"
@@ -23,7 +23,7 @@ Feature: H5P file upload to content bank
     Then I should see "filltheblanks.h5p"
 
   Scenario: Admins can see uploaded H5P contents
-    Given I click on "Content bank" "link"
+    Given I am viewing content bank
     And I should not see "filltheblanks.h5p"
     When I click on "Upload" "link"
     And I click on "Choose a file..." "button"
@@ -38,7 +38,7 @@ Feature: H5P file upload to content bank
     And I should see "Of which countries"
 
   Scenario: Users can't see content managed by disabled plugins
-    Given I click on "Content bank" "link"
+    Given I am viewing content bank
     When I click on "Upload" "link"
     And I click on "Choose a file..." "button"
     And I click on "Private files" "link" in the ".fp-repo-area" "css_element"
@@ -52,3 +52,21 @@ Feature: H5P file upload to content bank
     And I wait until the page is ready
     Given I click on "Content bank" "link"
     Then I should not see "filltheblanks.h5p"
+
+  Scenario: Admins can upload .h5p extension files in a folder in the content bank
+    Given the following "contenbank folders" exist:
+      | name        | parent |
+      | First level | 0      |
+    Given I am viewing content bank
+    When I click on "First level" "link"
+    And I should not see "filltheblanks.h5p"
+    And I click on "Upload" "link"
+    And I click on "Choose a file..." "button"
+    And I click on "Private files" "link" in the ".fp-repo-area" "css_element"
+    And I click on "filltheblanks.h5p" "link"
+    And I click on "Select this file" "button"
+    And I click on "Save changes" "button"
+    And I wait until the page is ready
+    Then I should see "filltheblanks.h5p"
+    And I click on "/" "link"
+    And I should not see "filltheblanks.h5p"
