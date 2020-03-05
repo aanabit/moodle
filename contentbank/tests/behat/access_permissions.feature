@@ -11,11 +11,11 @@ Feature: Access permission to Content Bank
 
   Scenario: Users can't access content bank
     When I log in as "user1"
-    Then I should not see "Content bank"
+    Then "Content bank" "link" should not exist
 
   Scenario: Site level managers can access content bank
     Given the following "role assigns" exist:
       | user  | role    | contextlevel | reference |
       | user1 | manager | System       |           |
     When I log in as "user1"
-    Then I should see "Content bank"
+    Then "Content bank" "link" should exist
