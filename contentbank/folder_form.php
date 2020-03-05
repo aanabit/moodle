@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Upload files to content bank form
+ * Create folder in content bank form
  *
  * @package    core_contentbank
  * @copyright  2020 Amaia Anabitarte <amaia@moodle.com>
@@ -27,13 +27,13 @@ defined('MOODLE_INTERNAL') || die();
 require_once("$CFG->libdir/formslib.php");
 
 /**
- * Class contentbank_files_form
+ * Class contentbank_folder_form
  *
  * @package    core_contentbank
  * @copyright  2020 Amaia Anabitarte <amaia@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class contentbank_files_form extends moodleform {
+class contentbank_folder_form extends moodleform {
 
     /**
      * Add elements to this form.
@@ -41,35 +41,13 @@ class contentbank_files_form extends moodleform {
     public function definition() {
         $mform = $this->_form;
 
-        $data = $this->_customdata['data'];
-        $options = $this->_customdata['options'];
-        $parent = $this->_customdata['parent'];
-
-        $mform->addElement('hidden', 'parent', $parent);
+        $mform->addElement('hidden', 'parent', $this->_customdata['parent']);
         $mform->setType('parent', PARAM_INT);
 
-        $mform->addElement('filepicker', 'file', get_string('file', 'core_contentbank'), null, $options);
-        $mform->addHelpButton('file', 'file', 'core_contentbank');
-        $mform->addRule('file', null, 'required');
+        $mform->addElement('text', 'name', get_string('name'), array('size' => '30'));
+        $mform->addRule('name', get_string('required'), 'required', null);
+        $mform->setType('name', PARAM_TEXT);
 
         $this->add_action_buttons(true, get_string('savechanges'));
-
-        $this->set_data($data);
-    }
-
-    /**
-     * Validate incoming data.
-     *
-     * @param array $data
-     * @param array $files
-     * @return array
-     */
-    public function validation($data, $files) {
-        $errors = array();
-        $draftitemid = $data['file'];
-        if (file_is_draft_area_limit_reached($draftitemid, $this->_customdata['options']['areamaxbytes'])) {
-            $errors['file'] = get_string('userquotalimit', 'error');
-        }
-        return $errors;
     }
 }

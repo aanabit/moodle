@@ -2246,7 +2246,7 @@ function xmldb_main_upgrade($oldversion) {
         upgrade_main_savepoint(true, 2020022100.01);
     }
 
-    if ($oldversion < 2020022800.01) {
+    if ($oldversion < 2020030600.01) {
 
         // Define table to store contentbank_folders.
         $table = new xmldb_table('contentbank_folders');
@@ -2288,7 +2288,7 @@ function xmldb_main_upgrade($oldversion) {
         }
 
         // Main savepoint reached.
-        upgrade_main_savepoint(true, 2020022800.01);
+        upgrade_main_savepoint(true, 2020030600.01);
     }
 
     return true;
