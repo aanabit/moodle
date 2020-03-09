@@ -90,4 +90,50 @@ class external extends external_api {
     public static function create_folder_returns(): \external_value {
         return new external_value(PARAM_INT, 'The id of the created folder');
     }
+
+    /**
+     * rename_folder parameters.
+     *
+     * @since  Moodle 3.9
+     * @return external_function_parameters
+     */
+    public static function rename_folder_parameters(): \external_function_parameters {
+        return new external_function_parameters(
+            [
+                'folderid' => new external_value(PARAM_INT, 'The folder id to rename', VALUE_REQUIRED),
+                'name' => new external_value(PARAM_TEXT, 'New folder name', VALUE_REQUIRED),
+            ]
+        );
+    }
+
+    /**
+     * Rename folder inthe contentbank.
+     *
+     * @since  Moodle 3.9
+     * @param  int $folderid The folder id to rename.
+     * @param  string $name     The new folder name.
+     * @return boolean
+     * @throws \dml_missing_record_exception if there isn't any folder with this identifier.
+     */
+    public static function rename_folder(int $folderid, string $name): bool {
+        global $DB;
+
+        $params = external_api::validate_parameters(self::rename_folder_parameters(), [
+            'folderid' => $folderid,
+            'name' => $name
+        ]);
+        $record = $DB->get_record('contentbank_folders', ['id' => $folderid], '*', MUST_EXIST);
+        $folder = new folder($record);
+
+        return $folder->set_name($name);
+    }
+    /**
+     * rename_folder return
+     *
+     * @since  Moodle 3.9
+     * @return external_value
+     */
+    public static function rename_folder_returns(): \external_value {
+        return new external_value(PARAM_BOOL, 'The success');
+    }
 }

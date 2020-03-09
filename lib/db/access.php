@@ -2510,4 +2510,14 @@ $capabilities = array(
             'coursecreator' => CAP_ALLOW,
         )
     ],
+
+    'moodle/contentbank:editfolder' => [
+        'riskbitmask' => RISK_SPAM,
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_SYSTEM,
+        'archetypes' => array(
+            'manager' => CAP_ALLOW,
+            'coursecreator' => CAP_ALLOW,
+        )
+    ],
 );

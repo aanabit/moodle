@@ -76,3 +76,12 @@ $navbar-bg: darken($body-bg, 5%) !default;
         padding-top: 0.8em;
     }
 }
+// Folder Context Menu
+.cb-content {
+    .cb-contextmenu {
+        display: block;
+        position: absolute;
+        right: 7px;
+        bottom: 5px;
+    }
+}

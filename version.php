@@ -29,11 +29,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-<<<<<<< HEAD
 $version  = 2020031200.00;              // YYYYMMDD      = weekly release date of this DEV branch.
-=======
-$version  = 2020030600.02;              // YYYYMMDD      = weekly release date of this DEV branch.
->>>>>>> MDL-67787 core_contentbank: Create folders
                                         //         RR    = release increments - 00 in DEV branches.
                                         //           .XX = incremental changes.
 $release  = '3.9dev (Build: 20200312)'; // Human-friendly version name

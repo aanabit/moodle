@@ -2753,6 +2753,15 @@ $functions = array(
         'ajax'          => 'true',
         'capabilities'  => 'moodle/contentbank:createfolder',
     ],
+    'core_contentbank_rename_folder' => [
+        'classname'     => 'core_contentbank\external',
+        'methodname'    => 'rename_folder',
+        'classpath'     => '',
+        'description'   => 'Rename an existing folder in the content bank.',
+        'type'          => 'write',
+        'ajax'          => 'true',
+        'capabilities'  => 'moodle/contentbank:editfolder',
+    ],
 );
 
 $services = array(
