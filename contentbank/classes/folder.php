@@ -103,7 +103,7 @@ class folder {
         $content->usermodified = $USER->id;
         $content->timemodified = time();
 
-        return $DB->update_record('contentbank_folders', $folder);
+        return $DB->update_record('contentbank_folders', $content);
     }
 
     /**
@@ -131,6 +131,12 @@ class folder {
      * @return boolean  True if the folder has been succesfully updated. False otherwise.
      */
     public function set_name(string $name): bool {
+        global $DB;
+
+        if ($DB->get_record('contentbank_folders', ['name' => $name, 'parent' => $this->get_parent_id()])) {
+            return false;
+        }
+
         $this->content->name = $name;
         return $this->update();
     }

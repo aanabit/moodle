@@ -43,10 +43,11 @@ define([
         /**
          * List of action selectors.
          *
-         * @type {{CREATE_FOLDER: string}}
+         * @type {{CREATE_FOLDER: string}, {EDIT_FOLDER: string}}
          */
         var ACTIONS = {
             CREATE_FOLDER: '[data-action="createfolder"]',
+            EDIT_FOLDER: '[data-action="editfolder"]',
         };
 
         /**
@@ -102,6 +103,61 @@ define([
                     return;
                 }).catch(Notification.exception);
             });
+
+            $(ACTIONS.EDIT_FOLDER).click(function(e) {
+                e.preventDefault();
+
+                var parentid = $(this).data('parentid');
+                var folderid = $(this).data('folderid');
+                var foldername = $(this).data('foldername');
+                var timecreated = $(this).data('timecreated');
+                var timemodified = $(this).data('timemodified');
+
+                parentid = 0;
+                folderid = 58;
+                timecreated = 10000;
+                timemodified = 20000;
+
+                var strings = [
+                    {
+                        key: 'editfolder',
+                        component: 'core_contentbank',
+                        param: {
+                            foldername: foldername
+                        }
+                    }
+                ];
+                Str.get_strings(strings).then(function(langStrings) {
+                    var modalTitle = langStrings[0];
+                    return ModalFactory.create({
+                        title: modalTitle,
+                        body: Templates.render('core_contentbank/editfolder', {
+                            'parentid': parentid,
+                            'folderid': folderid,
+                            'foldername': foldername,
+                            'timecreated': timecreated,
+                            'timemodified': timemodified
+                        }),
+                        type: ModalFactory.types.SAVE_CANCEL
+                    });
+                }).then(function(modal) {
+                    modal.getRoot().on(ModalEvents.save, function(e) {
+                        // The action is now confirmed, sending an action for it.
+                        var newname = $(e.currentTarget).find('#foldername').val();
+                        return renameFolder(folderid, newname, parentid);
+                    });
+
+                    // Handle hidden event.
+                    modal.getRoot().on(ModalEvents.hidden, function() {
+                        // Destroy when hidden.
+                        modal.destroy();
+                    });
+
+                    // Show the modal.
+                    modal.show();
+                    return;
+                }).catch(Notification.exception);
+            });
         };
 
         /**
@@ -110,7 +166,7 @@ define([
          * @param {string} name The name for the new folder.
          * @param {int} parentid The id of the parent folder.
          */
-         function createFolder(name, parentid) {
+        function createFolder(name, parentid) {
             var request = {
                 methodname: 'core_contentbank_create_folder',
                 args: {
@@ -123,6 +179,48 @@ define([
             Ajax.call([request])[0].then(function(data) {
                 if (data) {
                     return Str.get_string('foldercreated', 'core_contentbank');
+                }
+                requestType = 'error';
+                return Str.get_string('duplicatedfoldername', 'core_contentbank');
+
+            }).then(function(message) {
+                var params = null;
+                if (requestType == 'success') {
+                    params = {
+                        parent: parentid
+                    };
+                } else {
+                    params = {
+                        parent: parentid,
+                        errormsg: message
+                    };
+                }
+                // Redirect to the main content bank page and display error message if exists.
+                window.location.href = Url.relativeUrl('contentbank/index.php', params, false);
+                return;
+            }).catch(Notification.exception);
+        }
+
+        /**
+         * Rename folder in the content bank.
+         *
+         * @param {int} folderid The id of the folder to be renamed.
+         * @param {string} name The new name for the folder.
+         * @param {int} parentid The id of the parent folder for return URL.
+         */
+        function renameFolder(folderid, name, parentid) {
+            var request = {
+                methodname: 'core_contentbank_rename_folder',
+                args: {
+                    folderid: folderid,
+                    name: name
+                }
+            };
+
+            var requestType = 'success';
+            Ajax.call([request])[0].then(function(data) {
+                if (data) {
+                    return Str.get_string('folderrenamed', 'core_contentbank');
                 }
                 requestType = 'error';
                 return Str.get_string('duplicatedfoldername', 'core_contentbank');

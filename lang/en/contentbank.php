@@ -27,6 +27,7 @@ $string['addnewfolder'] = 'Add new folder';
 $string['author'] = 'Author';
 $string['createfolder'] = 'Create folder';
 $string['duplicatedfoldername'] = 'Folder name exists already';
+$string['editfolder'] = 'Edit {$a->foldername}';
 $string['file'] = 'Upload content';
 $string['file_help'] = 'Files may be stored in the content bank for use in courses. Only files used by content types enabled on the site may be uploaded.';
 $string['foldercreated'] = 'Folder created';

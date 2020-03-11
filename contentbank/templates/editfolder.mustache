@@ -1,0 +1,52 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template core_contentbank/editfolder
+
+    This template renders the window with file information/actions.
+
+    Example context (json):
+    {
+        "parentid": 0,
+        "folderid": 59,
+        "foldername": "First level",
+        "timecreated": 0,
+        "timemodified": 0
+    }
+}}
+<div class="filemanager fp-select">
+    <form class="mform clearfix">
+        <input type="hidden" name="folderid" id="folderid" value="{{{ folderid }}}" />
+        <input type="hidden" name="parentid" id="parentid" value="{{{ parentid }}}" />
+        <div class="fp-saveas form-group row mx-0">
+            <label class="form-control-label col-4 px-0">{{#str}}name, repository{{/str}}</label>
+            <div class="col-8 form-inline"><input name="foldername" id="foldername" class="form-control" type="text" value="{{{ foldername }}}" /></div>
+        </div>
+        <div class="fp-select-buttons form-group">
+            <button class="fp-file-update btn-primary btn">{{#str}}update{{/str}}</button>
+            <button class="fp-file-cancel btn-secondary btn">{{#str}}cancel{{/str}}</button>
+        </div>
+    </form>
+    <div class="fp-info clearfix">
+        <hr>
+        <p class="fp-thumbnail"></p>
+        <div class="fp-fileinfo">
+            <div class="fp-datemodified">{{#str}}lastmodified, repository{{/str}} <span class="fp-value">{{{ timecreated }}}</span></div>
+            <div class="fp-datecreated">{{#str}}datecreated, repository{{/str}} <span class="fp-value">{{{ timemodified }}}</span></div>
+        </div>
+    </div>
+</div>
