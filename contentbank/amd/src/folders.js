@@ -113,10 +113,10 @@ define([
                 var timecreated = $(this).data('timecreated');
                 var timemodified = $(this).data('timemodified');
 
-                parentid = 0;
-                folderid = 58;
-                timecreated = 10000;
-                timemodified = 20000;
+                // parentid = 0;
+                // folderid = 58;
+                // timecreated = 10000;
+                // timemodified = 20000;
 
                 var strings = [
                     {
@@ -138,7 +138,7 @@ define([
                             'timecreated': timecreated,
                             'timemodified': timemodified
                         }),
-                        type: ModalFactory.types.SAVE_CANCEL
+                        type: ModalFactory.types.DEFAULT
                     });
                 }).then(function(modal) {
                     modal.getRoot().on(ModalEvents.save, function(e) {

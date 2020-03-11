@@ -121,7 +121,9 @@ class bankcontent implements renderable, templatable {
             $folderdata[] = [
                 'name' => $folder->name,
                 'link' => $link->out(false),
-                'icon' => \core_contentbank\folder::get_icon()
+                'icon' => \core_contentbank\folder::get_icon(),
+                'timecreated' => $folder->timecreated,
+                'timemodified' => $folder->timemodified,
             ];
         }
         $data->folders = $folderdata;

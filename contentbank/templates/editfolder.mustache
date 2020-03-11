@@ -24,8 +24,11 @@
         "parentid": 0,
         "folderid": 59,
         "foldername": "First level",
-        "timecreated": 0,
-        "timemodified": 0
+        "timecreated": 1583324801,
+        "timemodified": 1583942312,
+        "icon": {
+            "extraclasses": "bigicon"
+            }
     }
 }}
 <div class="filemanager fp-select">
@@ -37,16 +40,22 @@
             <div class="col-8 form-inline"><input name="foldername" id="foldername" class="form-control" type="text" value="{{{ foldername }}}" /></div>
         </div>
         <div class="fp-select-buttons form-group">
-            <button class="fp-file-update btn-primary btn">{{#str}}update{{/str}}</button>
-            <button class="fp-file-cancel btn-secondary btn">{{#str}}cancel{{/str}}</button>
+            <button class="fp-file-update btn-primary btn" data-action="save">{{#str}}update{{/str}}</button>
+            <button class="fp-file-cancel btn-secondary btn" data-action="cancel">{{#str}}cancel{{/str}}</button>
         </div>
     </form>
     <div class="fp-info clearfix">
         <hr>
-        <p class="fp-thumbnail"></p>
+        <p class="fp-thumbnail">
+           {{>core/pix_icon}}
+        {{#pix}}f/folder-64, core, algo, {"name": "extraclasses", "value": "iconsize-big" }{{/pix}}</p>
         <div class="fp-fileinfo">
-            <div class="fp-datemodified">{{#str}}lastmodified, repository{{/str}} <span class="fp-value">{{{ timecreated }}}</span></div>
-            <div class="fp-datecreated">{{#str}}datecreated, repository{{/str}} <span class="fp-value">{{{ timemodified }}}</span></div>
+            <div class="fp-datemodified">{{#str}}lastmodified, repository{{/str}}
+                <span class="fp-value">{{#userdate}} {{timemodified}}, {{#str}} strftimedatetime, core_langconfig {{/str}} {{/userdate}}</span>
+            </div>
+            <div class="fp-datecreated">{{#str}}datecreated, repository{{/str}}
+                 <span class="fp-value">{{#userdate}} {{timecreated}}, {{#str}} strftimedatetime, core_langconfig {{/str}} {{/userdate}}</span>
+            </div>
         </div>
     </div>
 </div>

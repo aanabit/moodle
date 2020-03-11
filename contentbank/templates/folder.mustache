@@ -37,7 +37,9 @@
     {
         "name": "H5P content",
         "link": "http://something/contentbank/index.php?path=/1"
-        "icon" : "<img class='icon iconsize-big' alt='H5P content' aria-hidden='true' src='http://something/theme/image.php/boost/core/1581597850/f/folder-64'>"
+        "icon" : "<img class='icon iconsize-big' alt='H5P content' aria-hidden='true' src='http://something/theme/image.php/boost/core/1581597850/f/folder-64'>",
+        "timecreated": 1583324801,
+        "timemodified": 1583942312
     }
 }}
 <div class="cb-content">
@@ -45,11 +47,11 @@
         <div class="cb-file">
             <div style="position:relative;">
                 <div class="cb-thumbnail" style="width: 110px; height: 110px;">
-                    <a href="{{{ link }}}" title="{{{ name }}}"">
+                    <a href="{{{ link }}}" title="{{{ name }}}">
                     {{{ icon }}}
                     </a>
                     <a class="cb-contextmenu" href="#" onclick="return false;" data-action="editfolder"
-                    data-parentid="0" data-folderid="58" data-foldername="{{{ name }}}" data-timecreated="0" data-timemodified="0">
+                    data-parentid="0" data-folderid="58" data-foldername="{{{ name }}}" data-timecreated="{{{ timecreated }}}" data-timemodified="{{{ timemodified }}}">
                         {{#pix}}i/menu, core, ▶{{/pix}}
                     </a>
                 </div>
