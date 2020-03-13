@@ -105,6 +105,7 @@ class renderer_base {
             $quotehelper = new \core\output\mustache_quote_helper();
             $jshelper = new \core\output\mustache_javascript_helper($this->page);
             $pixhelper = new \core\output\mustache_pix_helper($this);
+            $pixandclasshelper = new \core\output\mustache_pixandclass_helper($this);
             $shortentexthelper = new \core\output\mustache_shorten_text_helper();
             $userdatehelper = new \core\output\mustache_user_date_helper();
 
@@ -116,6 +117,7 @@ class renderer_base {
                              'quote' => array($quotehelper, 'quote'),
                              'js' => array($jshelper, 'help'),
                              'pix' => array($pixhelper, 'pix'),
+                             'pixandclass' => array($pixandclasshelper, 'pix'),
                              'shortentext' => array($shortentexthelper, 'shorten'),
                              'userdate' => array($userdatehelper, 'transform'),
                          );

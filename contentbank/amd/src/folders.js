@@ -113,11 +113,6 @@ define([
                 var timecreated = $(this).data('timecreated');
                 var timemodified = $(this).data('timemodified');
 
-                // parentid = 0;
-                // folderid = 58;
-                // timecreated = 10000;
-                // timemodified = 20000;
-
                 var strings = [
                     {
                         key: 'editfolder',

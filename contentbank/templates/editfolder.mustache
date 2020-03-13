@@ -47,8 +47,8 @@
     <div class="fp-info clearfix">
         <hr>
         <p class="fp-thumbnail">
-           {{>core/pix_icon}}
-        {{#pix}}f/folder-64, core, algo, {"name": "extraclasses", "value": "iconsize-big" }{{/pix}}</p>
+            {{#pixandclass}}f/folder-64, iconsize-big, core, algo{{/pixandclass}}
+        </p>
         <div class="fp-fileinfo">
             <div class="fp-datemodified">{{#str}}lastmodified, repository{{/str}}
                 <span class="fp-value">{{#userdate}} {{timemodified}}, {{#str}} strftimedatetime, core_langconfig {{/str}} {{/userdate}}</span>
