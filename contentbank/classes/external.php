@@ -81,4 +81,52 @@ class external extends external_api {
     public static function delete_content_returns(): \external_value {
         return new external_value(PARAM_BOOL, 'The success');
     }
+
+    /**
+     * rename_content parameters.
+     *
+     * @since  Moodle 3.9
+     * @return external_function_parameters
+     */
+    public static function rename_content_parameters(): \external_function_parameters {
+        return new external_function_parameters(
+            [
+                'contentid' => new external_value(PARAM_INT, 'The content id to rename', VALUE_REQUIRED),
+                'name' => new external_value(PARAM_TEXT, 'The new name for the content', VALUE_REQUIRED),
+            ]
+        );
+    }
+
+    /**
+     * Rename content in the content bank.
+     *
+     * @since  Moodle 3.9
+     * @param  int $contentid The content id to rename.
+     * @param  string $name The new name.
+     * @return boolean
+     * @throws \dml_missing_record_exception if there isn't any content with this identifier.
+     */
+    public static function rename_content(int $contentid, string $name): bool {
+        global $DB;
+
+        $params = external_api::validate_parameters(self::rename_content_parameters(), [
+            'contentid' => $contentid,
+            'name' => $name,
+        ]);
+
+        $record = $DB->get_record('contentbank_content', ['id' => $contentid], '*', MUST_EXIST);
+        $classname = $record->contenttype.'\\plugin';
+        $content = new $classname($record);
+        return $content->set_name($name);
+    }
+
+    /**
+     * rename_content return
+     *
+     * @since  Moodle 3.9
+     * @return external_value
+     */
+    public static function rename_content_returns(): \external_value {
+        return new external_value(PARAM_BOOL, 'The success');
+    }
 }

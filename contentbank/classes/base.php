@@ -148,6 +148,9 @@ class base {
     public function update_content(): bool {
         global $USER, $DB;
 
+        if (!$this->can_edit()) {
+            return false;
+        }
         $content = $this->content;
         $content->usermodified = $USER->id;
         $content->timemodified = time();
@@ -169,6 +172,35 @@ class base {
         }
 
         return $hascapability;
+    }
+
+    /**
+     * Check if the user can edit this content.
+     *
+     * @return bool     True if content could be edited. False otherwise.
+     */
+    public function can_edit(): bool {
+        global $USER;
+
+        $hascapability = has_capability('moodle/contentbank:editanycontent', $this->context);
+        if ($this->content->usercreated == $USER->id) {
+            // This content has been created by the current user; check if they can edit their content.
+            $hascapability = $hascapability || has_capability('moodle/contentbank:editowncontent', $this->context);
+        }
+
+        return $hascapability;
+    }
+
+    /**
+     * Set a new name to the content.
+     *
+     * @param string $name  The name of the content.
+     * @return boolean  True if the content has been succesfully updated. False otherwise.
+     * @throws \coding_exception if not loaded.
+     */
+    public function set_name(string $name) {
+        $this->content->name = $name;
+        return $this->update_content();
     }
 
     /**

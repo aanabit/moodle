@@ -35,4 +35,15 @@ $capabilities = [
             'manager' => CAP_ALLOW
         ]
     ],
+
+    // Edit H5P content in the content bank.
+    'contentbank/h5p:editcontent' => [
+        'riskbitmask' => RISK_DATALOSS,
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_SYSTEM,
+        'archetypes' => [
+            'manager' => CAP_ALLOW,
+            'coursecreator' => CAP_ALLOW,
+        ]
+    ],
 ];

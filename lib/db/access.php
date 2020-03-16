@@ -2520,4 +2520,24 @@ $capabilities = array(
             'user' => CAP_ALLOW,
         ]
     ],
+
+    // Edit any content from the content bank.
+    'moodle/contentbank:editanycontent' => [
+        'riskbitmask' => RISK_DATALOSS,
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_SYSTEM,
+        'archetypes' => [
+            'manager' => CAP_ALLOW,
+            'coursecreator' => CAP_ALLOW,
+        ]
+    ],
+
+    // Edit content created by yourself.
+    'moodle/contentbank:editowncontent' => [
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_SYSTEM,
+        'archetypes' => [
+            'user' => CAP_ALLOW,
+        ]
+    ],
 );
