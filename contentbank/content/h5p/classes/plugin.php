@@ -52,6 +52,18 @@ class plugin extends base {
     }
 
     /**
+     * Returns this plugin content can be edited by the given user.
+     *
+     * @return bool     True if content could be edited. False otherwise.
+     */
+    public function can_edit(): bool {
+
+        $context = $this->context ?? \context_system::instance();
+        $hascapability = has_capability('contentbank/h5p:editcontent', $context);
+        return ($hascapability && parent::can_edit());
+    }
+
+    /**
      * Returns the HTML content to add to view.php visualizer.
      *
      * @return string            HTML code to include in view.php.

@@ -30,6 +30,12 @@ $context = context_system::instance();
 require_capability('moodle/contentbank:view', $context);
 
 $id = required_param('id', PARAM_INT);
+
+$statusmsg = optional_param('statusmsg', '', PARAM_RAW);
+$errormsg = optional_param('errormsg', '', PARAM_RAW);
+
+$PAGE->requires->js_call_amd('core_contentbank/actions', 'init');
+
 $content = $DB->get_record('contentbank_content', ['id' => $id], '*', MUST_EXIST);
 
 $returnurl = new \moodle_url('/contentbank/index.php');
@@ -53,12 +59,48 @@ $PAGE->set_title($title);
 $PAGE->set_pagelayout('standard');
 $PAGE->set_pagetype('contentbank');
 
-echo $OUTPUT->header();
-echo $OUTPUT->box_start('generalbox');
-
 $managerclass = "\\$content->contenttype\\plugin";
 if (class_exists($managerclass)) {
     $manager = new $managerclass($content);
+}
+// Create the cog menu with all the secondary actions, such as delete, rename...
+$actionmenu = new action_menu();
+$actionmenu->set_alignment(action_menu::TR, action_menu::BR);
+
+// Add the rename content item to the menu.
+if ($manager && $manager->can_edit()) {
+    $attributes = [
+        'data-action' => 'renamecontent',
+        'data-contentname' => $content->name,
+        'data-contentid' => $content->id,
+    ];
+    $actionmenu->add_secondary_action(new action_menu_link(
+        new moodle_url('#'),
+        new pix_icon('e/styleparagraph', get_string('rename')),
+        get_string('rename'),
+        false,
+        $attributes
+    ));
+}
+
+// Add the cog menu to the header.
+$PAGE->add_header_action(html_writer::div(
+    $OUTPUT->render($actionmenu),
+    'd-print-none',
+    ['id' => 'region-main-settings-menu']
+));
+
+echo $OUTPUT->header();
+echo $OUTPUT->box_start('generalbox');
+
+// If needed, display notifications.
+if ($errormsg !== '') {
+    echo $OUTPUT->notification($errormsg);
+} else if ($statusmsg !== '') {
+    echo $OUTPUT->notification($statusmsg, 'notifysuccess');
+}
+
+if ($manager) {
     echo $manager->get_view_content();
 }
 
