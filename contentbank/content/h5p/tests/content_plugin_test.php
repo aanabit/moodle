@@ -55,6 +55,32 @@ class contentbank_h5p_content_plugin_testcase extends advanced_testcase {
     }
 
     /**
+     * Tests can_edit behavior.
+     */
+    public function test_can_edit() {
+        global $DB;
+
+        $this->resetAfterTest();
+
+        $roleid = $DB->get_field('role', 'id', array('shortname' => 'manager'));
+        $manager = $this->getDataGenerator()->create_user();
+        $this->getDataGenerator()->role_assign($roleid, $manager->id);
+        $this->setUser($manager);
+
+        // Add some content to the content bank as manager.
+        $generator = $this->getDataGenerator()->get_plugin_generator('core_contentbank');
+        // Add some content to the content bank as manager.
+        $recordsbymanager = $generator->generate_contentbank_data( contentbank_h5p\plugin::COMPONENT, 1, $manager->id);
+        $recordbymanager = array_shift($recordsbymanager);
+
+        // Check managers can edit the content.
+        $this->assertTrue($recordbymanager->can_edit());
+        // Unassign capability to manager role and check can not edit the content..
+        unassign_capability('contentbank/h5p:editcontent', $roleid);
+        $this->assertFalse($recordbymanager->can_edit());
+    }
+
+    /**
      * Test the behaviour of clean_content().
      */
     public function test_clean_content() {

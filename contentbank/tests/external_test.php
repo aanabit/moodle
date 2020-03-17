@@ -77,4 +77,40 @@ class core_contentbank_external_testcase extends \externallib_advanced_testcase 
         $this->assertFalse($result);
         $this->assertEquals(1, $DB->count_records('contentbank_content'));
     }
+
+    /**
+     * Test the behaviour of rename_content().
+     */
+    public function test_rename_content() {
+        global $DB;
+        $this->resetAfterTest();
+
+        // Create users.
+        $roleid = $DB->get_field('role', 'id', array('shortname' => 'manager'));
+        $manager = $this->getDataGenerator()->create_user();
+        $this->getDataGenerator()->role_assign($roleid, $manager->id);
+        $this->setUser($manager);
+
+        // Add some content to the content bank as manager.
+        $generator = $this->getDataGenerator()->get_plugin_generator('core_contentbank');
+        $records = $generator->generate_contentbank_data(\contentbank_testable\plugin::COMPONENT, 1, $manager->id, false);
+        $record = array_shift($records);
+
+        $oldname = $record->name;
+        $newname = 'New name';
+
+        // Call the WS and check the content is renamed as expected.
+        $result = external::rename_content($record->id, $newname);
+        $result = external_api::clean_returnvalue(external::rename_content_returns(), $result);
+        $this->assertTrue($result);
+        $record = $DB->get_record('contentbank_content', ['id' => $record->id]);
+        $this->assertNotEquals($oldname, $record->name);
+        $this->assertEquals($newname, $record->name);
+
+        // Call the WS using an unexisting contentid and check an error is thrown.
+        $this->expectException(\dml_missing_record_exception::class);
+        $result = external::rename_content($record->id + 1, $oldname);
+        $result = external_api::clean_returnvalue(external::rename_content_returns(), $result);
+        $this->assertFalse($result);
+    }
 }

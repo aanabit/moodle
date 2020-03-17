@@ -108,6 +108,26 @@ class core_contentbank_content_base_testcase extends \advanced_testcase {
     }
 
     /**
+     * Tests for 'set_name' behaviour.
+     */
+    public function test_set_name() {
+        $this->resetAfterTest();
+
+        $oldname = "Old name";
+
+        // Create content.
+        $record = new stdClass();
+        $record->name = $oldname;
+
+        $content = h5pplugin::create_content($record);
+        $this->assertEquals($oldname, $content->get_name());
+
+        $newname = "New name";
+        $content->set_name($newname);
+        $this->assertEquals($newname, $content->get_name());
+    }
+
+    /**
      * Tests can_upload behavior.
      */
     public function test_can_upload() {
@@ -157,7 +177,47 @@ class core_contentbank_content_base_testcase extends \advanced_testcase {
         $this->assertEquals($filename, $file->get_filename());
     }
 
+    /**
+     * Test the behaviour of can_edit().
+     */
+    public function test_can_edit() {
+        global $DB;
 
+        $this->resetAfterTest();
+
+        // Create users.
+        $managerroleid = $DB->get_field('role', 'id', array('shortname' => 'manager'));
+        $userroleid = $DB->get_field('role', 'id', array('shortname' => 'user'));
+        $manager = $this->getDataGenerator()->create_user();
+        $user = $this->getDataGenerator()->create_user();
+        $this->getDataGenerator()->role_assign($managerroleid, $manager->id);
+
+        $generator = $this->getDataGenerator()->get_plugin_generator('core_contentbank');
+        // Add some content to the content bank as manager.
+        $recordsbymanager = $generator->generate_contentbank_data(null, 1, $manager->id);
+        $recordbymanager = array_shift($recordsbymanager);
+        // Add some content to the content bank as user.
+        $recordsbyuser = $generator->generate_contentbank_data(null, 1, $user->id);
+        $recordbyuser = array_shift($recordsbyuser);
+        // Check the content has been created as expected.
+        $records = $DB->count_records('contentbank_content');
+        $this->assertEquals(2, $records);
+
+        // Check manager can edit all the contents created by default.
+        $this->setUser($manager);
+        $this->assertTrue($recordbymanager->can_edit());
+        $this->assertTrue($recordbyuser->can_edit());
+
+        // Unassign capability to manager role and check not can only edit their own content.
+        unassign_capability('moodle/contentbank:editanycontent', $managerroleid);
+        $this->assertTrue($recordbymanager->can_edit());
+        $this->assertFalse($recordbyuser->can_edit());
+
+        // Unassign capability to user role and check they not can not edit any content.
+        unassign_capability('moodle/contentbank:editowncontent', $userroleid);
+        $this->assertFalse($recordbymanager->can_edit());
+        $this->assertFalse($recordbyuser->can_edit());
+    }
     /**
      * Test the behaviour of can_delete().
      */
