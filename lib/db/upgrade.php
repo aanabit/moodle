@@ -2224,7 +2224,7 @@ function xmldb_main_upgrade($oldversion) {
         $table->add_field('instanceid', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
         $table->add_field('contextid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
         $table->add_field('configdata', XMLDB_TYPE_TEXT, null, null, null, null, null);
-        $table->add_field('usercreated', XMLDB_TYPE_CHAR, '255', null, null, null, null);
+        $table->add_field('usercreated', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
         $table->add_field('usermodified', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
         $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, 0);
         $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, 0);
@@ -2258,7 +2258,7 @@ function xmldb_main_upgrade($oldversion) {
         $table->add_field('parent', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
         $table->add_field('depth', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
         $table->add_field('path', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
-        $table->add_field('usercreated', XMLDB_TYPE_CHAR, '255', null, null, null, null);
+        $table->add_field('usercreated', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
         $table->add_field('usermodified', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
         $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, 0);
         $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, 0);
@@ -2272,6 +2272,7 @@ function xmldb_main_upgrade($oldversion) {
 
         // Adding indexes to table contentbank_folders.
         $table->add_index('name', XMLDB_INDEX_NOTUNIQUE, ['name']);
+        $table->add_index('parent', XMLDB_INDEX_NOTUNIQUE, ['parent']);
 
         if (!$dbman->table_exists($table)) {
             $dbman->create_table($table);

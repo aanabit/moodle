@@ -154,7 +154,7 @@ class folder {
     }
 
     /**
-     * Set the name of the folder.
+     * Set the path of the folder.
      *
      * @param string $path  New path of the folder.
      * @return boolean  True if the folder has been succesfully updated. False otherwise.

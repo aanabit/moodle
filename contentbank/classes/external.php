@@ -71,9 +71,9 @@ class external extends external_api {
         ]);
 
         $content = new \stdClass();
-        $content->name = $name;
-        $content->parent = $parentid;
-        $content->contextid = $contextid;
+        $content->name = $params['name'];
+        $content->parent = $params['parentid'];
+        $content->contextid = $params['contextid'];
         $folder = folder::create_folder($content);
         if (empty($folder)) {
             return 0;

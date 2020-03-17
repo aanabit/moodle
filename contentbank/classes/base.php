@@ -76,12 +76,15 @@ class base {
         $record->name = $content->name ?? '';
         $record->contenttype = $content->contenttype ?? '';
         $record->contextid = $content->contextid ?? \context_system::instance()->id;
-        $record->parent = $content->parent ?? 17;
+        $record->parent = $content->parent ?? 0;
         $record->usercreated = $content->usercreated ?? $USER->id;
         $record->timecreated = time();
         $record->usermodified = $record->usercreated;
         $record->timemodified = $record->timecreated;
         $record->configdata = $content->configdata ?? '';
+
+        // Clean name.
+        $record->name = clean_param($record->name, PARAM_PATH);
 
         static::validate_content($record);
 
