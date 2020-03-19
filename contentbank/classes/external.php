@@ -48,7 +48,7 @@ class external extends external_api {
     public static function create_folder_parameters(): \external_function_parameters {
         return new external_function_parameters(
             [
-                'name' => new external_value(PARAM_TEXT, 'Name for the new folder', VALUE_REQUIRED),
+                'name' => new external_value(PARAM_RAW, 'Name for the new folder (can contain characters will be cleaned)', VALUE_REQUIRED),
                 'parentid' => new external_value(PARAM_INT, 'The content id to delete', VALUE_DEFAULT, 0),
                 'contextid' => new external_value(PARAM_INT, 'The context of the folder', VALUE_DEFAULT, 0)
             ]
@@ -64,6 +64,7 @@ class external extends external_api {
      * @return int Id of the new folder created
      */
     public static function create_folder(string $name, int $parentid = 0, int $contextid = 0): int {
+        $name = clean_param(PARAM_PATH);
         $params = external_api::validate_parameters(self::create_folder_parameters(), [
             'name' => $name,
             'parentid' => $parentid,

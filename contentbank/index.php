@@ -50,6 +50,7 @@ $foldercontents = \core_contentbank\api::get_contents_in_parent($parentid);
 
 // Get the ADD actions ready.
 $actions = [];
+$actionsmenu = new action_menu($actions);
 if (has_capability('moodle/contentbank:createfolder', $context)) {
     // Add the create folder item to the menu.
     $actionurl = new moodle_url('#');
