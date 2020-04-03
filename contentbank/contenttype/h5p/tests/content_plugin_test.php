@@ -28,18 +28,26 @@ class contenttype_h5p_contenttype_plugin_testcase extends advanced_testcase {
      * Tests can_upload behavior.
      */
     public function test_can_upload() {
-        global $DB;
-
         $this->resetAfterTest();
 
-        $roleid = $DB->get_field('role', 'id', array('shortname' => 'manager'));
-        $manager = $this->getDataGenerator()->create_user();
-        $this->getDataGenerator()->role_assign($roleid, $manager->id);
+        $systemcontext = \context_system::instance();
 
-        $this->setUser($manager);
-        $this->assertTrue(contenttype_h5p\contenttype::can_upload());
+        // Admins can upload.
+        $this->setAdminUser();
+        $this->assertTrue(contenttype_h5p\contenttype::can_upload($systemcontext));
 
-        unassign_capability('contentbank/h5p:upload', $roleid);
-        $this->assertFalse(contenttype_h5p\contenttype::can_upload());
+        // Teacher can upload in the course but not at system level.
+        $course = $this->getDataGenerator()->create_course();
+        $teacher = $this->getDataGenerator()->create_and_enrol($course, 'teacher');
+        $coursecontext = \context_course::instance($course->id);
+        $this->setUser($teacher);
+        $this->assertTrue(contenttype_h5p\contenttype::can_upload($coursecontext));
+        $this->assertFalse(contenttype_h5p\contenttype::can_upload($systemcontext));
+
+        // Users can't upload.
+        $user = $this->getDataGenerator()->create_user();
+        $this->setUser($user);
+        $this->assertFalse(contenttype_h5p\contenttype::can_upload($coursecontext));
+        $this->assertFalse(contenttype_h5p\contenttype::can_upload($systemcontext));
     }
 }
