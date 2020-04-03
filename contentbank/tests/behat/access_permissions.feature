@@ -6,16 +6,32 @@ Feature: Access permission to Content Bank
 
   Background:
     Given the following "users" exist:
-      | username | firstname | lastname | email |
-      | user1    | User      | 1 | user1@example.com |
+      | username | firstname | lastname | email             |
+      | teacher1 | Teacher   | 1        | user1@example.com |
+    And the following "courses" exist:
+      | fullname | shortname | category |
+      | Course 1 | C1        | 0        |
+    And the following "course enrolments" exist:
+      | user     | course | role           |
+      | teacher1 | C1     | editingteacher |
 
-  Scenario: Users can't access content bank
-    When I log in as "user1"
-    Then "Content bank" "link" should not exist
-
-  Scenario: Site level managers can access content bank
-    Given the following "role assigns" exist:
-      | user  | role    | contextlevel | reference |
-      | user1 | manager | System       |           |
-    When I log in as "user1"
+  Scenario: Admins access content bank
+    Given I log in as "admin"
+    When I press "Customise this page"
+    And I add the "Navigation" block if not present
+    And I expand "Site pages" node
     Then "Content bank" "link" should exist
+
+  Scenario: Editing teachers can access content bank at course level
+    Given I log in as "teacher1"
+    And I am on "Course 1" course homepage with editing mode on
+    When I add the "Navigation" block if not present
+    And I expand "Site pages" node
+    Then "Content bank" "link" should exist
+
+  Scenario: Editing teachers can't access content bank at system level
+    Given I log in as "teacher1"
+    When I press "Customise this page"
+    And I add the "Navigation" block if not present
+    And I expand "Site pages" node
+    Then "Content bank" "link" should not exist
