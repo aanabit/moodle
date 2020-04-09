@@ -15,15 +15,33 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version details
+ * H5P Content manager class
  *
- * @package   contenttype_h5p
+ * @package    contenttype_h5p
  * @copyright  2020 Amaia Anabitarte <amaia@moodle.com>
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
+namespace contenttype_h5p;
 
-$plugin->version   = 2020040200.04;         // The current plugin version (Date: YYYYMMDDXX)
-$plugin->requires  = 2020012400.00;         // Requires this Moodle version
-$plugin->component = 'contenttype_h5p'; // Full name of the plugin (used for diagnostics).
+use stdClass;
+use html_writer;
+
+/**
+ * H5P Content manager class
+ *
+ * @package    contenttype_h5p
+ * @copyright  2020 Amaia Anabitarte <amaia@moodle.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+class content extends \core_contentbank\content {
+
+    /**
+     * Plugins need to implement this function at least to fill the contenttype field.
+     *
+     * @param stdClass $content Content object to fill and validate
+     */
+    protected static function validate_content(stdClass &$content) {
+        $content->contenttype = contenttype::COMPONENT;
+    }
+}
