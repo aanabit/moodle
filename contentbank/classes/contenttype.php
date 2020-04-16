@@ -24,7 +24,6 @@
 
 namespace core_contentbank;
 
-use coding_exception;
 use moodle_url;
 
 /**
@@ -39,7 +38,7 @@ abstract class contenttype {
     /** Plugin implements uploading feature */
     const CAN_UPLOAD = 'upload';
 
-    /** @var context This content's context. **/
+    /** @var context This contenttype's context. **/
     protected $context = null;
 
     /**

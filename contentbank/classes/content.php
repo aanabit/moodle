@@ -41,6 +41,9 @@ abstract class content {
     /** @var stdClass $content The content of the current instance. **/
     protected $content  = null;
 
+    /** @var context This content's context. **/
+    protected $context = null;
+
     /**
      * Content bank constructor
      *
@@ -63,6 +66,7 @@ abstract class content {
             throw new coding_exception(get_string('invalidcontentid', 'error'));
         }
         $this->content = $content;
+        $this->context = \context::instance_by_id($content->contextid, MUST_EXIST);
     }
 
     /**
@@ -97,9 +101,40 @@ abstract class content {
         if (!isset($this->content->id)) {
             throw new coding_exception(get_string('invalidcontentid', 'error'));
         }
+
+        if (!$this->can_manage()) {
+            return false;
+        }
         $this->content->usermodified = $USER->id;
         $this->content->timemodified = time();
         return $DB->update_record('contentbank_content', $this->content);
+    }
+
+    /**
+     * Set a new name to the content.
+     *
+     * @param string $name  The name of the content.
+     * @return bool  True if the content has been succesfully updated. False otherwise.
+     * @throws \coding_exception if not loaded.
+     */
+    public function set_name(string $name): bool {
+        if (empty($name)) {
+            return false;
+        }
+
+        // Clean name.
+        $name = clean_param($name, PARAM_TEXT);
+        if (\core_text::strlen($name) > 255) {
+            $name = \core_text::substr($name, 0, 255);
+        }
+
+        $oldcontent = $this->content;
+        $this->content->name = $name;
+        $updated = $this->update_content();
+        if (!$updated) {
+            $this->content = $oldcontent;
+        }
+        return $updated;
     }
 
     /**
@@ -215,5 +250,22 @@ abstract class content {
         // There's no capability at content level to check,
         // but plugins can overwrite this method in case they want to check something related to content properties.
         return true;
+    }
+
+    /**
+     * Check if the user can edit this content.
+     *
+     * @return bool     True if content could be edited. False otherwise.
+     */
+    public final function can_manage(): bool {
+        global $USER;
+
+        // Check main contentbank management permission.
+        $hascapability = has_capability('moodle/contentbank:manageanycontent', $this->context);
+        if ($this->content->usercreated == $USER->id) {
+            // This content has been created by the current user; check if they can manage their content.
+            $hascapability = $hascapability || has_capability('moodle/contentbank:manageowncontent', $this->context);
+        }
+        return $hascapability;
     }
 }

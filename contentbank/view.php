@@ -31,6 +31,11 @@ $record = $DB->get_record('contentbank_content', ['id' => $id], '*', MUST_EXIST)
 $context = context::instance_by_id($record->contextid, MUST_EXIST);
 require_capability('moodle/contentbank:access', $context);
 
+$statusmsg = optional_param('statusmsg', '', PARAM_RAW);
+$errormsg = optional_param('errormsg', '', PARAM_RAW);
+
+$PAGE->requires->js_call_amd('core_contentbank/actions', 'init');
+
 $returnurl = new \moodle_url('/contentbank/index.php');
 $plugin = core_plugin_manager::instance()->get_plugin_info($record->contenttype);
 if (!$plugin || !$plugin->is_enabled()) {
@@ -52,15 +57,51 @@ $title .= ": ".$record->name;
 $PAGE->set_title($title);
 $PAGE->set_pagetype('contenbank');
 
+$contenttypeclass = "\\$record->contenttype\\contenttype";
+$contentclass = "\\$record->contenttype\\content";
+if (class_exists($contenttypeclass) && class_exists($contentclass)) {
+    $contenttype = new $contenttypeclass($context);
+    $content = new $contentclass($record);
+}
+// Create the cog menu with all the secondary actions, such as delete, rename...
+$actionmenu = new action_menu();
+$actionmenu->set_alignment(action_menu::TR, action_menu::BR);
+
+// Add the rename content item to the menu.
+if ($content && $content->can_manage()) {
+    $attributes = [
+        'data-action' => 'renamecontent',
+        'data-contentname' => $content->get_name(),
+        'data-contentid' => $content->get_id(),
+    ];
+    $actionmenu->add_secondary_action(new action_menu_link(
+        new moodle_url('#'),
+        new pix_icon('e/styleparagraph', get_string('rename')),
+        get_string('rename'),
+        false,
+        $attributes
+    ));
+}
+
+// Add the cog menu to the header.
+$PAGE->add_header_action(html_writer::div(
+    $OUTPUT->render($actionmenu),
+    'd-print-none',
+    ['id' => 'region-main-settings-menu']
+));
+
 echo $OUTPUT->header();
 echo $OUTPUT->box_start('generalbox');
 
-$managerlass = "\\$record->contenttype\\contenttype";
-if (class_exists($managerlass)) {
-    $manager = new $managerlass($context);
-    if ($manager->can_access()) {
-        echo $manager->get_view_content($record);
-    }
+// If needed, display notifications.
+if ($errormsg !== '') {
+    echo $OUTPUT->notification($errormsg);
+} else if ($statusmsg !== '') {
+    echo $OUTPUT->notification($statusmsg, 'notifysuccess');
+}
+
+if ($contenttype) {
+    echo $contenttype->get_view_content($record);
 }
 
 echo $OUTPUT->box_end();
