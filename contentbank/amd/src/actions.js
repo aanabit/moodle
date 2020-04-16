@@ -83,6 +83,7 @@ function($, Ajax, Notification, Str, Templates, Url, ModalFactory, ModalEvents) 
                 modal.setSaveButtonText(saveButtonText);
                 modal.getRoot().on(ModalEvents.save, function() {
                     // The action is now confirmed, sending an action for it.
+                    var contentid = $("#id").val();
                     var newname = $("#newname").val();
                     return renameContent(contentid, newname);
                 });
