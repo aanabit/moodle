@@ -2763,13 +2763,13 @@ $functions = array(
         'services'      => [MOODLE_OFFICIAL_MOBILE_SERVICE],
     ],
     'core_contentbank_rename_content' => [
-        'classname'     => 'core_contentbank\external',
-        'methodname'    => 'rename_content',
+        'classname'     => 'core_contentbank\rename_content',
+        'methodname'    => 'execute',
         'classpath'     => '',
         'description'   => 'Rename a content in the content bank.',
         'type'          => 'write',
         'ajax'          => 'true',
-        'capabilities'  => 'moodle/contentbank:editanycontent',
+        'capabilities'  => 'moodle/contentbank:manageowncontent',
     ],
 );
 

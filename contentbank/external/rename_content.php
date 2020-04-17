@@ -22,7 +22,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace core_contentbank;
+namespace core_contentbank\external;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -38,14 +38,14 @@ use external_value;
  * @copyright  2020 Sara Arjona <sara@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class external extends external_api {
+class rename_content extends external_api {
     /**
      * rename_content parameters.
      *
      * @since  Moodle 3.9
      * @return external_function_parameters
      */
-    public static function rename_content_parameters(): \external_function_parameters {
+    public static function execute_parameters(): \external_function_parameters {
         return new external_function_parameters(
             [
                 'contentid' => new external_value(PARAM_INT, 'The content id to rename', VALUE_REQUIRED),
@@ -61,12 +61,11 @@ class external extends external_api {
      * @param  int $contentid The content id to rename.
      * @param  string $name The new name.
      * @return boolean
-     * @throws \dml_missing_record_exception if there isn't any content with this identifier.
      */
-    public static function rename_content(int $contentid, string $name): bool {
+    public static function execute(int $contentid, string $name): bool {
         global $DB;
 
-        $params = external_api::validate_parameters(self::rename_content_parameters(), [
+        $params = external_api::validate_parameters(self::execute_parameters(), [
             'contentid' => $contentid,
             'name' => $name,
         ]);
@@ -84,7 +83,7 @@ class external extends external_api {
      * @since  Moodle 3.9
      * @return external_value
      */
-    public static function rename_content_returns(): \external_value {
+    public static function execute_returns(): \external_value {
         return new external_value(PARAM_BOOL, 'The success');
     }
 }
