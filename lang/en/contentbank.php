@@ -24,6 +24,9 @@
 
 $string['author'] = 'Author';
 $string['contentdeleted'] = 'The content has been deleted.';
+$string['contentname'] = 'Content name';
+$string['contentrenamed'] = 'The content has been renamed.';
+$string['contentnotrenamed'] = 'An error was encountered while trying to rename the content.';
 $string['contentnotdeleted'] = 'An error was encountered while trying to delete the content.';
 $string['deletecontent'] = 'Delete content';
 $string['deletecontentconfirm'] = 'Are you sure you want to delete the content <em>\'{$a->name}\'</em> and all associated files? This action cannot be undone.';
@@ -36,11 +39,11 @@ $string['privacy:metadata:content:name'] = 'Name of the content in the content b
 $string['privacy:metadata:content:timecreated'] = 'The time when the content was created.';
 $string['privacy:metadata:content:timemodified'] = 'The time when the content was modified.';
 $string['privacy:metadata:content:usercreated'] = 'The user has created the content.';
-$string['privacy:metadata:content:usercreated'] = 'The user who created the content.';
-$string['privacy:metadata:content:usermodified'] = 'Last user has modified the content.';
 $string['privacy:metadata:content:usermodified'] = 'The last user who modified the content.';
 $string['privacy:metadata:contentbankcontent'] = 'Stores the content of the content bank.';
 $string['privacy:metadata:userid'] = 'The ID of the user creating or modifying content bank content.';
+$string['rename'] = 'Rename';
+$string['renamecontent'] = 'Rename content';
 $string['timecreated'] = 'Time created';
 $string['unsupported'] = 'This content type is not supported.';
 $string['upload'] = 'Upload';
