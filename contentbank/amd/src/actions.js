@@ -83,7 +83,6 @@ function($, Ajax, Notification, Str, Templates, Url, ModalFactory, ModalEvents) 
                 modal.setSaveButtonText(saveButtonText);
                 modal.getRoot().on(ModalEvents.save, function() {
                     // The action is now confirmed, sending an action for it.
-                    var contentid = $("#id").val();
                     var newname = $("#newname").val();
                     return renameContent(contentid, newname);
                 });
@@ -132,14 +131,16 @@ function($, Ajax, Notification, Str, Templates, Url, ModalFactory, ModalEvents) 
                     id: contentid,
                     statusmsg: message
                 };
+                // Redirect to the content view page and display the message as a notification.
+                window.location.href = Url.relativeUrl('contentbank/view.php', params, false);
             } else {
-                params = {
-                    id: contentid,
-                    errormsg: message
-                };
+                // Fetch error notifications.
+                Notification.addNotification({
+                    message: message,
+                    type: 'error'
+                });
+                Notification.fetchNotifications();
             }
-            // Redirect to the content view page and display the message as a notification.
-            window.location.href = Url.relativeUrl('contentbank/view.php', params, false);
             return;
         }).catch(Notification.exception);
     }
