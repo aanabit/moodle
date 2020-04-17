@@ -24,6 +24,9 @@
 
 $string['author'] = 'Author';
 $string['contentdeleted'] = 'The content has been deleted.';
+$string['contentname'] = 'Content name';
+$string['contentrenamed'] = 'The content has been renamed.';
+$string['contentnotrenamed'] = 'An error was encountered while trying to rename the content.';
 $string['contentnotdeleted'] = 'An error was encountered while trying to delete the content.';
 $string['eventcontentdeleted'] = 'Content deleted';
 $string['eventcontentupdated'] = 'Content updated';
@@ -39,6 +42,8 @@ $string['pluginname'] = 'Content bank';
 $string['privacy:metadata:userid'] = 'The ID of the user creating or modifying content bank content.';
 $string['privacy:metadata:content:usercreated'] = 'The user has created the content.';
 $string['privacy:metadata:content:usermodified'] = 'Last user has modified the content.';
+$string['rename'] = 'Rename';
+$string['renamecontent'] = 'Rename content';
 $string['timecreated'] = 'Time created';
 $string['unsupported'] = 'This content type is not supported';
 $string['upload'] = 'Upload';

@@ -25,6 +25,7 @@
 namespace core_contentbank;
 
 use core_contentbank\event\content_updated;
+use core_text;
 use stored_file;
 use stdClass;
 use coding_exception;
@@ -98,6 +99,7 @@ abstract class content {
         if (!isset($this->content->id)) {
             throw new coding_exception(get_string('invalidcontentid', 'error'));
         }
+
         $this->content->usermodified = $USER->id;
         $this->content->timemodified = time();
         $result = $DB->update_record('contentbank_content', $this->content);
@@ -107,6 +109,33 @@ abstract class content {
             $event->trigger();
         }
         return $result;
+    }
+
+    /**
+     * Set a new name to the content.
+     *
+     * @param string $name  The name of the content.
+     * @return bool  True if the content has been succesfully updated. False otherwise.
+     * @throws \coding_exception if not loaded.
+     */
+    public function set_name(string $name): bool {
+        if (empty($name)) {
+            return false;
+        }
+
+        // Clean name.
+        $name = clean_param($name, PARAM_TEXT);
+        if (core_text::strlen($name) > 255) {
+            $name = core_text::substr($name, 0, 255);
+        }
+
+        $oldname = $this->content->name;
+        $this->content->name = $name;
+        $updated = $this->update_content();
+        if (!$updated) {
+            $this->content->name = $oldname;
+        }
+        return $updated;
     }
 
     /**
