@@ -33,6 +33,8 @@ require_once($CFG->dirroot . '/contentbank/tests/fixtures/testable_contenttype.p
 require_once($CFG->dirroot . '/contentbank/tests/fixtures/testable_content.php');
 require_once($CFG->dirroot . '/webservice/tests/helpers.php');
 
+use core_contentbank\external\external;
+use core_contentbank\external\rename_content;
 use external_api;
 
 /**
@@ -41,13 +43,34 @@ use external_api;
  * @package    core_contentbank
  * @copyright  2020 Sara Arjona <sara@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @coversDefaultClass \core_contentbank\external
  */
 class core_contentbank_external_testcase extends \externallib_advanced_testcase {
 
     /**
-     * Test the behaviour of rename_content().
+     * Data provider for test_rename_content.
+     *
+     * @return  array
      */
-    public function test_rename_content() {
+    public function rename_content_provider() {
+        return [
+            'Standard name' => ['New name', 'New name'],
+            'Name with digits' => ['Today is 17/04/2017', 'Today is 17/04/2017'],
+            'Name with symbols' => ['Follow us: @moodle', 'Follow us: @moodle'],
+            'Name with tags' => ['This is <b>bold</b>', 'This is bold'],
+        ];
+    }
+
+    /**
+     * Test the behaviour of rename_content().
+
+     * @dataProvider    rename_content_provider
+     * @param   string  $newname    The name to set
+     * @param   string   $expected   The name result
+     *
+     * @covers ::execute
+     */
+    public function test_rename_content(string $newname, string $expected) {
         global $DB;
         $this->resetAfterTest();
 
@@ -64,20 +87,19 @@ class core_contentbank_external_testcase extends \externallib_advanced_testcase 
         $record = array_shift($records);
 
         $oldname = $record->name;
-        $newname = 'New name';
 
         // Call the WS and check the content is renamed as expected.
-        $result = external::rename_content($record->id, $newname);
-        $result = external_api::clean_returnvalue(external::rename_content_returns(), $result);
+        $result = rename_content::execute($record->id, $newname);
+        $result = external_api::clean_returnvalue(rename_content::execute_returns(), $result);
         $this->assertTrue($result);
         $record = $DB->get_record('contentbank_content', ['id' => $record->id]);
         $this->assertNotEquals($oldname, $record->name);
-        $this->assertEquals($newname, $record->name);
+        $this->assertEquals($expected, $record->name);
 
         // Call the WS using an unexisting contentid and check an error is thrown.
         $this->expectException(\dml_missing_record_exception::class);
-        $result = external::rename_content($record->id + 1, $oldname);
-        $result = external_api::clean_returnvalue(external::rename_content_returns(), $result);
+        $result = rename_content::execute_returns($record->id + 1, $oldname);
+        $result = external_api::clean_returnvalue(rename_content::execute_returns(), $result);
         $this->assertFalse($result);
     }
 }
