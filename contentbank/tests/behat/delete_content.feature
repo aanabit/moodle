@@ -9,7 +9,6 @@ Feature: Delete H5P file from the content bank
     And I follow "Manage private files..."
     And I upload "h5p/tests/fixtures/filltheblanks.h5p" file to "Files" filemanager
     And I click on "Save changes" "button"
-    # TODO MDL-57120 site "Content bank" link not accessible in classic without navigation block.
     And I am on site homepage
     And I turn editing mode on
     And I add the "Navigation" block if not present
@@ -62,8 +61,12 @@ Feature: Delete H5P file from the content bank
     And I should see "filltheblanks.h5p"
     And I follow "filltheblanks.h5p"
     Then ".header-actions-container" "css_element" should not exist
+<<<<<<< HEAD
     And I click on "Site pages" "list_item" in the "Navigation" "block"
     And I click on "Content bank" "link" in the "Navigation" "block"
+=======
+    And I click on "Content bank" "link"
+>>>>>>> 44642b0a83f... MDL-68514 contentbank: fix behat issues with classic
     And I click on "Upload" "link"
     And I click on "Choose a file..." "button"
     And I click on "Private files" "link" in the ".fp-repo-area" "css_element"
