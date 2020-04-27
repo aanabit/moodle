@@ -1,8 +1,8 @@
-@core @core_contentbank @_file_upload @javascript
-Feature: Delete content from the content bank
-  In order to delete content from the content bank
+@core @core_contentbank
+Feature: Confirm content bank events are triggered
+  In order remove H5P content from the content bank
   As an admin
-  I need to be able to delete any content from the content bank
+  I need to be able to delete any H5P content from the content bank
 
   Background:
     Given I log in as "admin"

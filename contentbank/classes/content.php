@@ -24,6 +24,7 @@
 
 namespace core_contentbank;
 
+use core_contentbank\event\content_updated;
 use stored_file;
 use stdClass;
 use coding_exception;
@@ -99,7 +100,13 @@ abstract class content {
         }
         $this->content->usermodified = $USER->id;
         $this->content->timemodified = time();
-        return $DB->update_record('contentbank_content', $this->content);
+        $result = $DB->update_record('contentbank_content', $this->content);
+        if ($result) {
+            // Trigger an event for updating this content.
+            $event = content_updated::create($this->content);
+            $event->trigger();
+        }
+        return $result;
     }
 
     /**
