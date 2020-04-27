@@ -105,7 +105,7 @@ abstract class content {
         $result = $DB->update_record('contentbank_content', $this->content);
         if ($result) {
             // Trigger an event for updating this content.
-            $event = content_updated::create($this->content);
+            $event = content_updated::create_from_record($this->content);
             $event->trigger();
         }
         return $result;

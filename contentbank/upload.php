@@ -90,7 +90,7 @@ if ($mform->is_cancelled()) {
             $contentype = new $classname($context);
             $content = $contentype->create_content($record);
             file_save_draft_area_files($formdata->file, $contextid, 'contentbank', 'public', $content->get_id());
-            \core_contentbank\event\content_uploaded::create_from_record($record)->trigger();
+            \core_contentbank\event\content_uploaded::create_from_record($content->get_content())->trigger();
         }
     }
     redirect($returnurl);

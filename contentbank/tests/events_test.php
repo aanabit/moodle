@@ -69,8 +69,6 @@ class core_contentbank_events_testcase extends advanced_testcase {
         // Check that the event data is valid.
         $this->assertInstanceOf('\core_contentbank\event\content_updated', $event);
         $this->assertEquals($systemcontext, $event->get_context());
-        $expected = [SITEID, 'core_contentbank', 'update', 'view.php?id=' . $content->get_id(), $oldname . '->'. $newname];
-        $this->assertEventLegacyLogData($expected, $event);
     }
 
     /**
