@@ -45,8 +45,16 @@ Feature: Confirm content bank events are triggered
     Then I should see "Content viewed"
 
   Scenario: Content deleted event
-    And I click on "Content bank" "link"
-    And I click on "filltheblanks.h5p" "link"
+    Given I click on "Content bank" "link"
+    And I wait until the page is ready
+    And I should see "filltheblanks.h5p"
+    When I follow "filltheblanks.h5p"
+    And I open the action menu in "region-main-settings-menu" "region"
+    Then I should see "Delete"
+    And I choose "Delete" in the open action menu
+    And I should see "Are you sure you want to delete content 'filltheblanks.h5p'?"
+    And I click on "Cancel" "button" in the "Delete content" "dialogue"
+    And I should see "filltheblanks.h5p"
     And I open the action menu in "region-main-settings-menu" "region"
     And I choose "Delete" in the open action menu
     And I click on "Delete" "button" in the "Delete content" "dialogue"
