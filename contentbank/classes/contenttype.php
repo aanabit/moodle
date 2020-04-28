@@ -24,7 +24,8 @@
 
 namespace core_contentbank;
 
-use coding_exception;
+use core\event\contentbank_content_deleted;
+use core\event\contentbank_content_viewed;
 use moodle_url;
 
 /**
@@ -72,6 +73,7 @@ abstract class contenttype {
         $entry->usermodified = $entry->usercreated;
         $entry->timemodified = $entry->timecreated;
         $entry->configdata = $record->configdata ?? '';
+        $entry->instanceid = $record->instanceid ?? 0;
         $entry->id = $DB->insert_record('contentbank_content', $entry);
         if ($entry->id) {
             $classname = '\\'.$entry->contenttype.'\\content';
@@ -96,7 +98,23 @@ abstract class contenttype {
         }
 
         // Delete the contentbank DB entry.
-        return $DB->delete_records('contentbank_content', ['id' => $content->get_id()]);
+        $result = $DB->delete_records('contentbank_content', ['id' => $content->get_id()]);
+        if ($result) {
+            // Trigger an event for deleting this content.
+            $record = $content->get_content();
+            $event = contentbank_content_deleted::create([
+                'objectid' => $content->get_id(),
+                'relateduserid' => $record->usercreated,
+                'context' => \context::instance_by_id($record->contextid),
+                'other' => [
+                    'contenttype' => $content->get_content_type(),
+                    'name' => $content->get_name()
+                ]
+            ]);
+            $event->add_record_snapshot('contentbank_content', $record);
+            $event->trigger();
+        }
+        return $result;
     }
 
     /**
@@ -138,6 +156,10 @@ abstract class contenttype {
      * @return string           HTML code to include in view.php.
      */
     public function get_view_content(\stdClass $record): string {
+        // Trigger an event for viewing this content.
+        $event = contentbank_content_viewed::create_from_record($record);
+        $event->trigger();
+
         // Main contenttype class can visualize the content, but plugins could overwrite visualization.
         return '';
     }
