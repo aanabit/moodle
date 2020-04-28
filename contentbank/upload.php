@@ -72,26 +72,7 @@ if ($mform->is_cancelled()) {
     redirect($returnurl);
 } else if ($formdata = $mform->get_data()) {
     require_sesskey();
-
-    // Get the file and the contenttype to manage given file's extension.
-    $usercontext = context_user::instance($USER->id);
-    $fs = get_file_storage();
-    $files = $fs->get_area_files($usercontext->id, 'user', 'draft', $formdata->file, 'itemid, filepath, filename', false);
-
-    if (!empty($files)) {
-        $file = reset($files);
-        $filename = $file->get_filename();
-        $extension = $cb->get_extension($filename);
-        $plugin = $cb->get_extension_supporter($extension, $context);
-        $classname = '\\contenttype_'.$plugin.'\\contenttype';
-        $record = new stdClass();
-        $record->name = $filename;
-        if (class_exists($classname)) {
-            $contentype = new $classname($context);
-            $content = $contentype->create_content($record);
-            file_save_draft_area_files($formdata->file, $contextid, 'contentbank', 'public', $content->get_id());
-        }
-    }
+    $content = $cb->upload_file($context, $USER->id, $formdata->file);
     redirect($returnurl);
 }
 

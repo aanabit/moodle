@@ -202,4 +202,41 @@ class contentbank {
 
         return $contents;
     }
+
+    /**
+     * Uploading a file to create content.
+     *
+     * @param \context $context Context where to upload the file and content.
+     * @param int $userid Id of the user uploading the file.
+     * @param int|int[]|false $itemid item ID(s) or all files if not specified
+     * @return content
+     */
+    public function upload_file(\context $context, int $userid, $itemid = false): ?content {
+        global $USER;
+
+        if (empty($userid)) {
+            $userid = $USER->id;
+        }
+        // Get the file and the contenttype to manage given file's extension.
+        $usercontext = \context_user::instance($userid);
+        $fs = get_file_storage();
+        $files = $fs->get_area_files($usercontext->id, 'user', 'draft', $itemid, 'itemid, filepath, filename', false);
+
+        if (!empty($files)) {
+            $file = reset($files);
+            $filename = $file->get_filename();
+            $extension = $this->get_extension($filename);
+            $plugin = $this->get_extension_supporter($extension, $context);
+            $classname = '\\contenttype_'.$plugin.'\\contenttype';
+            $record = new \stdClass();
+            $record->name = $filename;
+            if (class_exists($classname)) {
+                $contentype = new $classname($context);
+                $content = $contentype->create_content($record);
+                file_save_draft_area_files($itemid, $context->id, 'contentbank', 'public', $content->get_id());
+                return $content;
+            }
+        }
+        return null;
+    }
 }
