@@ -62,9 +62,12 @@ Feature: Delete H5P file from the content bank
     And I follow "filltheblanks.h5p"
     Then ".header-actions-container" "css_element" should not exist
 <<<<<<< HEAD
+<<<<<<< HEAD
     And I click on "Site pages" "list_item" in the "Navigation" "block"
     And I click on "Content bank" "link" in the "Navigation" "block"
 =======
+=======
+>>>>>>> f570a790715ac491bd03826c0afc6e8db048c9f6
     And I click on "Content bank" "link"
 >>>>>>> 44642b0a83f... MDL-68514 contentbank: fix behat issues with classic
     And I click on "Upload" "link"

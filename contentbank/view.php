@@ -38,8 +38,6 @@ require_capability('moodle/contentbank:access', $context);
 $statusmsg = optional_param('statusmsg', '', PARAM_RAW);
 $errormsg = optional_param('errormsg', '', PARAM_RAW);
 
-$PAGE->requires->js_call_amd('core_contentbank/actions', 'init');
-
 $returnurl = new \moodle_url('/contentbank/index.php', ['contextid' => $context->id]);
 $plugin = core_plugin_manager::instance()->get_plugin_info($record->contenttype);
 if (!$plugin || !$plugin->is_enabled()) {
