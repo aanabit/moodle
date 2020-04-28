@@ -102,17 +102,17 @@ abstract class contenttype {
         if ($result) {
             // Trigger an event for deleting this content.
             $record = $content->get_content();
-            $event = content_deleted::create([
-                'objectid' => $content->get_id(),
-                'relateduserid' => $record->usercreated,
-                'context' => \context::instance_by_id($record->contextid),
-                'other' => [
-                    'contenttype' => $content->get_content_type(),
-                    'name' => $content->get_name()
-                ]
-            ]);
-            $event->add_record_snapshot('contentbank_content', $record);
-            $event->trigger();
+//            $event = content_deleted::create([
+//                'objectid' => $content->get_id(),
+//                'relateduserid' => $record->usercreated,
+//                'context' => \context::instance_by_id($record->contextid),
+//                'other' => [
+//                    'contenttype' => $content->get_content_type(),
+//                    'name' => $content->get_name()
+//                ]
+//            ]);
+//            $event->add_record_snapshot('contentbank_content', $record);
+//            $event->trigger();
         }
         return $result;
     }
