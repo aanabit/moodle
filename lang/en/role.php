@@ -154,6 +154,7 @@ $string['contentbank:access'] = 'Access the content bank';
 $string['contentbank:deleteanycontent'] = 'Delete any content from the content bank';
 $string['contentbank:deleteowncontent'] = 'Delete content from own content bank';
 $string['contentbank:upload'] = 'Upload content to the content bank';
+$string['contentbank:useeditor'] = 'Create or edit content using a content type editor';
 $string['context'] = 'Context';
 $string['course:activityvisibility'] = 'Hide/show activities';
 $string['course:bulkmessaging'] = 'Send a message to many people';
