@@ -41,7 +41,12 @@ abstract class contenttype {
     /** Plugin implements uploading feature */
     const CAN_UPLOAD = 'upload';
 
+    /** Plugin implements edition feature */
+    const CAN_EDIT = 'edit';
+
     /** @var context This contenttype's context. **/
+
+    /** @var context This content's context. **/
     protected $context = null;
 
     /**
@@ -324,6 +329,38 @@ abstract class contenttype {
     }
 
     /**
+     * Returns whether or not the user has permission to use the editor.
+     *
+     * @return bool     True if the user can edit content. False otherwise.
+     */
+    final public function can_edit(): bool {
+        if (!$this->is_feature_supported(self::CAN_EDIT)) {
+            return false;
+        }
+
+        if (!$this->can_access()) {
+            return false;
+        }
+
+        $classname = 'contenttype/'.$this->get_plugin_name();
+
+        $editioncap = $classname.':useeditor';
+        $hascapabilities = has_capability('moodle/contentbank:useeditor', $this->context) &&
+            has_capability($editioncap, $this->context);
+        return $hascapabilities && $this->is_edit_allowed();
+    }
+
+    /**
+     * Returns plugin allows edition.
+     *
+     * @return bool     True if plugin allows edition. False otherwise.
+     */
+    protected function is_edit_allowed(): bool {
+        // Plugins can overwrite this function to add any check they need.
+        return true;
+    }
+
+    /**
      * Returns the plugin supports the feature.
      *
      * @param string $feature Feature code e.g CAN_UPLOAD
@@ -346,4 +383,17 @@ abstract class contenttype {
      * @return array
      */
     abstract public function get_manageable_extensions(): array;
+
+    /**
+     * Returns the list of different types of the given content type.
+     *
+     * A content type can have one or more options for creating content. This method will report all of them or only the content
+     * type itself if it has no other options.
+     *
+     * @return array An object for each type:
+     *     - string typename: descriptive name of the type.
+     *     - string typeeditorparams: params required by this content type editor.
+     *     - url typeicon: this type icon.
+     */
+    abstract public function get_contenttype_types(): array;
 }
