@@ -23,6 +23,7 @@
  */
 
 $string['author'] = 'Author';
+$string['close'] = 'Close';
 $string['contentdeleted'] = 'The content has been deleted.';
 $string['contentname'] = 'Content name';
 $string['contentnotdeleted'] = 'An error was encountered while trying to delete the content.';
@@ -39,6 +40,7 @@ $string['file'] = 'Upload content';
 $string['file_help'] = 'Files may be stored in the content bank for use in courses. Only files used by content types enabled on the site may be uploaded.';
 $string['itemsfound'] = '{$a} items found';
 $string['name'] = 'Content';
+$string['nocontenttypes'] = 'No content types available';
 $string['nopermissiontodelete'] = 'You do not have permission to delete content.';
 $string['nopermissiontomanage'] = 'You do not have permission to manage content.';
 $string['privacy:metadata:content:contenttype'] = 'The contenttype plugin of the content in the content bank.';
