@@ -230,13 +230,11 @@ class contentbank {
             $classname = '\\contenttype_'.$plugin.'\\contenttype';
             $record = new \stdClass();
             $record->name = $filename;
-            if (class_exists($classname)) {
-                $contentype = new $classname($context);
-                $content = $contentype->create_content($record);
-                file_save_draft_area_files($itemid, $context->id, 'contentbank', 'public', $content->get_id());
-                \core\event\contentbank_content_uploaded::create_from_record($content->get_content())->trigger();
-                return $content;
-            }
+            $contentype = new $classname($context);
+            $content = $contentype->create_content($record);
+            file_save_draft_area_files($itemid, $context->id, 'contentbank', 'public', $content->get_id());
+            \core\event\contentbank_content_uploaded::create_from_record($content->get_content())->trigger();
+            return $content;
         }
         return null;
     }
