@@ -233,7 +233,8 @@ class contentbank {
             $contentype = new $classname($context);
             $content = $contentype->create_content($record);
             file_save_draft_area_files($itemid, $context->id, 'contentbank', 'public', $content->get_id());
-            \core\event\contentbank_content_uploaded::create_from_record($content->get_content())->trigger();
+            $event = \core\event\contentbank_content_uploaded::create_from_record($content->get_content());
+            $event->trigger();
             return $content;
         }
         return null;
