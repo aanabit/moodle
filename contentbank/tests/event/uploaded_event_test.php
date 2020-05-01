@@ -32,46 +32,57 @@ require_once($CFG->dirroot . '/contentbank/tests/fixtures/testable_contenttype.p
 require_once($CFG->dirroot . '/contentbank/tests/fixtures/testable_content.php');
 
 /**
- * Test for content bank created event.
+ * Test for content bank uploaded event.
  *
  * @package    core_contentbank
  * @category   test
  * @copyright  2020 Amaia Anabitarte <amaia@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- * @coversDefaultClass \core\event\contentbank_content_created
+ * @coversDefaultClass \core\event\contentbank_content_uploaded
  */
-class core_contentbank_created_event_testcase extends \advanced_testcase {
+class core_contentbank_uploaded_event_testcase extends \advanced_testcase {
 
     /**
-     * Test the content created event.
+     * Test the content uploaded event.
      *
      * @covers ::create_from_record
      */
-    public function test_content_created() {
+    public function test_content_uploaded() {
         global $USER;
 
         $this->resetAfterTest();
         $this->setAdminUser();
-
-        $contenttypeclass = "\\contenttype_testable\\contenttype";
         $systemcontext = \context_system::instance();
-        $type = new $contenttypeclass($systemcontext);
 
-        // Trigger and capture the event when renaming a content.
+        // Create a dummy H5P file.
+        $dummyh5p = array(
+            'contextid' => $systemcontext->id,
+            'component' => 'contentbank',
+            'filearea' => 'public',
+            'itemid' => 1,
+            'filepath' => '/',
+            'filename' => 'dummy_h5p.h5p'
+        );
+        $fs = get_file_storage();
+        $dummyh5pfile = $fs->create_file_from_string($dummyh5p, 'Dummy H5Pcontent');
+
+        // Trigger and capture the event when creating content from a file.
         $sink = $this->redirectEvents();
+        $cb = new contentbank();
+        $cb->create_content_from_a_file($systemcontext, $USER->id, $dummyh5pfile);
 
-        // Create content.
-        $record = new \stdClass();
-        $record->name = 'Test content';
-        $record->configdata = '';
-        $record->usercreated = $USER->id;
-        $content = $type->create_content($record);
-
+        // Both uploaded and created events are raised
         $events = $sink->get_events();
-        $event = reset($events);
+        $this->assertCount(2, $events);
 
-        // Check that the event data is valid.
+        // First the created content event has been raised.
+        $event = array_shift($events);
         $this->assertInstanceOf('\core\event\contentbank_content_created', $event);
+        $this->assertEquals($systemcontext, $event->get_context());
+
+        // Second the uploaded content event has been raised.
+        $event = array_pop($events);
+        $this->assertInstanceOf('\core\event\contentbank_content_uploaded', $event);
         $this->assertEquals($systemcontext, $event->get_context());
     }
 }

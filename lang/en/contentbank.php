@@ -28,6 +28,7 @@ $string['contentname'] = 'Content name';
 $string['contentrenamed'] = 'The content has been renamed.';
 $string['contentnotrenamed'] = 'An error was encountered while trying to rename the content.';
 $string['contentnotdeleted'] = 'An error was encountered while trying to delete the content.';
+$string['eventcontentcreated'] = 'Content created';
 $string['eventcontentdeleted'] = 'Content deleted';
 $string['eventcontentupdated'] = 'Content updated';
 $string['eventcontentuploaded'] = 'Content uploaded';

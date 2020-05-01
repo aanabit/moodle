@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Events tests.
+ * Created events tests.
  *
  * @package core_contentbank
  * @category test
@@ -32,47 +32,46 @@ require_once($CFG->dirroot . '/contentbank/tests/fixtures/testable_contenttype.p
 require_once($CFG->dirroot . '/contentbank/tests/fixtures/testable_content.php');
 
 /**
- * Test for content bank events.
+ * Test for content bank created event.
  *
  * @package    core_contentbank
  * @category   test
  * @copyright  2020 Amaia Anabitarte <amaia@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- * @coversDefaultClass \core\event\contentbank_content_updated
+ * @coversDefaultClass \core\event\contentbank_content_created
  */
-class core_contentbank_updated_event_testcase extends \advanced_testcase {
+class core_contentbank_created_event_testcase extends \advanced_testcase {
 
     /**
-     * Test the content updated event.
+     * Test the content created event.
      *
      * @covers ::create_from_record
      */
-    public function test_content_updated() {
+    public function test_content_created() {
+        global $USER;
 
         $this->resetAfterTest();
         $this->setAdminUser();
 
-        // Save the system context.
+        $contenttypeclass = "\\contenttype_testable\\contenttype";
         $systemcontext = \context_system::instance();
-
-        // Create a content bank content.
-        $generator = $this->getDataGenerator()->get_plugin_generator('core_contentbank');
-        $contents = $generator->generate_contentbank_data('contenttype_testable', 1);
-        $content = array_shift($contents);
-
-        // Store the name before we change it.
-        $oldname = $content->get_name();
+        $type = new $contenttypeclass($systemcontext);
 
         // Trigger and capture the event when renaming a content.
         $sink = $this->redirectEvents();
 
-        $newname = "New name";
-        $content->set_name($newname);
+        // Create content.
+        $record = new \stdClass();
+        $record->name = 'Test content';
+        $record->configdata = '';
+        $record->usercreated = $USER->id;
+        $content = $type->create_content($record);
+
         $events = $sink->get_events();
         $event = reset($events);
 
         // Check that the event data is valid.
-        $this->assertInstanceOf('\core\event\contentbank_content_updated', $event);
+        $this->assertInstanceOf('\core\event\contentbank_content_created', $event);
         $this->assertEquals($systemcontext, $event->get_context());
     }
 }
