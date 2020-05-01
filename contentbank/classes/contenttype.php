@@ -24,6 +24,7 @@
 
 namespace core_contentbank;
 
+use core\event\contentbank_content_created;
 use core\event\contentbank_content_deleted;
 use core\event\contentbank_content_viewed;
 use moodle_url;
@@ -75,6 +76,9 @@ abstract class contenttype {
         $entry->configdata = $record->configdata ?? '';
         $entry->instanceid = $record->instanceid ?? 0;
         $entry->id = $DB->insert_record('contentbank_content', $entry);
+        // Trigger an event for creating the content.
+        $event = contentbank_content_created::create_from_record($entry);
+        $event->trigger();
         if ($entry->id) {
             $classname = '\\'.$entry->contenttype.'\\content';
             return new $classname($entry);

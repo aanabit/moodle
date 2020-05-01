@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Contentbank content uploaded event.
+ * Contentbank content created event.
  *
  * @package    core
  * @copyright  2020 Amaia Anabitarte <amaia@moodle.com>
@@ -25,7 +25,7 @@
 namespace core\event;
 
 /**
- * Content bank content uploaded class.
+ * Content bank content created class.
  *
  * @property-read array $other {
  *      Extra information about event.
@@ -38,7 +38,7 @@ namespace core\event;
  * @copyright  2020 Amaia Anabitarte <amaia@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class contentbank_content_uploaded extends base {
+class contentbank_content_created extends base {
 
     /**
      * Initialise the event data.
@@ -54,7 +54,7 @@ class contentbank_content_uploaded extends base {
      *
      * @since Moodle 3.9
      * @param \stdClass $record Data to create the event
-     * @return contentbank_content_uploaded
+     * @return contentbank_content_created
      */
     public static function create_from_record(\stdClass $record) {
         $event = self::create([
@@ -75,7 +75,7 @@ class contentbank_content_uploaded extends base {
      * @return string
      */
     public static function get_name() {
-        return get_string('eventcontentuploaded', 'core_contentbank');
+        return get_string('eventcontentcreated', 'core_contentbank');
     }
 
     /**
@@ -84,7 +84,7 @@ class contentbank_content_uploaded extends base {
      * @return string
      */
     public function get_description() {
-        return "The user with id '$this->userid' uploaded the content with id '$this->objectid'.";
+        return "The user with id '$this->userid' created the content with id '$this->objectid'.";
     }
 
     /**
