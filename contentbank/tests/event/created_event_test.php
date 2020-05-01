@@ -23,6 +23,8 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+namespace core_contentbank;
+
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
@@ -36,30 +38,22 @@ require_once($CFG->dirroot . '/contentbank/tests/fixtures/testable_content.php')
  * @category   test
  * @copyright  2020 Amaia Anabitarte <amaia@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- *
+ * @coversDefaultClass \core\event\contentbank_content_updated
  */
-class core_contentbank_events_testcase extends advanced_testcase {
-
-    /**
-     * Test set up.
-     *
-     * This is executed before running any test in this file.
-     */
-    public function setUp() {
-        $this->resetAfterTest();
-    }
+class core_contentbank_updated_event_testcase extends \advanced_testcase {
 
     /**
      * Test the content updated event.
      *
-     * @covers \core\event\contentbank_content_updated
+     * @covers ::create_from_record
      */
     public function test_content_updated() {
 
+        $this->resetAfterTest();
         $this->setAdminUser();
 
         // Save the system context.
-        $systemcontext = context_system::instance();
+        $systemcontext = \context_system::instance();
 
         // Create a content bank content.
         $generator = $this->getDataGenerator()->get_plugin_generator('core_contentbank');
@@ -80,39 +74,5 @@ class core_contentbank_events_testcase extends advanced_testcase {
         // Check that the event data is valid.
         $this->assertInstanceOf('\core\event\contentbank_content_updated', $event);
         $this->assertEquals($systemcontext, $event->get_context());
-    }
-
-    /**
-     * Test the content deleted event
-     *
-     * @covers \core\event\contentbank_content_deleted
-     */
-    public function test_content_deleted() {
-        global $DB;
-
-        $this->setAdminUser();
-
-        // Save the system context.
-        $systemcontext = context_system::instance();
-
-        // Create a content bank content.
-        $generator = $this->getDataGenerator()->get_plugin_generator('core_contentbank');
-        $contents = $generator->generate_contentbank_data('contenttype_testable', 3);
-        $content = array_shift($contents);
-        $this->assertEquals(3, $DB->count_records('contentbank_content'));
-
-        $classname = '\\contenttype_testable\\contenttype';
-        $contentype = new $classname($systemcontext);
-
-        // Trigger and capture the event for deleting a content.
-        $sink = $this->redirectEvents();
-        $contentype->delete_content($content);
-        $events = $sink->get_events();
-        $event = reset($events);
-
-        // Check that the tag was deleted and the event data is valid.
-        $this->assertEquals(2, $DB->count_records('contentbank_content'));
-        $this->assertInstanceOf('\core\event\contentbank_content_deleted', $event);
-        $this->assertEquals(context_system::instance(), $event->get_context());
     }
 }

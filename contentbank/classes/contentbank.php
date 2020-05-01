@@ -24,6 +24,8 @@
 
 namespace core_contentbank;
 
+use stored_file;
+
 /**
  * Content bank class
  *
@@ -204,39 +206,34 @@ class contentbank {
     }
 
     /**
-     * Uploading a file to create content.
+     * Create content from a file information.
      *
      * @param \context $context Context where to upload the file and content.
      * @param int $userid Id of the user uploading the file.
      * @param int|int[]|false $itemid item ID(s) or all files if not specified
+     * @param stored_file $file The file to get information from
      * @return content
      */
-    public function upload_file(\context $context, int $userid, $itemid = false): ?content {
+    public function create_content_from_a_file(\context $context, int $userid, stored_file $file): ?content {
         global $USER;
 
         if (empty($userid)) {
             $userid = $USER->id;
         }
-        // Get the file and the contenttype to manage given file's extension.
-        $usercontext = \context_user::instance($userid);
-        $fs = get_file_storage();
-        $files = $fs->get_area_files($usercontext->id, 'user', 'draft', $itemid, 'itemid, filepath, filename', false);
 
-        if (!empty($files)) {
-            $file = reset($files);
-            $filename = $file->get_filename();
-            $extension = $this->get_extension($filename);
-            $plugin = $this->get_extension_supporter($extension, $context);
-            $classname = '\\contenttype_'.$plugin.'\\contenttype';
-            $record = new \stdClass();
-            $record->name = $filename;
-            $contentype = new $classname($context);
-            $content = $contentype->create_content($record);
-            file_save_draft_area_files($itemid, $context->id, 'contentbank', 'public', $content->get_id());
-            $event = \core\event\contentbank_content_uploaded::create_from_record($content->get_content());
-            $event->trigger();
-            return $content;
-        }
-        return null;
+        // Get the contenttype to manage given file's extension.
+        $filename = $file->get_filename();
+        $extension = $this->get_extension($filename);
+        $plugin = $this->get_extension_supporter($extension, $context);
+        $classname = '\\contenttype_'.$plugin.'\\contenttype';
+        $record = new \stdClass();
+        $record->name = $filename;
+        $record->usercreated = $userid;
+        $contentype = new $classname($context);
+        $content = $contentype->create_content($record);
+        $event = \core\event\contentbank_content_uploaded::create_from_record($content->get_content());
+        $event->trigger();
+
+        return $content;
     }
 }

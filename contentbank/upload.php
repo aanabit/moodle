@@ -72,7 +72,15 @@ if ($mform->is_cancelled()) {
     redirect($returnurl);
 } else if ($formdata = $mform->get_data()) {
     require_sesskey();
-    $content = $cb->upload_file($context, $USER->id, $formdata->file);
+    // Get the file and create the content based on it.
+    $usercontext = \context_user::instance($USER->id);
+    $fs = get_file_storage();
+    $files = $fs->get_area_files($usercontext->id, 'user', 'draft', $formdata->file, 'itemid, filepath, filename', false);
+    if (!empty($files)) {
+        $file = reset($files);
+        $content = $cb->create_content_from_a_file($context, $USER->id, $file);
+        file_save_draft_area_files($formdata->file, $contextid, 'contentbank', 'public', $content->get_id());
+    }
     redirect($returnurl);
 }
 
