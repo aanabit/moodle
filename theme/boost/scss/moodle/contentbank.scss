@@ -1,16 +1,102 @@
-@include media-breakpoint-down(sm) {
-    .content-bank-container .cb-file {
-        flex-basis: 50%;
-    }
-}
-
-@include media-breakpoint-up(sm) {
-    .content-bank-container .cb-file {
-        max-width: 120px;
-        min-width: 120px;
-    }
+.content-bank-container {
+    min-height: 140px;
 }
 
 .content-bank-container {
-    min-height: 140px;
+    &.view-grid {
+        @include media-breakpoint-down(sm) {
+            .cb-listitem {
+                flex-basis: 50%;
+            }
+        }
+
+        @include media-breakpoint-up(sm) {
+            .cb-listitem {
+                max-width: 120px;
+                min-width: 120px;
+            }
+        }
+        .cb-listitem {
+            position: relative;
+            margin-bottom: 0.5rem;
+        }
+        .cb-file {
+            padding: 0.5rem;
+        }
+        .cb-thumbnail {
+            text-align: center;
+            margin-bottom: 0.25rem;
+        }
+        .cb-thumbnail .icon {
+            width: 64px;
+            height: 64px;
+            line-height: 64px;
+        }
+        .cb-link::after {
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            z-index: 1;
+            pointer-events: auto;
+            content: "";
+            background-color: transparent;
+        }
+        .cb-heading {
+            display: none;
+        }
+    }
+    &.view-list {
+        .cb-listitem {
+            width: 100%;
+            display: flex;
+            border-bottom: $border-width solid $border-color;
+        }
+        .cb-file {
+            position: relative;
+            display: flex;
+        }
+        .cb-heading {
+            display: flex;
+            width: 100%;
+            border-bottom: $border-width solid $border-color;
+        }
+        .cb-file,
+        .cb-date {
+            flex: 0 0 35%;
+            max-width: 35%;
+        }
+        .cb-size,
+        .cb-type {
+            flex: 0 0 15%;
+            max-width: 15%;
+        }
+        .cb-column {
+            padding: 0.25rem;
+        }
+        .cb-column:not(.last) {
+            border-right: $border-width solid $border-color;
+        }
+        .cb-btnsort {
+            .fa-sort-desc,
+            .fa-sort-asc {
+                display: none;
+            }
+            &.dir-asc .fa-sort-asc {
+                display: block;
+            }
+            &.dir-asc .fa-sort-desc,
+            &.dir-asc .fa-sort {
+                display: none;
+            }
+            &.dir-desc .fa-sort-desc {
+                display: block;
+            }
+            &.dir-desc .fa-sort-asc,
+            &.dir-desc .fa-sort {
+                display: none;
+            }
+        }
+    }
 }

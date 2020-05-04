@@ -59,7 +59,7 @@ class contenttype extends \core_contentbank\contenttype {
     public function get_icon(string $contentname): string {
         global $OUTPUT;
 
-        return $OUTPUT->pix_icon('f/archive-64', $contentname, 'moodle', ['class' => 'iconsize-big']);
+        return $OUTPUT->pix_icon('f/archive-64', $contentname, 'moodle');
     }
 
     /**

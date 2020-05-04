@@ -34,14 +34,44 @@
 }}
 <div class="content-bank-toolbar card border-0 mb-3">
     <div class="content-bank">
-        <div class="cb-toolbar float-sm-right">
-        {{#tools}}
-            {{#link}}<a href="{{{ link }}}" title="{{{ name }}}">{{/link}}
-                <div class="cb-tool icon-no-margin btn btn-secondary btn-lg">
-                    {{#pix}} {{{ icon }}} {{/pix}}
+        <div class="cb-toolbar d-flex">
+            <div class="input-group mr-auto" style="max-width: 300px;">
+                <label for="search">
+                    <span class="sr-only">{{#str}} searchactivitiesbyname, course {{/str}}</span>
+                </label>
+                <input type="text" data-region="search-input" name="search" id="search" class="form-control border-right-0" autocomplete="off"
+                       placeholder="{{#str}}search, core {{/str}}" {{#query}} value="{{query}}" autofocus {{/query}}
+                >
+                <div class="input-group-append">
+                    <div class="input-group-text bg-transparent">
+                        <div class="search-icon icon-no-margin">
+                            {{#pix}} a/search, core {{/pix}}
+                        </div>
+                        <div class="clear d-none">
+                            <button class="btn align-baseline p-0 border-0 icon-no-margin" data-action="clearsearch">
+                                {{#pix}} e/cancel_solid_circle, core {{/pix}}
+                                <span class="sr-only">{{#str}} clearsearch, core {{/str}}</span>
+                            </button>
+                        </div>
+                    </div>
                 </div>
-            {{#link}}</a>{{/link}}
-        {{/tools}}
+            </div>
+
+            {{#tools}}
+                {{#link}}<a href="{{{ link }}}" title="{{{ name }}}">{{/link}}
+                    <div class="cb-tool icon-no-margin btn btn-secondary">
+                        {{#pix}} {{{ icon }}} {{/pix}}
+                    </div>
+                {{#link}}</a>{{/link}}
+            {{/tools}}
+            <div class="icon-no-margin btn btn-secondary ml-2" data-action="viewgrid">
+                {{#pix}}a/view_icon_active, core, {{#str}} displayicons, repository {{/str}} {{/pix}}
+            </div>
+            <div class="icon-no-margin btn btn-secondary" data-action="viewlist">
+                {{#pix}}t/viewdetails, core, {{#str}} displaydetails, repository {{/str}} {{/pix}}
+            </div>
+
+
         </div>
     </div>
 </div>

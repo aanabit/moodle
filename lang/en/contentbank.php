@@ -37,3 +37,7 @@ $string['privacy:metadata:content:usermodified'] = 'Last user has modified the c
 $string['timecreated'] = 'Time created';
 $string['unsupported'] = 'This content type is not supported';
 $string['upload'] = 'Upload';
+$string['name'] = 'Name';
+$string['lastmodified'] = 'Last modified';
+$string['size'] = 'Size';
+$string['type'] = 'Type';
