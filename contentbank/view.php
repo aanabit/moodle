@@ -91,7 +91,7 @@ echo $OUTPUT->header();
 echo $OUTPUT->box_start('generalbox');
 
 if ($contenttype->can_access()) {
-    echo $contenttype->get_view_content($record);
+    echo $contenttype->get_view_content($content);
 }
 
 echo $OUTPUT->box_end();
