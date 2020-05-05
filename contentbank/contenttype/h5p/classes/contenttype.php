@@ -24,7 +24,6 @@
 
 namespace contenttype_h5p;
 
-use stdClass;
 use html_writer;
 
 /**
@@ -54,11 +53,10 @@ class contenttype extends \core_contentbank\contenttype {
     /**
      * Returns the HTML content to add to view.php visualizer.
      *
-     * @param stdClass $record  Th content to be displayed.
+     * @param  content $content The content to be displayed.
      * @return string            HTML code to include in view.php.
      */
-    public function get_view_content(\stdClass $record): string {
-        $content = new content($record);
+    public function get_view_content(\core_contentbank\content $content): string {
         $fileurl = $content->get_file_url();
         $html = html_writer::tag('h2', $content->get_name());
         $html .= \core_h5p\player::display($fileurl, new \stdClass(), true);
