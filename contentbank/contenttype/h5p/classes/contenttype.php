@@ -66,12 +66,30 @@ class contenttype extends \core_contentbank\contenttype {
     /**
      * Returns the HTML code to render the icon for H5P content types.
      *
-     * @param string $contentname   The contentname to add as alt value to the icon.
+     * @param  content $content The content to be displayed.
      * @return string            HTML code to render the icon
      */
-    public function get_icon(string $contentname): string {
-        global $OUTPUT;
-        return $OUTPUT->pix_icon('f/h5p-64', $contentname, 'moodle');
+    public function get_icon(\core_contentbank\content $content): string {
+        global $OUTPUT, $DB;
+
+        \core_h5p\local\library\autoloader::register();
+
+        $pixicon = $OUTPUT->pix_icon('f/h5p-64', $content->get_name(), 'moodle');
+
+        $file = $content->get_file();
+        if (!empty($file)) {
+            $h5p = \core_h5p\api::get_content_from_pathnamehash($file->get_pathnamehash());
+            if (!empty($h5p)) {
+                $h5plib = $DB->get_record('h5p_libraries', ['id' => $h5p->mainlibraryid]);
+                $h5pfilestorage = new \core_h5p\file_storage();
+                $pixicon = $h5pfilestorage->get_icon_url(
+                    $h5plib->id,
+                    $h5plib->machinename,
+                    $h5plib->majorversion,
+                    $h5plib->minorversion);
+            }
+        }
+        return $pixicon;
     }
 
     /**

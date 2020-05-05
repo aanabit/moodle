@@ -53,13 +53,13 @@ class contenttype extends \core_contentbank\contenttype {
     /**
      * Returns the HTML code to render the icon for content bank contents.
      *
-     * @param string $contentname   The contentname to add as alt value to the icon.
+     * @param  content $content The content to delete.
      * @return string               HTML code to render the icon
      */
-    public function get_icon(string $contentname): string {
+    public function get_icon(content $content): string {
         global $OUTPUT;
 
-        return $OUTPUT->pix_icon('f/archive-64', $contentname, 'moodle');
+        return $OUTPUT->pix_icon('f/archive-64', $content->get_name(), 'moodle');
     }
 
     /**
