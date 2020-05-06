@@ -75,7 +75,6 @@ class bankcontent implements renderable, templatable {
         $data = new stdClass();
         $contentdata = array();
         foreach ($this->contents as $content) {
-            $record = $content->get_content();
             $managerclass = $content->get_content_type().'\\contenttype';
             if (class_exists($managerclass)) {
                 $manager = new $managerclass($this->context);
@@ -84,7 +83,7 @@ class bankcontent implements renderable, templatable {
                     $contentdata[] = array(
                         'name' => $name,
                         'link' => $manager->get_view_url($content),
-                        'icon' => $manager->get_icon($name)
+                        'icon' => $manager->get_icon($content)
                     );
                 }
             }
