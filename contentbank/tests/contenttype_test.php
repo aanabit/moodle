@@ -102,6 +102,7 @@ class core_contenttype_contenttype_testcase extends \advanced_testcase {
 
         $systemcontext = \context_system::instance();
         $testable = new contenttype($systemcontext);
+        // TODO
         $icon = $testable->get_icon('new content');
         $this->assertContains('archive', $icon);
     }
