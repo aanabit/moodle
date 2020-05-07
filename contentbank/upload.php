@@ -90,6 +90,8 @@ if ($mform->is_cancelled()) {
             $contentype = new $classname($context);
             $content = $contentype->create_content($record);
             file_save_draft_area_files($formdata->file, $contextid, 'contentbank', 'public', $content->get_id());
+            $viewurl = new \moodle_url('/contentbank/view.php', ['id' => $content->get_id(), 'contextid' => $contextid]);
+            redirect($viewurl);
         }
     }
     redirect($returnurl);
