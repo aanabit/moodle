@@ -158,4 +158,32 @@ class core_contenttype_content_testcase extends \advanced_testcase {
         $content->set_configdata($configdata);
         $this->assertEquals($configdata, $content->get_configdata());
     }
+
+    /**
+     * Tests for 'set_contextid' behaviour.
+     *
+     * @covers ::set_contextid
+     */
+    public function test_set_contextid() {
+        $this->resetAfterTest();
+        $this->setAdminUser();
+        $context = context_system::instance();
+        $course = $this->getDataGenerator()->create_course();
+        $newcontext = \context_course::instance($course->id);
+
+        // Add some content to the content bank.
+        $generator = $this->getDataGenerator()->get_plugin_generator('core_contentbank');
+        $contents = $generator->generate_contentbank_data('contenttype_testable', 3, 0, $context);
+        $content = reset($contents);
+
+        $file = $content->get_file();
+        $oldcontextid = $file->get_contextid();
+
+        $content->set_contextid($newcontext->id);
+        $file = $content->get_file();
+        $newcontextid = $file->get_contextid();
+
+        $this->assertEquals($newcontext->id, $newcontextid);
+        $this->assertNotEquals($newcontextid, $oldcontextid);
+    }
 }
