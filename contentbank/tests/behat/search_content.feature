@@ -18,6 +18,10 @@ Feature: Search content in the content bank
 
   Scenario: Admins can search content in the content bank
     Given I log in as "admin"
+    And I am on site homepage
+    And I turn editing mode on
+    And I add the "Navigation" block if not present
+    And I expand "Site pages" node
     And I click on "Content bank" "link"
     And I should see "santjordi.h5p"
     And "Clear search input" "button" should not exist
