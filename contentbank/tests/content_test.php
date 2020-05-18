@@ -176,14 +176,17 @@ class core_contenttype_content_testcase extends \advanced_testcase {
         $contents = $generator->generate_contentbank_data('contenttype_testable', 3, 0, $context);
         $content = reset($contents);
 
+        $oldcontextid = $content->get_contextid();
+
         $file = $content->get_file();
-        $oldcontextid = $file->get_contextid();
+        $this->assertEquals($oldcontextid, $file->get_contextid());
+        $this->assertEquals($context->id, $oldcontextid);
+        $this->assertNotEquals($newcontext->id, $oldcontextid);
 
         $content->set_contextid($newcontext->id);
         $file = $content->get_file();
-        $newcontextid = $file->get_contextid();
 
-        $this->assertEquals($newcontext->id, $newcontextid);
-        $this->assertNotEquals($newcontextid, $oldcontextid);
+        $this->assertEquals($newcontext->id, $content->get_contextid());
+        $this->assertEquals($newcontext->id, $file->get_contextid());
     }
 }

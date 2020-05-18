@@ -29,6 +29,7 @@ defined('MOODLE_INTERNAL') || die();
 
 use advanced_testcase;
 use context_course;
+use context_coursecat;
 use context_system;
 
 global $CFG;
