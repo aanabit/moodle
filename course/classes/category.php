@@ -2158,20 +2158,17 @@ class core_course_category implements renderable, cacheable_object, IteratorAggr
         // Now delete anything that may depend on course category context.
         grade_course_category_delete($this->id, $newparentid, $showfeedback);
         $cb = new \core_contentbank\contentbank();
-        if ($newparentid) {
-            $newparentcontext = context_coursecat::instance($newparentid);
-            $result = $cb->move_contents($context, $newparentcontext);
-            if ($result && $showfeedback) {
+        $newparentcontext = context_coursecat::instance($newparentid);
+        $result = $cb->move_contents($context, $newparentcontext);
+        if ($showfeedback) {
+            if ($result) {
                 echo $OUTPUT->notification(get_string('contentsmoved', 'contentbank', $catname), 'notifysuccess');
+            } else {
+                echo $OUTPUT->notification(
+                        get_string('errordeletingcontentbankfromcategory', 'contentbank', $catname),
+                        'notifysuccess'
+                );
             }
-        } else {
-            $result = $cb->delete_contents($context);
-        }
-        if (!$result && $showfeedback) {
-            echo $OUTPUT->notification(
-                    get_string('errordeletingcontentbankfromcategory', 'contentbank', $catname),
-                    'notifysuccess'
-            );
         }
         if (!question_delete_course_category($this, $newparentcat, $showfeedback)) {
             if ($showfeedback) {
