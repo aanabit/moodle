@@ -398,7 +398,7 @@ class editor {
                 'width' => 50,
                 'height' => 50,
             ],
-            'ajaxPath' => $CFG->wwwroot . '/h5p/' . "ajax.php?contextId={$context->id}&token={$editorajaxtoken}&action=",
+            'ajaxPath' => $CFG->wwwroot . '/h5p/' . "ajax.php?token={$editorajaxtoken}&action=",
             'libraryUrl' => $url,
             'copyrightSemantics' => $contentvalidator->getCopyrightSemantics(),
             'metadataSemantics' => $contentvalidator->getMetadataSemantics(),
