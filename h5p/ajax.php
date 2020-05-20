@@ -33,15 +33,6 @@ require_once($CFG->libdir . '/filelib.php');
 require_login();
 
 $action = required_param('action', PARAM_ALPHA);
-$contextid = required_param('contextId', PARAM_INT);
-
-$context = context::instance_by_id($contextid);
-
-if (!has_capability('moodle/h5p:updatelibraries', $context)) {
-    H5PCore::ajaxError(get_string('nopermissiontoedit', 'h5p'));
-    header('HTTP/1.1 403 Forbidden');
-    return;
-}
 
 $factory = new factory();
 $editor = $factory->get_editor();

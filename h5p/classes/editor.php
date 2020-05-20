@@ -130,6 +130,17 @@ class editor {
     }
 
     /**
+     * Sets the context id of the current content bank.
+     *
+     * @param int $contextid Context id of the current content bank.
+     *
+     * @return void
+     */
+    public function set_contextid(int $contextid): void {
+        $this->contextid = $contextid;
+    }
+
+    /**
      * Sets the content type library and the file area to create a new H5P content.
      *
      * Note: this method must be used to create new content, to edit an existing
@@ -398,7 +409,7 @@ class editor {
                 'width' => 50,
                 'height' => 50,
             ],
-            'ajaxPath' => $CFG->wwwroot . '/h5p/' . "ajax.php?contextId={$context->id}&token={$editorajaxtoken}&action=",
+            'ajaxPath' => $CFG->wwwroot . '/h5p/' . "ajax.php?token={$editorajaxtoken}&action=",
             'libraryUrl' => $url,
             'copyrightSemantics' => $contentvalidator->getCopyrightSemantics(),
             'metadataSemantics' => $contentvalidator->getMetadataSemantics(),
