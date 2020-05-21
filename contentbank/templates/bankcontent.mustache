@@ -19,6 +19,7 @@
 
     Example context (json):
     {
+        "contextid": 1,
         "contents": [
             {
                 "name": "Accordion.h5p",
@@ -48,7 +49,7 @@
     }
 
 }}
-<div class="content-bank-container view-grid" data-region="contentbank">
+<div class="content-bank-container {{ view }}" data-region="contentbank" data-contextid="{{contextid}}">
     <div class="d-flex justify-content-between flex-column flex-sm-row">
         <div class="cb-search-container mb-2">
             {{>core_contentbank/bankcontent/search}}

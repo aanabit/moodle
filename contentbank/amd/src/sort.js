@@ -22,9 +22,11 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-import selectors from 'core_contentbank/selectors';
+import selectors from './selectors';
 import {get_string as getString} from 'core/str';
 import Prefetch from 'core/prefetch';
+import Ajax from 'core/ajax';
+import Notification from 'core/notification';
 
 
 /**
@@ -61,6 +63,7 @@ const registerListenerEvents = (contentBank) => {
         contentBank.classList.add('view-grid');
         viewGrid.classList.add('active');
         viewList.classList.remove('active');
+        setViewListPreference(false, contentBank.dataset.contextid);
     });
 
     viewList.addEventListener('click', () => {
@@ -68,6 +71,7 @@ const registerListenerEvents = (contentBank) => {
         contentBank.classList.add('view-list');
         viewList.classList.add('active');
         viewGrid.classList.remove('active');
+        setViewListPreference(true, contentBank.dataset.contextid);
     });
 
     // Sort by file name alphabetical
@@ -97,6 +101,36 @@ const registerListenerEvents = (contentBank) => {
         const ascending = updateSortButtons(contentBank, sortByType);
         updateSortOrder(fileArea, shownItems, 'data-type', ascending);
     });
+};
+
+
+/**
+ * Set the contentbank user preference in list view
+ *
+ * @param  {Bool} viewList view ContentBank as list.
+ * @param  {Bool} contextId contextId for contentbank.
+ * @return {Promise} Repository promise.
+ */
+const setViewListPreference = function(viewList, contextId) {
+
+    // If the given status is not hidden, the preference has to be deleted with a null value.
+    if (viewList === false) {
+        viewList = null;
+    }
+
+    const request = {
+        methodname: 'core_user_update_user_preferences',
+        args: {
+            preferences: [
+                {
+                    type: 'core_contentbank_view_list_' + contextId,
+                    value: viewList
+                }
+            ]
+        }
+    };
+
+    return  Ajax.call([request])[0].catch(Notification.exception);
 };
 
 /**

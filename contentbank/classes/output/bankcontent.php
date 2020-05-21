@@ -77,6 +77,8 @@ class bankcontent implements renderable, templatable {
         $PAGE->requires->js_call_amd('core_contentbank/search', 'init');
         $PAGE->requires->js_call_amd('core_contentbank/sort', 'init');
 
+        $viewpreference = get_user_preferences('core_contentbank_view_list_' . $this->context->id);
+
         $data = new stdClass();
         $contentdata = array();
         foreach ($this->contents as $content) {
@@ -97,6 +99,8 @@ class bankcontent implements renderable, templatable {
                 'type' => $mimetype
             );
         }
+        $data->view = ($viewpreference) ? 'view-list' : 'view-grid';
+        $data->contextid = $this->context->id;
         $data->contents = $contentdata;
         $data->tools = $this->toolbar;
         return $data;
