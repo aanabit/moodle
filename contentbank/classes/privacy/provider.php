@@ -72,20 +72,17 @@ class provider implements
      * @param int $userid The userid of the user whose data is to be exported.
      */
     public static function export_user_preferences(int $userid) {
-        $preferences = get_user_preferences(null, null, $userid);
-
-        foreach ($preferences as $name => $value) {
-            if ((substr($name, 0, 27) == 'core_contentbank_view_list_')) {
-                writer::export_user_preference(
+        $preference = get_user_preferences('core_contentbank_view_list', null, $userid);
+        if (isset($preference)) {
+            writer::export_user_preference(
                     'core_contentbank',
-                    $name,
-                    $value,
+                    'core_contentbank_view_list',
+                    $preference,
                     get_string('privacy:request:preference:set', 'core_contentbank', (object) [
-                        'name' => $name,
-                        'value' => $value,
+                            'name' => 'core_contentbank_view_list',
+                            'value' => $preference,
                     ])
-                );
-            }
+            );
         }
     }
 

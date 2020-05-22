@@ -77,7 +77,7 @@ class bankcontent implements renderable, templatable {
         $PAGE->requires->js_call_amd('core_contentbank/search', 'init');
         $PAGE->requires->js_call_amd('core_contentbank/sort', 'init');
 
-        $viewpreference = get_user_preferences('core_contentbank_view_list_' . $this->context->id);
+        $viewpreference = get_user_preferences('core_contentbank_view_list');
 
         $data = new stdClass();
         $contentdata = array();

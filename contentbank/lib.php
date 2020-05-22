@@ -29,8 +29,7 @@
  */
 function core_contentbank_user_preferences() {
     $preferences = [];
-    $preferences['/^core_contentbank_view_list_(\d)+$/'] = [
-        'isregex' => true,
+    $preferences['core_contentbank_view_list'] = [
         'choices' => array(0, 1),
         'type' => PARAM_INT,
         'null' => NULL_NOT_ALLOWED,
