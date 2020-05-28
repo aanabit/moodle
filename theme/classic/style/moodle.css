@@ -15768,7 +15768,7 @@ body.jsenabled .questionflag input[type=checkbox] {
   margin: 1em 0; }
 
 #page-mod-quiz-edit ul.slots .activityinstance > a {
-  display: flex;
+  display: inline;
   align-items: center;
   text-indent: 0;
   padding-left: 0; }
