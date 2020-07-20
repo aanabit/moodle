@@ -89,6 +89,7 @@ class bankcontent implements renderable, templatable {
             $contentdata[] = array(
                 'name' => $name,
                 'title' => strtolower($name),
+                'author' => $content->get_author_fullname(),
                 'link' => $contenttype->get_view_url($content),
                 'icon' => $contenttype->get_icon($content),
                 'timemodified' => $content->get_timemodified(),

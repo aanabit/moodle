@@ -238,6 +238,19 @@ abstract class content {
     }
 
     /**
+     * Return the fullname of the author.
+     *
+     * @param bool $override If true then the alternativefullnameformat format rather than fullnamedisplay format will be used.
+     * @return string The fullname of the user created the content.
+     */
+    public function get_author_fullname($override=false) {
+        global $DB, $CFG;
+
+        $autor = $DB->get_record('user', array('id' => $this->content->usercreated, 'mnethostid'=>$CFG->mnet_localhost_id), '*', MUST_EXIST);
+        return fullname($autor, $override);
+    }
+
+    /**
      * Returns the $file related to this content.
      *
      * @return stored_file  File stored in content bank area related to the given itemid.

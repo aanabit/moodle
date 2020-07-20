@@ -23,6 +23,7 @@
             {
                 "name": "Accordion.h5p",
                 "title": "accordion.h5p",
+                "author": "Pepito Grillo",
                 "timemodified": 1589792272,
                 "size": "699.3KB",
                 "bytes": 716126,
@@ -33,6 +34,7 @@
             {
                 "name": "resume.pdf",
                 "title": "resume",
+                "author": "Paul Vazo",
                 "timemodified": 1589792039,
                 "size": "699.3KB",
                 "bytes": 716126,
@@ -98,7 +100,16 @@ data-region="contentbank">
                     <div class="cb-file cb-column d-flex">
                         <div class="title">{{#str}} contentname, contentbank {{/str}}</div>
                         <button class="btn btn-sm cb-btnsort dir-none ml-auto" data-string="contentname" data-action="sortname"
-                            title="{{#str}} sortbyx, core, {{#str}} contentname, contentbank {{/str}} {{/str}}">
+                                title="{{#str}} sortbyx, core, {{#str}} contentname, contentbank {{/str}} {{/str}}">
+                            <span class="default">{{#pix}} t/sort, core, {{#str}}sort, core {{/str}} {{/pix}}</span>
+                            <span class="desc">{{#pix}} t/sort_desc, core, {{#str}}desc, core{{/str}} {{/pix}}</span>
+                            <span class="asc">{{#pix}} t/sort_asc, core, {{#str}}asc, core{{/str}} {{/pix}}</span>
+                        </button>
+                    </div>
+                    <div class="cb-author cb-column d-flex">
+                        <div class="title">{{#str}} author, contentbank {{/str}}</div>
+                        <button class="btn btn-sm cb-btnsort dir-none ml-auto" data-string="author" data-action="sortauthor"
+                                title="{{#str}} sortbyx, core, {{#str}} author, contentbank {{/str}} {{/str}}">
                             <span class="default">{{#pix}} t/sort, core, {{#str}}sort, core {{/str}} {{/pix}}</span>
                             <span class="desc">{{#pix}} t/sort_desc, core, {{#str}}desc, core{{/str}} {{/pix}}</span>
                             <span class="asc">{{#pix}} t/sort_asc, core, {{#str}}asc, core{{/str}} {{/pix}}</span>
@@ -107,7 +118,7 @@ data-region="contentbank">
                     <div class="cb-date cb-column d-flex">
                         <div class="title">{{#str}} lastmodified, contentbank {{/str}}</div>
                         <button class="btn btn-sm cb-btnsort dir-none ml-auto" data-string="lastmodified" data-action="sortdate"
-                        title="{{#str}} sortbyx, core, {{#str}} lastmodified, contentbank {{/str}} {{/str}}">
+                                title="{{#str}} sortbyx, core, {{#str}} lastmodified, contentbank {{/str}} {{/str}}">
                             <span class="default">{{#pix}} t/sort, core, {{#str}}sort, core {{/str}} {{/pix}}</span>
                             <span class="desc">{{#pix}} t/sort_desc, core, {{#str}}desc, core{{/str}} {{/pix}}</span>
                             <span class="asc">{{#pix}} t/sort_asc, core, {{#str}}asc, core{{/str}} {{/pix}}</span>
@@ -136,6 +147,7 @@ data-region="contentbank">
                 <div class="cb-listitem"
                     data-file="{{{ title }}}"
                     data-name="{{{ name }}}"
+                    data-author="{{{ author }}}"
                     data-bytes="{{ bytes }}"
                     data-timemodified="{{ timemodified }}"
                     data-type="{{{ type }}}">
@@ -148,6 +160,9 @@ data-region="contentbank">
                                 {{{ name }}}
                             </span>
                         </a>
+                    </div>
+                    <div class="cb-author cb-column small">
+                        {{ author }}
                     </div>
                     <div class="cb-date cb-column small">
                         {{#userdate}} {{ timemodified }}, {{#str}} strftimedatetimeshort, core_langconfig {{/str}} {{/userdate}}

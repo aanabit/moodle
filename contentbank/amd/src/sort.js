@@ -35,7 +35,7 @@ import Notification from 'core/notification';
  */
 export const init = () => {
     const contentBank = document.querySelector(selectors.regions.contentbank);
-    Prefetch.prefetchStrings('contentbank', ['contentname', 'lastmodified', 'size', 'type']);
+    Prefetch.prefetchStrings('contentbank', ['contentname', 'author', 'lastmodified', 'size', 'type']);
     Prefetch.prefetchStrings('moodle', ['sortbyx', 'sortbyxreverse']);
     registerListenerEvents(contentBank);
 };
@@ -77,6 +77,13 @@ const registerListenerEvents = (contentBank) => {
     sortByName.addEventListener('click', () => {
         const ascending = updateSortButtons(contentBank, sortByName);
         updateSortOrder(fileArea, shownItems, 'data-file', ascending);
+    });
+
+    // Sort by author name alphabetical
+    const sortByAuthor = contentBank.querySelector(selectors.actions.sortauthor);
+    sortByAuthor.addEventListener('click', () => {
+        const ascending = updateSortButtons(contentBank, sortByAuthor);
+        updateSortOrder(fileArea, shownItems, 'data-author', ascending);
     });
 
     // Sort by date.
