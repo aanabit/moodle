@@ -470,6 +470,7 @@ class mod_assign_external_testcase extends externallib_advanced_testcase {
         $context = context_course::instance($course->id);
         $teacherrole = $DB->get_record('role', array('shortname' => 'teacher'));
         $group = $this->getDataGenerator()->create_group(array('courseid' => $course->id));
+        $othergroup = $this->getDataGenerator()->create_group(array('courseid' => $course->id));
         $cm = get_coursemodule_from_instance('assign', $assignmodule->id);
         $context = context_module::instance($cm->id);
         $assign = new mod_assign_testable_assign($context, $cm, $course);
