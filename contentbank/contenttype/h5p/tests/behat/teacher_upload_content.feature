@@ -141,5 +141,5 @@ Feature: H5P file upload to content bank for non admins
     And I should see "filltheblanks.h5p"
     And I click on "filltheblanks.h5p" "link"
     And I switch to "h5p-player" class iframe
-    Then I should not see "Of which countries"
-    Then I should see "missing-required-library"
+    Then "Of which countries" "text" should not exist
+    And "missing-required-library" "text" should exist
