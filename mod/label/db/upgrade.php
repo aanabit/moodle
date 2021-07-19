@@ -45,7 +45,9 @@
 defined('MOODLE_INTERNAL') || die;
 
 function xmldb_label_upgrade($oldversion) {
-    global $CFG;
+    global $DB;
+
+    $dbman = $DB->get_manager(); // Loads ddl manager and xmldb classes.
 
     // Automatically generated Moodle v3.6.0 release upgrade line.
     // Put any upgrade step following this.
@@ -58,6 +60,20 @@ function xmldb_label_upgrade($oldversion) {
 
     // Automatically generated Moodle v3.9.0 release upgrade line.
     // Put any upgrade step following this.
+
+    if ($oldversion < 2021052501) {
+        // Define field hastitle to be added to label.
+        $table = new xmldb_table('label');
+        $field = new xmldb_field('hastitle', XMLDB_TYPE_INTEGER, '4', null, null, null, '0', 'timemodified');
+
+        // Conditionally launch add field hastitle.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Label savepoint reached.
+        upgrade_mod_savepoint(true, 2021052501, 'label');
+    }
 
     return true;
 }

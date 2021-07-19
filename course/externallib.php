@@ -2852,6 +2852,7 @@ class core_course_external extends external_api {
                         'course' => new external_value(PARAM_INT, 'The course id'),
                         'module' => new external_value(PARAM_INT, 'The module type id'),
                         'name' => new external_value(PARAM_RAW, 'The activity name'),
+                        'namevisibleoncoursepage' => new external_value(PARAM_INT, 'If name is visible on course page', VALUE_OPTIONAL, true),
                         'modname' => new external_value(PARAM_COMPONENT, 'The module component name (forum, assign, etc..)'),
                         'instance' => new external_value(PARAM_INT, 'The activity instance id'),
                         'section' => new external_value(PARAM_INT, 'The module section id'),
