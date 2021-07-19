@@ -2675,5 +2675,19 @@ function xmldb_main_upgrade($oldversion) {
         upgrade_main_savepoint(true, 2021060900.00);
     }
 
+    if ($oldversion < 2021071600.01) {
+        // Define a field 'namevisibleoncoursepage' in the 'course_modules' table, to decide which names should be shown.
+        $table = new xmldb_table('course_modules');
+        $field = new xmldb_field('namevisibleoncoursepage', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '1');
+
+        // Conditionally launch add field 'namevisibleoncoursepage'.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Main savepoint reached.
+        upgrade_main_savepoint(true, 2021071600.01);
+    }
+
     return true;
 }

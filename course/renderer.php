@@ -589,7 +589,7 @@ class core_course_renderer extends plugin_renderer_base {
      * @return string
      */
     public function course_section_cm_name(cm_info $mod, $displayoptions = array()) {
-        if (!$mod->is_visible_on_course_page() || !$mod->url) {
+        if (!$mod->is_visible_on_course_page() || !$mod->is_name_visible_on_course_page()) {
             // Nothing to be displayed to the user.
             return '';
         }
@@ -659,10 +659,11 @@ class core_course_renderer extends plugin_renderer_base {
     public function course_section_cm_name_title(cm_info $mod, $displayoptions = array()) {
         $output = '';
         $url = $mod->url;
-        if (!$mod->is_visible_on_course_page() || !$url) {
+        if (!$mod->is_visible_on_course_page() || !$mod->is_name_visible_on_course_page()) {
             // Nothing to be displayed to the user.
             return $output;
         }
+
 
         //Accessibility: for files get description via icon, this is very ugly hack!
         $instancename = $mod->get_formatted_name();
@@ -689,7 +690,7 @@ class core_course_renderer extends plugin_renderer_base {
         $activitylink = html_writer::empty_tag('img', array('src' => $mod->get_icon_url(),
                 'class' => 'iconlarge activityicon', 'alt' => '', 'role' => 'presentation', 'aria-hidden' => 'true')) .
                 html_writer::tag('span', $instancename . $altname, array('class' => 'instancename'));
-        if ($mod->uservisible) {
+        if ($mod->uservisible && $mod->url) {
             $output .= html_writer::link($url, $activitylink, array('class' => 'aalink' . $linkclasses, 'onclick' => $onclick));
         } else {
             // We may be displaying this just in order to show information

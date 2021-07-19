@@ -274,7 +274,7 @@ class backup_module_structure_step extends backup_structure_step {
             'added', 'score', 'indent', 'visible', 'visibleoncoursepage',
             'visibleold', 'groupmode', 'groupingid',
             'completion', 'completiongradeitemnumber', 'completionview', 'completionexpected',
-            'availability', 'showdescription'));
+            'availability', 'showdescription', 'namevisibleoncoursepage'));
 
         $tags = new backup_nested_element('tags');
         $tag = new backup_nested_element('tag', array('id'), array('name', 'rawname'));

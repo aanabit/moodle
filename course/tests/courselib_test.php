@@ -209,6 +209,7 @@ class core_course_courselib_testcase extends advanced_testcase {
 
         // Sometimes optional generic values for some modules.
         $moduleinfo->name = 'My test module';
+        $moduleinfo->namevisibleoncoursepage = true;
         $moduleinfo->showdescription = 1; // standard boolean
         require_once($CFG->libdir . '/gradelib.php');
         $gradecats = grade_get_categories_menu($moduleinfo->course, false);
@@ -492,6 +493,7 @@ class core_course_courselib_testcase extends advanced_testcase {
 
         // Sometimes optional generic values for some modules.
         $moduleinfo->name = 'My test module';
+        $moduleinfo->namevisibleoncoursepage = true;
         $moduleinfo->showdescription = 1; // standard boolean
         require_once($CFG->libdir . '/gradelib.php');
         $gradecats = grade_get_categories_menu($moduleinfo->course, false);

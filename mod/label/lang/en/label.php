@@ -58,3 +58,4 @@ $string['privacy:metadata'] = 'The Label resource plugin does not store any pers
 $string['pluginadministration'] = 'Label administration';
 $string['pluginname'] = 'Label';
 $string['search:activity'] = 'Label';
+$string['untitled'] = '(Untitled)';

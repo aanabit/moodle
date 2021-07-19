@@ -31,17 +31,25 @@ define("LABEL_MAX_NAME_LENGTH", 50);
 /**
  * @uses LABEL_MAX_NAME_LENGTH
  * @param object $label
+ * @param bool $usewhentitled If true, return Untitled string when the name has not been edited.
  * @return string
  */
-function get_label_name($label) {
+function get_label_name($label, bool $usewhenuntitled = false) {
+
+    // If the name has been edited, return the name.
+    if ($label->hastitle && !empty(trim($label->name))) {
+        return $label->name;
+    }
+
+    // If the name has not been edited and we should return 'Untitled'.
+    if ($usewhenuntitled) {
+        return '';
+//        return get_string('untitled','label');
+    }
+
     $name = strip_tags(format_string($label->intro,true));
     if (core_text::strlen($name) > LABEL_MAX_NAME_LENGTH) {
         $name = core_text::substr($name, 0, LABEL_MAX_NAME_LENGTH)."...";
-    }
-
-    if (empty($name)) {
-        // arbitrary name
-        $name = get_string('modulename','label');
     }
 
     return $name;
@@ -133,7 +141,7 @@ function label_delete_instance($id) {
 function label_get_coursemodule_info($coursemodule) {
     global $DB;
 
-    if ($label = $DB->get_record('label', array('id'=>$coursemodule->instance), 'id, name, intro, introformat')) {
+    if ($label = $DB->get_record('label', array('id'=>$coursemodule->instance), 'id, name, intro, introformat, hastitle')) {
         if (empty($label->name)) {
             // label name missing, fix it
             $label->name = "label{$label->id}";
@@ -142,7 +150,9 @@ function label_get_coursemodule_info($coursemodule) {
         $info = new cached_cm_info();
         // no filtering hre because this info is cached and filtered later
         $info->content = format_module_intro('label', $label, $coursemodule->id, false);
-        $info->name  = $label->name;
+        $info->name  = get_label_name($label, true);
+        $info->customdata["hastitle"] = $label->hastitle;
+
         return $info;
     } else {
         return null;
@@ -382,3 +392,18 @@ function mod_label_core_calendar_provide_event_action(calendar_event $event,
         true
     );
 }
+
+/**
+ * Overwrites the name in the course-module
+ *
+ * @param cm_info $cm
+ */
+function label_cm_info_view(cm_info $cm) {
+    $hastitle = false;
+    if ($cm->customdata && key_exists('hastitle', $cm->customdata)) {
+        $hastitle = $cm->customdata['hastitle'];
+    }
+        
+    $cm->set_namevisibleoncoursepage($hastitle);
+}
+

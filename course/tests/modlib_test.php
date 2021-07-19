@@ -117,6 +117,7 @@ class core_course_modlib_testcase extends advanced_testcase {
         $expecteddata->tags               = core_tag_tag::get_item_tags_array('core', 'course_modules', $assigncm->id);
         $expecteddata->availabilityconditionsjson = null;
         $expecteddata->advancedgradingmethod_submissions = null;
+        $expecteddata->namevisibleoncoursepage = $assigncm->visibleoncoursepage;
         if ($items = grade_item::fetch_all(array('itemtype' => 'mod', 'itemmodule' => 'assign',
                                                     'iteminstance' => $assign->id, 'courseid' => $course->id))) {
             // set category if present

@@ -37,7 +37,7 @@ class backup_label_activity_structure_step extends backup_activity_structure_ste
 
         // Define each element separated
         $label = new backup_nested_element('label', array('id'), array(
-            'name', 'intro', 'introformat', 'timemodified'));
+            'name', 'intro', 'introformat', 'timemodified', 'hastitle'));
 
         // Build the tree
         // (love this)

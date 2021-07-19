@@ -444,6 +444,9 @@ function set_moduleinfo_defaults($moduleinfo) {
     if (!isset($moduleinfo->visibleoncoursepage)) {
         $moduleinfo->visibleoncoursepage = 1;
     }
+    if (!isset($moduleinfo->namevisibleoncoursepage)) {
+        $moduleinfo->namevisibleoncoursepage = isset($moduleinfo->url);
+    }
 
     return $moduleinfo;
 }
@@ -714,6 +717,7 @@ function get_moduleinfo_data($cm, $course) {
     $data->completionusegrade = is_null($cm->completiongradeitemnumber) ? 0 : 1;
     $data->completiongradeitemnumber = $cm->completiongradeitemnumber;
     $data->showdescription    = $cm->showdescription;
+    $data->namevisibleoncoursepage = $cm->namevisibleoncoursepage;
     $data->tags               = core_tag_tag::get_item_tags_array('core', 'course_modules', $cm->id);
     if (!empty($CFG->enableavailability)) {
         $data->availabilityconditionsjson = $cm->availability;
