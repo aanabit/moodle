@@ -815,6 +815,7 @@ class course_modinfo {
  * @property-read int $module ID of module type - from course_modules table
  * @property-read string $name Name of module instance for display on page e.g. 'General discussion forum' - from cached
  *    data in modinfo field
+ * @property-read int $namevisibleoncoursepage Whether the name of module instance should be shown on course view page.
  * @property-read int $sectionnum Section number that this course-module is in (section 0 = above the calendar, section 1
  *    = week/topic 1, etc) - from cached data in modinfo field
  * @property-read int $section Section id - from course_modules table
@@ -1038,6 +1039,12 @@ class cm_info implements IteratorAggregate {
     private $name;
 
     /**
+     * True if the name must be shown.
+     * @var bool
+     */
+    private $namevisibleoncoursepage;
+
+    /**
      * Section number that this course-module is in (section 0 = above the calendar, section 1
      * = week/topic 1, etc) - from cached data in modinfo field
      * @var int
@@ -1100,7 +1107,7 @@ class cm_info implements IteratorAggregate {
      */
     private $uservisibleoncoursepage;
 
-    /**
+     /**
      * @var moodle_url
      */
     private $url;
@@ -1183,6 +1190,7 @@ class cm_info implements IteratorAggregate {
         'coursegroupmodeforce' => 'get_course_groupmodeforce',
         'effectivegroupmode' => 'get_effective_groupmode',
         'extra' => false,
+        'namevisibleoncoursepage' => false,
         'groupingid' => false,
         'groupmembersonly' => 'get_deprecated_group_members_only',
         'groupmode' => false,
@@ -1649,7 +1657,7 @@ class cm_info implements IteratorAggregate {
         static $cmfields = array('id', 'course', 'module', 'instance', 'section', 'idnumber', 'added',
             'score', 'indent', 'visible', 'visibleoncoursepage', 'visibleold', 'groupmode', 'groupingid',
             'completion', 'completiongradeitemnumber', 'completionview', 'completionexpected',
-            'showdescription', 'availability', 'deletioninprogress');
+            'showdescription', 'availability', 'deletioninprogress', 'namevisibleoncoursepage');
         foreach ($cmfields as $key) {
             $cmrecord->$key = $this->$key;
         }
@@ -1809,6 +1817,17 @@ class cm_info implements IteratorAggregate {
     }
 
     /**
+     * Changes the option to hide name for this module instance.
+     * Note: May not be called from _cm_info_view (only _cm_info_dynamic).
+     *
+     * @param bool $show Whether the name must be shown or not.
+     * @return void
+     */
+    public function set_namevisibleoncoursepage(bool $show = false) {
+        $this->namevisibleoncoursepage = $show;
+    }
+
+    /**
      * Some set functions can only be called from _cm_info_dynamic and not _cm_info_view.
      * This is because they may affect parts of this object which are used on pages other
      * than the view page (e.g. in the navigation block, or when checking access on
@@ -1889,6 +1908,7 @@ class cm_info implements IteratorAggregate {
         $this->url = $modviews[$this->modname]
                 ? new moodle_url('/mod/' . $this->modname . '/view.php', array('id'=>$this->id))
                 : null;
+        $this->namevisibleoncoursepage = $mod->namevisibleoncoursepage ?? !empty($this->url);
     }
 
     /**
@@ -1995,6 +2015,18 @@ class cm_info implements IteratorAggregate {
     public function is_visible_on_course_page() {
         $this->obtain_dynamic_data();
         return $this->uservisibleoncoursepage;
+    }
+
+    /**
+     * Returns whether this module's name is visible on course page
+     *
+     * By default activities that don't have a url because implement FEATURE_NO_VIEW_LINK don't have name visible.
+     *
+     * @return bool
+     */
+    public function is_name_visible_on_course_page() {
+        $this->obtain_dynamic_data();
+        return ($this->namevisibleoncoursepage || $this->url);
     }
 
     /**

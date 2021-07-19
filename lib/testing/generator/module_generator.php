@@ -197,7 +197,8 @@ abstract class testing_module_generator extends component_generator_base {
             'completionexpected' => 0,
             'conditiongradegroup' => array(),
             'conditionfieldgroup' => array(),
-            'conditioncompletiongroup' => array()
+            'conditioncompletiongroup' => array(),
+            'namevisibleoncoursepage' => 1,
         );
         foreach ($defaults as $key => $value) {
             if (!isset($moduleinfo->$key)) {

@@ -463,6 +463,7 @@ function get_array_of_activities($courseid) {
                    $mod[$seq]->showdescription  = $rawmods[$seq]->showdescription;
                    $mod[$seq]->availability = $rawmods[$seq]->availability;
                    $mod[$seq]->deletioninprogress = $rawmods[$seq]->deletioninprogress;
+                   $mod[$seq]->namevisibleoncoursepage = $rawmods[$seq]->namevisibleoncoursepage;
 
                    $modname = $mod[$seq]->mod;
                    $functionname = $modname."_get_coursemodule_info";

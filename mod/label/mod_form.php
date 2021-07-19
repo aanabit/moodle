@@ -37,6 +37,19 @@ class mod_label_mod_form extends moodleform_mod {
         $mform = $this->_form;
 
         $mform->addElement('header', 'generalhdr', get_string('general'));
+
+        $mform->addElement('hidden', 'hastitle', 0);
+        $mform->setType('hastitle', PARAM_BOOL);
+
+        // Adding the standard "name" field.
+        $mform->addElement('text', 'notrequiredname', get_string('name'), ['size' => '64']);
+        $mform->setType('notrequiredname', PARAM_TEXT);
+        if (!empty($CFG->formatstringstriptags)) {
+        } else {
+            $mform->setType('notrequiredname', PARAM_CLEANHTML);
+        }
+        $mform->addRule('notrequiredname', get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
+
         $this->standard_intro_elements(get_string('labeltext', 'label'));
 
         // Label does not add "Show description" checkbox meaning that 'intro' is always shown on the course page.
@@ -51,4 +64,29 @@ class mod_label_mod_form extends moodleform_mod {
 
     }
 
+    /**
+     * Move name to notrequiredname when hastitle is true.
+     *
+     * @param array $default_values passed by reference
+     */
+    function data_preprocessing(&$default_values){
+        if ($default_values['hastitle'] && array_key_exists('name', $default_values)) {
+            $default_values['notrequiredname'] = $default_values['name'];
+        }
+    }
+
+    /**
+     * Allows modules to modify the data returned by form get_data().
+     * This method is also called in the bulk activity completion form.
+     *
+     * @param stdClass $data passed by reference
+     */
+    public function data_postprocessing($data) {
+        parent::data_postprocessing($data);
+
+        $data->hastitle = !empty($data->notrequiredname);
+        if ($data->hastitle) {
+            $data->name = $data->notrequiredname;
+        }
+    }
 }
