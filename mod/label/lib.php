@@ -43,13 +43,17 @@ function get_label_name($label, bool $usewhenuntitled = false) {
 
     // If the name has not been edited and we should return 'Untitled'.
     if ($usewhenuntitled) {
-        return '';
-//        return get_string('untitled','label');
+        return get_string('untitled','label');
     }
 
     $name = strip_tags(format_string($label->intro,true));
     if (core_text::strlen($name) > LABEL_MAX_NAME_LENGTH) {
         $name = core_text::substr($name, 0, LABEL_MAX_NAME_LENGTH)."...";
+    }
+
+    if (empty($name)) {
+        // arbitrary name
+        $name = get_string('untitled','label');
     }
 
     return $name;
@@ -151,7 +155,7 @@ function label_get_coursemodule_info($coursemodule) {
         // no filtering hre because this info is cached and filtered later
         $info->content = format_module_intro('label', $label, $coursemodule->id, false);
         $info->name  = get_label_name($label, true);
-        $info->customdata["hastitle"] = $label->hastitle;
+        $info->namevisibleoncourse = $label->hastitle;
 
         return $info;
     } else {
@@ -404,6 +408,6 @@ function label_cm_info_view(cm_info $cm) {
         $hastitle = $cm->customdata['hastitle'];
     }
         
-    $cm->set_namevisibleoncoursepage($hastitle);
+    $cm->set_namevisibleoncourse($hastitle);
 }
 

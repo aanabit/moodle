@@ -265,7 +265,7 @@ class core_course_external extends external_api {
                         //common info (for people being able to see the module or availability dates)
                         $module['id'] = $cm->id;
                         $module['name'] = external_format_string($cm->name, $modcontext->id);
-                        $module['namevisibleoncoursepage'] = $cm->namevisibleoncoursepage;
+                        $module['namevisibleoncourse'] = $cm->namevisibleoncourse;
                         $module['instance'] = $cm->instance;
                         $module['contextid'] = $modcontext->id;
                         $module['modname'] = (string) $cm->modname;
@@ -454,7 +454,7 @@ class core_course_external extends external_api {
                                     'id' => new external_value(PARAM_INT, 'activity id'),
                                     'url' => new external_value(PARAM_URL, 'activity url', VALUE_OPTIONAL),
                                     'name' => new external_value(PARAM_RAW, 'activity module name'),
-                                    'namevisibleoncoursepage' => new external_value(PARAM_INT, 'whether the module name visible on course page',
+                                    'namevisibleoncourse' => new external_value(PARAM_INT, 'whether the module name visible on course',
                                         VALUE_OPTIONAL),
                                     'instance' => new external_value(PARAM_INT, 'instance id', VALUE_OPTIONAL),
                                     'contextid' => new external_value(PARAM_INT, 'Activity context id.', VALUE_OPTIONAL),
@@ -2855,7 +2855,7 @@ class core_course_external extends external_api {
                         'course' => new external_value(PARAM_INT, 'The course id'),
                         'module' => new external_value(PARAM_INT, 'The module type id'),
                         'name' => new external_value(PARAM_RAW, 'The activity name'),
-                        'namevisibleoncoursepage' => new external_value(PARAM_INT, 'whether the module name visible on course page',
+                        'namevisibleoncourse' => new external_value(PARAM_INT, 'whether the module name visible on course',
                             VALUE_OPTIONAL, true),
                         'modname' => new external_value(PARAM_COMPONENT, 'The module component name (forum, assign, etc..)'),
                         'instance' => new external_value(PARAM_INT, 'The activity instance id'),

@@ -463,7 +463,7 @@ function get_array_of_activities($courseid) {
                    $mod[$seq]->showdescription  = $rawmods[$seq]->showdescription;
                    $mod[$seq]->availability = $rawmods[$seq]->availability;
                    $mod[$seq]->deletioninprogress = $rawmods[$seq]->deletioninprogress;
-                   $mod[$seq]->namevisibleoncoursepage = $rawmods[$seq]->namevisibleoncoursepage;
+//                   $mod[$seq]->namevisibleoncoursepage = $rawmods[$seq]->namevisibleoncoursepage;
 
                    $modname = $mod[$seq]->mod;
                    $functionname = $modname."_get_coursemodule_info";
@@ -504,6 +504,9 @@ function get_array_of_activities($courseid) {
                                }
                                if (!empty($info->customdata)) {
                                    $mod[$seq]->customdata = $info->customdata;
+                               }
+                               if (!empty($info->namevisibleoncourse)) {
+                                   $mod[$seq]->namevisibleoncourse = $info->namevisibleoncourse;
                                }
                            } else {
                                // When using a stdclass, the (horrible) deprecated ->extra field
