@@ -36,7 +36,6 @@ class core_files_externallib_testcase extends advanced_testcase {
     /*
      * Test core_files_external::upload().
      */
-
     public function test_upload() {
         global $USER;
 
@@ -160,6 +159,7 @@ class core_files_externallib_testcase extends advanced_testcase {
         global $USER, $DB;
 
         $this->resetAfterTest();
+        \core\plugininfo\mod::enable_plugin('data', 1);
 
         // Set the current user to be the administrator.
         $this->setAdminUser();

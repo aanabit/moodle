@@ -376,6 +376,9 @@ class core_calendar_container_testcase extends advanced_testcase {
      * is enrolled in the course.
      */
     public function test_event_factory_unenrolled_user() {
+
+        \core\plugininfo\mod::enable_plugin('lesson', 1);
+
         $user = $this->getDataGenerator()->create_user();
         // Create the course we will be using.
         $course = $this->getDataGenerator()->create_course();

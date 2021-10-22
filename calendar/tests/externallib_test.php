@@ -1012,6 +1012,8 @@ class core_calendar_externallib_testcase extends externallib_advanced_testcase {
      */
     public function test_get_calendar_action_events_by_timesort_suspended_course() {
         $this->resetAfterTest();
+        \core\plugininfo\mod::enable_plugin('lesson', 1);
+
         $user1 = $this->getDataGenerator()->create_user();
         $user2 = $this->getDataGenerator()->create_user();
         $course = $this->getDataGenerator()->create_course();
