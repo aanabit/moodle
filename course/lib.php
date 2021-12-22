@@ -3867,16 +3867,23 @@ function core_course_core_calendar_get_valid_event_timestart_range(\calendar_eve
  * @return string HTML
  */
 function core_course_drawer(): string {
-    global $PAGE;
-    $format = course_get_format($PAGE->course);
+    global $PAGE, $USER;
 
-    // Only course and modules are able to render course index.
-    $ismod = strpos($PAGE->pagetype, 'mod-') === 0;
-    if ($ismod || $PAGE->pagetype == 'course-view-' . $format->get_format()) {
-        $renderer = $format->get_renderer($PAGE);
-        if (method_exists($renderer, 'course_index_drawer')) {
-            return $renderer->course_index_drawer($format);
-        }
+    // Only add course index on non-site course pages.
+    if (!$PAGE->course || $PAGE->course->id == SITEID) {
+        return '';
+    }
+
+    // Show curse index to enrolled users only.
+    $coursecontext = context_course::instance($PAGE->course->id);
+    if (!is_enrolled($coursecontext, $USER)) {
+        return '';
+    }
+
+    $format = course_get_format($PAGE->course);
+    $renderer = $format->get_renderer($PAGE);
+    if (method_exists($renderer, 'course_index_drawer')) {
+        return $renderer->course_index_drawer($format);
     }
 
     return '';
