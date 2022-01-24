@@ -45,3 +45,16 @@ Feature: Primary navigation
       |   Site         | Home        |
       |   Dashboard    | Dashboard   |
       |   My courses   | My courses  |
+
+  @javascript @theme_boost
+  Scenario: Users could use primary nav menu on mobile size screens
+    Given I am on the "My courses" page logged in as "user1"
+##    We close block drawer that is opened by default to clean the UI before resizing the window.
+#    And I click on "Close block drawer" "button"
+    When I change window size to "mobile"
+#    And I wait until the page is ready
+#    And I wait "1" seconds
+    Then "Home" "link" should not be visible
+    And "Side panel" "button" should exist
+    And I click on "Side panel" "button"
+    And I should see "Home" in the "theme_boost-drawers-primary" "region"
