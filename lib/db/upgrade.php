@@ -3541,8 +3541,21 @@ privatefiles,moodle|/user/files.php';
     if ($oldversion < 2022011100.01) {
         // The following blocks have been hidden by default, so they shouldn't be enabled in the Full core preset: Course/site
         // summary, RSS feeds, Self completion and Feedback.
-        $params = ['name' => get_string('fullpreset', 'core_adminpresets'), 'iscore' => 1];
-        $fullpreset = $DB->get_record('adminpresets', $params);
+        $params = ['name' => get_string('fullpreset', 'core_adminpresets')];
+        $fullpreset = $DB->get_record_select('adminpresets', 'name = :name AND iscore > 0', $params);
+
+        if (!$fullpreset) {
+            // Full admin preset might have been created using the English name.
+            $name = get_string_manager()->get_string('fullpreset', 'core_adminpresets', null, 'en');
+            $params['name'] = $name;
+            $fullpreset = $DB->get_record_select('adminpresets', 'name = :name AND iscore > 0', $params);
+        }
+        if (!$fullpreset) {
+            // We tried, but we didn't find full by name. Let's find a preset that sets 'usecomments' setting to 1.
+            $params = ['name' => 'usecomments', 'value' => '1'];
+            $presetid = $DB->get_field('adminpresets', 'adminpresetid', $params);
+            $fullpreset = $DB->get_record('adminpresets', ['id' => $presetid]);
+        }
 
         if ($fullpreset) {
             $blocknames = ['course_summary', 'feedback', 'rss_client', 'selfcompletion'];
@@ -3964,10 +3977,35 @@ privatefiles,moodle|/user/files.php';
     if ($oldversion < 2022021100.01) {
         // Some settings and plugins have been added/removed to the Starter and Full preset. Add them to the core presets if
         // they haven't been included yet.
-        $params = ['name' => get_string('starterpreset', 'core_adminpresets'), 'iscore' => 1];
-        $starterpreset = $DB->get_record('adminpresets', $params);
-        $params = ['name' => get_string('fullpreset', 'core_adminpresets'), 'iscore' => 1];
-        $fullpreset = $DB->get_record('adminpresets', $params);
+        $params = ['name' => get_string('starterpreset', 'core_adminpresets')];
+        $starterpreset = $DB->get_record_select('adminpresets', 'name = :name AND iscore > 0', $params);
+        if (!$starterpreset) {
+            // Starter admin preset might have been created using the English name.
+            $name = get_string_manager()->get_string('starterpreset', 'core_adminpresets', null, 'en');
+            $params['name'] = $name;
+            $starterpreset = $DB->get_record_select('adminpresets', 'name = :name AND iscore > 0', $params);
+        }
+        if (!$starterpreset) {
+            // We tried, but we didn't find starter by name. Let's find a preset that sets 'usecomments' setting to 0.
+            $params = ['name' => 'usecomments', 'value' => '0'];
+            $presetid = $DB->get_field('adminpresets', 'adminpresetid', $params);
+            $starterpreset = $DB->get_record('adminpresets', ['id' => $presetid]);
+        }
+
+        $params = ['name' => get_string('fullpreset', 'core_adminpresets')];
+        $fullpreset = $DB->get_record_select('adminpresets', 'name = :name AND iscore > 0', $params);
+        if (!$fullpreset) {
+            // Full admin preset might have been created using the English name.
+            $name = get_string_manager()->get_string('fullpreset', 'core_adminpresets', null, 'en');
+            $params['name'] = $name;
+            $fullpreset = $DB->get_record_select('adminpresets', 'name = :name AND iscore > 0', $params);
+        }
+        if (!$fullpreset) {
+            // We tried, but we didn't find full by name. Let's find a preset that sets 'usecomments' setting to 1.
+            $params = ['name' => 'usecomments', 'value' => '1'];
+            $presetid = $DB->get_field('adminpresets', 'adminpresetid', $params);
+            $fullpreset = $DB->get_record('adminpresets', ['id' => $presetid]);
+        }
 
         $settings = [
             // Settings. Hide Guest login button for Starter preset (and back to show for Full).
