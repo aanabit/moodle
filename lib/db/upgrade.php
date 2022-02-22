@@ -4145,5 +4145,54 @@ privatefiles,moodle|/user/files.php';
         upgrade_main_savepoint(true, 2022021100.02);
     }
 
+    if ($oldversion < 2022022200.01) {
+        $name = get_string('starterpreset', 'core_adminpresets');
+        $params = ['name' => $name, 'iscore' => 1];
+        $starterpreset = $DB->get_record('adminpresets', $params);
+        if (!$starterpreset) {
+            // Starter admin preset might have been created using the English name. Let's change it to current language.
+            $englishname = get_string_manager()->get_string('starterpreset', 'core_adminpresets', null, 'en');
+            $params['name'] = $englishname;
+            $starterpreset = $DB->get_record('adminpresets', $params);
+        }
+        if (!$starterpreset) {
+            // We tried, but we didn't find starter by name. Let's find a preset that sets 'usecomments' setting to 0.
+            $params = ['name' => 'usecomments', 'value' => '0'];
+            $presetid = $DB->get_field('adminpresets', 'adminpresetid', $params);
+            $starterpreset = $DB->get_record('adminpresets', ['id' => $presetid]);
+        }
+        if ($starterpreset) {
+            $starterpreset->name = $name;
+            $starterpreset->comments = get_string('starterpresetdescription', 'core_adminpresets');
+            $DB->update_record('adminpresets', $starterpreset);
+        }
+
+        // Let's mark Full admin presets with FULL_PRESETS constant and change the name to current language.
+        $name = get_string('fullpreset', 'core_adminpresets');
+        $params = ['name' => $name, 'iscore' => 0];
+        $fullpreset = $DB->get_record_select('adminpresets', 'name = :name AND iscore > :iscore', $params);
+        if (!$fullpreset) {
+            // Full admin preset might have been created using the English name.
+            $englishname = get_string_manager()->get_string('fullpreset', 'core_adminpresets', null, 'en');
+            $params['name'] = $englishname;
+            $fullpreset = $DB->get_record_select('adminpresets', 'name = :name AND iscore > :iscore', $params);
+        }
+        if (!$fullpreset) {
+            // We tried, but we didn't find full by name. Let's find a preset that sets 'usecomments' setting to 1.
+            $params = ['name' => 'usecomments', 'value' => '1'];
+            $presetid = $DB->get_field('adminpresets', 'adminpresetid', $params);
+            $fullpreset = $DB->get_record('adminpresets', ['id' => $presetid]);
+        }
+        if ($fullpreset) {
+            $fullpreset->name = $name;
+            $fullpreset->comments = get_string('fullpresetdescription', 'core_adminpresets');
+            $fullpreset->iscore = 2;
+            $DB->update_record('adminpresets', $fullpreset);
+        }
+
+        // Main savepoint reached.
+        upgrade_main_savepoint(true, 2022022200.01);
+    }
+
     return true;
 }
