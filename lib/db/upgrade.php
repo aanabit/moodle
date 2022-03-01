@@ -4146,6 +4146,12 @@ privatefiles,moodle|/user/files.php';
     }
 
     if ($oldversion < 2022022200.01) {
+        $sql = $DB->get_record_sql("SELECT preset.*
+                                        FROM {adminpreset} preset
+                                        INNER JOIN {adminpreset_it} it ON preset.id = it.adminpresetid
+                                        WHERE it.name = :name AND it.value = :value 
+                                        AND preset.iscore = 1");
+
         $name = get_string('starterpreset', 'core_adminpresets');
         $params = ['name' => $name, 'iscore' => 1];
         $starterpreset = $DB->get_record('adminpresets', $params);
@@ -4158,8 +4164,7 @@ privatefiles,moodle|/user/files.php';
         if (!$starterpreset) {
             // We tried, but we didn't find starter by name. Let's find a preset that sets 'usecomments' setting to 0.
             $params = ['name' => 'usecomments', 'value' => '0'];
-            $presetid = $DB->get_field('adminpresets', 'adminpresetid', $params);
-            $starterpreset = $DB->get_record('adminpresets', ['id' => $presetid]);
+            $starterpreset = $DB->get_record_sql($sql, $params);
         }
         if ($starterpreset) {
             $starterpreset->name = $name;
@@ -4180,8 +4185,7 @@ privatefiles,moodle|/user/files.php';
         if (!$fullpreset) {
             // We tried, but we didn't find full by name. Let's find a preset that sets 'usecomments' setting to 1.
             $params = ['name' => 'usecomments', 'value' => '1'];
-            $presetid = $DB->get_field('adminpresets', 'adminpresetid', $params);
-            $fullpreset = $DB->get_record('adminpresets', ['id' => $presetid]);
+            $fullpreset = $DB->get_record_sql($sql, $params);
         }
         if ($fullpreset) {
             $fullpreset->name = $name;
