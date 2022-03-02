@@ -4246,5 +4246,23 @@ privatefiles,moodle|/user/files.php';
         upgrade_main_savepoint(true, 2022030100.00);
     }
 
+    if ($oldversion < 2022030800.01) {
+
+        // Get current configuration data.
+        $currentcustomusermenuitems = str_replace(["\r\n", "\r"], "\n", $CFG->customusermenuitems);
+        $lines = explode("\n", $currentcustomusermenuitems);
+        $lines = array_map('trim', $lines);
+        $reportscustomusermenu = 'reports,core_reportbuilder|/reportbuilder/index.php';
+
+        if (!in_array($reportscustomusermenu, $lines)) {
+            // Add Reports item to the menu.
+            $lines[] = $reportscustomusermenu;
+            set_config('customusermenuitems', implode("\n", $lines));
+        }
+
+        // Main savepoint reached.
+        upgrade_main_savepoint(true, 2022030800.01);
+    }
+
     return true;
 }
