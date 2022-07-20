@@ -99,10 +99,10 @@ class presets implements templatable, renderable {
             $actions = [];
             if ($this->manage) {
                 // Only presets saved by users can be removed (so the datapreset plugins shouldn't display the delete button).
-                if (!$preset->isplugin && data_user_can_delete_preset($PAGE->context, $preset)) {
-                    $deleteactionurl = new moodle_url('/mod/data/preset.php',
-                        ['d' => $this->id, 'fullname' => "{$preset->userid}/{$preset->shortname}",
-                        'action' => 'confirmdelete']);
+                if (!$preset->isplugin && $preset->can_delete()) {
+//                    $deleteactionurl = new moodle_url('/mod/data/preset.php',
+//                        ['d' => $this->id, 'fullname' => "{$preset->userid}/{$preset->shortname}",
+//                        'action' => 'confirmdelete']);
 
                     $actionmenu = new action_menu();
                     $icon = $OUTPUT->pix_icon('i/menu', get_string('actions'));
@@ -110,11 +110,28 @@ class presets implements templatable, renderable {
                     $actionmenu->set_action_label(get_string('actions'));
                     $actionmenu->attributes['class'] .= ' presets-actions';
 
+                    $params = [
+                        'd' => $this->id,
+                        'action' => 'delete',
+                    ];
+                    $deleteactionurl = new moodle_url('/mod/data/preset.php', $params);
+                    $attributes = [
+                        'data-action' => 'deletepreset',
+                        'data-dataid' => $this->id,
+                        "data-presetname" => $preset->name,
+                    ];
                     $actionmenu->add(new action_menu_link_secondary(
                         $deleteactionurl,
                         null,
                         get_string('delete'),
+                        $attributes
                     ));
+//
+//                    $actionmenu->add(new action_menu_link_secondary(
+//                        $deleteactionurl,
+//                        null,
+//                        get_string('delete'),
+//                    ));
                     $actions = $actionmenu->export_for_template($OUTPUT);
                 }
             }
@@ -124,6 +141,7 @@ class presets implements templatable, renderable {
                 'name' => $preset->name,
                 'shortname' => $preset->shortname,
                 'fullname' => $presetname,
+                'description' => $preset->description,
                 'userid' => $preset->userid,
                 'actions' => $actions,
             ];
