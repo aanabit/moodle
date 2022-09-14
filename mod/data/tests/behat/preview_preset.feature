@@ -138,8 +138,8 @@ Feature: Users can preview presets
   Scenario: Apply plugin preset from preview in database
     Given I follow "Presets"
     And I click on "Image gallery" "link"
-    When I click on "Use preset" "button"
-    Then I should see "image"
+    When I click on "Use a preset" "button"
+    And I should see "image"
     And I should see "title"
 
   @javascript @_file_upload
