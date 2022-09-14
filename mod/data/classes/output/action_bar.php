@@ -52,38 +52,39 @@ class action_bar {
      * @param bool $hasfieldselect Whether the field selector element should be rendered.
      * @param bool $hassaveaspreset Whether the save as preset button element should be rendered.
      * @param bool $hasexportpreset Whether the export as preset button element should be rendered.
+     * @param bool $hasurlselect Whether the url selector element should be rendered.
      * @return string The HTML code for the action bar.
      */
     public function get_fields_action_bar(bool $hasfieldselect = false, bool $hassaveaspreset = false,
-            bool $hasexportpreset = false): string {
+                                          bool $hasexportpreset = false, bool $hasurlselect = true): string {
         global $PAGE, $DB;
 
-        $createfieldlink = new moodle_url('/mod/data/field.php', ['d' => $this->id]);
-        $menu = [
-            $createfieldlink->out(false) => get_string('managefields', 'mod_data'),
-        ];
+        $urlselect = null;
+        if ($hasurlselect) {
+            $createfieldlink = new moodle_url('/mod/data/field.php', ['d' => $this->id]);
+            $importlink = new moodle_url('/mod/data/field.php', ['d' => $this->id, 'mode' => 'import']);
+            $presetslink = new moodle_url('/mod/data/field.php', ['d' => $this->id, 'mode' => 'usepreset']);
 
-        $selected = $createfieldlink->out(false);
+            $menu = [
+                $createfieldlink->out(false) => get_string('managefields', 'mod_data'),
+                $importlink->out(false) => get_string('importpreset', 'mod_data'),
+                $presetslink->out(false) => get_string('usestandard', 'mod_data'),
+            ];
 
-        $urlselect = new url_select($menu, $selected, null, 'fieldactionselect');
-        $urlselect->set_label(get_string('fieldsnavigation', 'mod_data'), ['class' => 'sr-only']);
+            $selected = $createfieldlink->out(false);
+            $mode = $this->currenturl->get_param('mode');
 
-        $fieldselect = null;
-        if ($hasfieldselect) {
-            // Get the list of possible fields (plugins).
-            $plugins = \core_component::get_plugin_list('datafield');
-            $menufield = [];
-
-            foreach ($plugins as $plugin => $fulldir) {
-                $menufield[$plugin] = get_string('pluginname', "datafield_{$plugin}");
+            if ($mode == 'import') {
+                $selected = $importlink->out(false);
+            } else if ($mode === 'usepreset') {
+                $selected = $presetslink->out(false);
             }
-            asort($menufield);
 
-            $fieldselecturl = new moodle_url('/mod/data/field.php', ['d' => $this->id, 'mode' => 'new']);
-            $fieldselect = new \single_select($fieldselecturl, 'newtype', $menufield, null, get_string('newfield', 'data'),
-                'fieldform');
-            $fieldselect->set_label(get_string('newfield', 'mod_data'), ['class' => 'sr-only']);
+            $urlselect = new \url_select($menu, $selected, null, 'fieldactionselect');
+            $urlselect->set_label(get_string('fieldsnavigation', 'mod_data'), ['class' => 'sr-only']);
         }
+
+        $fieldselect = $this->get_create_fields();
 
         $saveaspresetbutton = null;
         $exportpresetbutton = null;
@@ -109,6 +110,35 @@ class action_bar {
             $exportpresetbutton);
 
         return $renderer->render_fields_action_bar($fieldsactionbar);
+    }
+
+    /**
+     * Generate the output for the create a new field action menu.
+     *
+     * @return \action_menu Action menu to create a new field
+     */
+    public function get_create_fields(): \action_menu {
+        // Get the list of possible fields (plugins).
+        $plugins = \core_component::get_plugin_list('datafield');
+        $menufield = [];
+        foreach ($plugins as $plugin => $fulldir) {
+            $menufield[$plugin] = get_string('pluginname', "datafield_{$plugin}");
+        }
+        asort($menufield);
+
+        $fieldselect = new \action_menu();
+        $fieldselect->set_menu_trigger(get_string('newfield', 'mod_data'), 'btn btn-secondary');
+        $fieldselectparams = ['d' => $this->id, 'mode' => 'new'];
+        foreach ($menufield as $fieldtype => $fieldname) {
+            $fieldselectparams['newtype'] = $fieldtype;
+            $fieldselect->add(new \action_menu_link(
+                new \moodle_url('/mod/data/field.php', $fieldselectparams),
+                new \pix_icon('field/' . $fieldtype, $fieldname, 'data'),
+                $fieldname,
+                false
+            ));
+        }
+        return $fieldselect;
     }
 
     /**

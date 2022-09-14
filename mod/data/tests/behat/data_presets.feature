@@ -286,7 +286,7 @@ Feature: Users can view and manage data presets
     And I should see "My funny description goes here"
     And I should see "Test field name"
     And I should see "This is a short text"
-    Then "Use preset" "button" should exist
+    Then "Use a preset" "button" should exist
 
   @javascript
   Scenario: Teachers can export any saved preset

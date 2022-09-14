@@ -338,56 +338,60 @@ if (($mode == 'new') && (!empty($newtype))) { // Adding a new field.
     $field->display_edit_field();
 
 } else {                                              /// Display the main listing of all fields
-    $fieldactionbar = $actionbar->get_fields_action_bar(true, true, true);
+    $hasfields = $manager->has_fields();
+
+    // Check if it is an empty database with no fields.
+    if (!$hasfields) {
+        $renderer = $PAGE->get_renderer('mod_data');
+        $PAGE->set_title($data->name);
+        echo $OUTPUT->header();
+        echo $renderer->render_fields_zero_state($manager);
+        echo $OUTPUT->footer();
+        // Don't check the rest of the options. There is no field, there is nothing else to work with.
+        exit;
+    }
+    $fieldactionbar = $actionbar->get_fields_action_bar(true, true, true, $hasfields);
     data_print_header($course, $cm, $data, 'fields', $fieldactionbar);
     echo $OUTPUT->heading(get_string('managefields', 'data'), 2, 'mb-4');
+    $table = new html_table();
+    $table->head = array(
+        get_string('fieldname', 'data'),
+        get_string('type', 'data'),
+        get_string('required', 'data'),
+        get_string('fielddescription', 'data'),
+        get_string('action', 'data'),
+    );
+    $table->align = ['left', 'left', 'left', 'left'];
+    $table->wrap = [false, false, false, false];
 
-    if (!$DB->record_exists('data_fields', array('dataid'=>$data->id))) {
-        echo $OUTPUT->notification(get_string('nofieldindatabase','data'));  // nothing in database
-        echo $OUTPUT->notification(get_string('pleaseaddsome','data', 'preset.php?id='.$cm->id));      // link to presets
+    if ($fff = $DB->get_records('data_fields', ['dataid' => $data->id], 'id')) {
+        foreach ($fff as $ff) {
 
-    } else {    //else print quiz style list of fields
+            $field = data_get_field($ff, $data);
 
-        $table = new html_table();
-        $table->head = array(
-            get_string('fieldname', 'data'),
-            get_string('type', 'data'),
-            get_string('required', 'data'),
-            get_string('fielddescription', 'data'),
-            get_string('action', 'data'),
-        );
-        $table->align = array('left', 'left', 'left', 'left');
-        $table->wrap = array(false,false,false,false);
+            $baseurl = new moodle_url('/mod/data/field.php', array(
+                'd'         => $data->id,
+                'fid'       => $field->field->id,
+                'sesskey'   => sesskey(),
+            ));
 
-        if ($fff = $DB->get_records('data_fields', array('dataid'=>$data->id),'id')){
-            foreach ($fff as $ff) {
+            $displayurl = new moodle_url($baseurl, array(
+                'mode'      => 'display',
+            ));
 
-                $field = data_get_field($ff, $data);
+            $deleteurl = new moodle_url($baseurl, array(
+                'mode'      => 'delete',
+            ));
 
-                $baseurl = new moodle_url('/mod/data/field.php', array(
-                    'd'         => $data->id,
-                    'fid'       => $field->field->id,
-                    'sesskey'   => sesskey(),
-                ));
-
-                $displayurl = new moodle_url($baseurl, array(
-                    'mode'      => 'display',
-                ));
-
-                $deleteurl = new moodle_url($baseurl, array(
-                    'mode'      => 'delete',
-                ));
-
-                $table->data[] = array(
-                    html_writer::link($displayurl, $field->field->name),
-                    $field->image() . '&nbsp;' . $field->name(),
-                    $field->field->required ? get_string('yes') : get_string('no'),
-                    shorten_text($field->field->description, 30),
-                    html_writer::link($displayurl, $OUTPUT->pix_icon('t/edit', get_string('edit'))) .
-                        '&nbsp;' .
-                        html_writer::link($deleteurl, $OUTPUT->pix_icon('t/delete', get_string('delete'))),
-                );
-            }
+            $table->data[] = array(
+                html_writer::link($displayurl, $field->field->name),
+                $field->image() . '&nbsp;' . $field->name(),
+                $field->field->required ? get_string('yes') : get_string('no'),
+                shorten_text($field->field->description, 30),
+                html_writer::link($displayurl, $OUTPUT->pix_icon('t/edit', get_string('edit'))) .
+                    '&nbsp;' .
+                    html_writer::link($deleteurl, $OUTPUT->pix_icon('t/delete', get_string('delete'))),
+            );
         }
         echo html_writer::table($table);
     }

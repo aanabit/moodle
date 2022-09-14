@@ -47,12 +47,12 @@ class fields_action_bar implements templatable, renderable {
      * The class constructor.
      *
      * @param int $id The database module id
-     * @param \url_select $urlselect The URL selector object
-     * @param \single_select|null $fieldselect The field selector object or null
+     * @param \url_select|null $urlselect The URL selector object or null
+     * @param \action_menu|null $fieldselect The field selector object or null
      * @param \single_button|null $saveaspresetbutton The save as preset single button object or null
      * @param \single_button|null $exportpresetbutton The export preset single button object or null
      */
-    public function __construct(int $id, \url_select $urlselect, ?\single_select $fieldselect = null,
+    public function __construct(int $id, ?\url_select $urlselect, ?\action_menu $fieldselect = null,
             ?\single_button $saveaspresetbutton = null, ?\single_button $exportpresetbutton = null) {
         $this->id = $id;
         $this->urlselect = $urlselect;
@@ -71,8 +71,11 @@ class fields_action_bar implements templatable, renderable {
 
         $data = [
             'd' => $this->id,
-            'urlselect' => $this->urlselect->export_for_template($output),
         ];
+
+        if ($this->urlselect) {
+            $data['urlselect'] = $this->urlselect->export_for_template($output);
+        }
 
         if ($this->fieldselect) {
             $data['fieldselect'] = $this->fieldselect->export_for_template($output);
