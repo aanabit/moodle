@@ -63,10 +63,10 @@ Feature: Users can view and manage data presets
     And I should see "Delete"
     # Teachers can't delete the presets they haven't created.
     And I should not see "Actions" in the "Saved preset 1" "table_row"
-    # The "Use preset" button should be enabled only when a preset is selected.
-    And the "Use preset" "button" should be disabled
+    # The "Use a preset" button should be enabled only when a preset is selected.
+    And the "Use a preset" "button" should be disabled
     And I click on "fullname" "radio" in the "Image gallery" "table_row"
-    And the "Use preset" "button" should be enabled
+    And the "Use a preset" "button" should be enabled
 
   @javascript
   Scenario: Only users with the viewalluserpresets capability can see presets created by other users
