@@ -55,7 +55,7 @@ class behat_mod_data extends behat_base {
         $this->execute("behat_navigation::i_navigate_to_in_current_page_administration", $fieldsstr);
         $this->execute('behat_general::i_click_on', [get_string('newfield', 'mod_data'), "button"]);
         $this->execute('behat_general::i_click_on_in_the',
-            [$this->escape($fieldtype), "link", ".action-menu-trigger", "css_element"]
+            [$this->escape($fieldtype), "link", "#action_bar", "css_element"]
         );
 
         if (!$this->running_javascript()) {
