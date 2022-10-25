@@ -96,8 +96,8 @@ class action_bar {
             }
         }
         $renderer = $PAGE->get_renderer('mod_data');
-        $fieldsactionbar = new fields_action_bar($this->id, $urlselect, $fieldselect, $saveaspresetbutton,
-            $exportpresetbutton);
+        $fieldsactionbar = new fields_action_bar($this->id, $urlselect, null, $saveaspresetbutton,
+            $exportpresetbutton, $fieldselect);
 
         return $renderer->render_fields_action_bar($fieldsactionbar);
     }
