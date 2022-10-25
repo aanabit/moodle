@@ -52,7 +52,7 @@ class zero_state_action_bar implements templatable, renderable {
         global $PAGE;
 
         $data = [];
-        if (has_capability('mod/data:managetemplates', $PAGE->context)) {
+        if ($this->manager->can_manage_templates()) {
             $instance = $this->manager->get_instance();
             $params = ['d' => $instance->id, 'backto' => $PAGE->url->out(false)];
 
