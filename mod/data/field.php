@@ -255,7 +255,7 @@ switch ($mode) {
 
     case 'usepreset':
         $importer = preset_importer::create_from_parameters($manager);
-        if (!$importer->needs_mapping()) {
+        if (!$importer->needs_mapping() || $action == 'notmapping') {
             $backurl = new moodle_url('/mod/data/field.php', ['id' => $cm->id]);
             if ($importer->import(false)) {
                 notification::success(get_string('importsuccess', 'mod_data'));
@@ -265,9 +265,8 @@ switch ($mode) {
             redirect($backurl);
         }
         $PAGE->navbar->add(get_string('usestandard', 'data'));
-        $fieldactionbar = $actionbar->get_fields_action_bar();
+        $fieldactionbar = $actionbar->get_fields_mapping_action_bar();
         data_print_header($course, $cm, $data, false, $fieldactionbar);
-        echo $OUTPUT->heading(get_string('usestandard', 'data'), 2, 'mb-4');
         $importer = new preset_existing_importer($manager, $fullname);
         echo $renderer->importing_preset($data, $importer);
         echo $OUTPUT->footer();
