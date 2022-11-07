@@ -146,6 +146,73 @@ class mod_data_renderer extends plugin_renderer_base {
         return $html;
     }
 
+
+    /**
+     * Show the dialogue with default mapping information.
+     *
+     * @param \mod_data\local\importer\preset_importer $importer Importer instance to use for the importing.
+     * @return string HTML fragment
+     */
+    public function import_mapping(\mod_data\local\importer\preset_importer $importer) {
+
+        $message = 'This is the main message';
+        $continue = 'Apply';
+        $cancel = 'Cancel';
+        $displayoptions = [];
+
+        // Check existing displayoptions.
+        $displayoptions['confirmtitle'] = $displayoptions['confirmtitle'] ?? get_string('confirm');
+        $displayoptions['continuestr'] = $displayoptions['continuestr'] ?? get_string('continue');
+        $displayoptions['cancelstr'] = $displayoptions['cancelstr'] ?? get_string('cancel');
+
+        if ($continue instanceof single_button) {
+            // ok
+            $continue->primary = true;
+        } else if (is_string($continue)) {
+            $continue = new single_button(new moodle_url($continue), $displayoptions['continuestr'], 'post', true);
+        } else if ($continue instanceof moodle_url) {
+            $continue = new single_button($continue, $displayoptions['continuestr'], 'post', true);
+        } else {
+            throw new coding_exception('The continue param to $OUTPUT->confirm() must be either a URL (string/moodle_url) or a single_button instance.');
+        }
+
+        if ($cancel instanceof single_button) {
+            // ok
+        } else if (is_string($cancel)) {
+            $cancel = new single_button(new moodle_url($cancel), $displayoptions['cancelstr'], 'get');
+        } else if ($cancel instanceof moodle_url) {
+            $cancel = new single_button($cancel, $displayoptions['cancelstr'], 'get');
+        } else {
+            throw new coding_exception('The cancel param to $OUTPUT->confirm() must be either a URL (string/moodle_url) or a single_button instance.');
+        }
+
+        $attributes = [
+            'role'=>'alertdialog',
+            'aria-labelledby'=>'modal-header',
+            'aria-describedby'=>'modal-body',
+            'aria-modal'=>'true'
+        ];
+
+        $output = $this->box_start('generalbox modal modal-dialog modal-in-page show', 'notice', $attributes);
+        $output .= $this->box_start('modal-content', 'modal-content');
+        $output .= $this->box_start('modal-header px-3', 'modal-header');
+        $output .= html_writer::tag('h4', $displayoptions['confirmtitle']);
+        $output .= $this->box_end();
+        $attributes = [
+            'role'=>'alert',
+            'data-aria-autofocus'=>'true'
+        ];
+        $output .= $this->box_start('modal-body', 'modal-body', $attributes);
+        $output .= html_writer::tag('p', $message);
+        $output .= $this->box_end();
+        $output .= $this->box_start('modal-footer', 'modal-footer');
+        $output .= html_writer::tag('div', $this->render($cancel) . $this->render($continue), ['class' => 'buttons']);
+        $output .= $this->box_end();
+        $output .= $this->box_end();
+        $output .= $this->box_end();
+        return $output;
+    }
+
     /**
      * Renders the action bar for the field page.
      *
