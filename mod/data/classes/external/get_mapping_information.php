@@ -18,6 +18,7 @@ namespace mod_data\external;
 
 use core\notification;
 use mod_data\local\importer\preset_existing_importer;
+use mod_data\local\importer\preset_importer;
 use mod_data\manager;
 use mod_data\preset;
 

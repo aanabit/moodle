@@ -78,11 +78,11 @@ const mappingusepreset = (usepreset) => {
 const mappingimportpreset = () => {
     let dataId, presetName;
 
-    const cmInputElem = event.target.closest(selectors.cmInput);
+    const cmInputElem = document.querySelector(selectors.cmInput);
     if (cmInputElem) {
         dataId = cmInputElem.getAttribute('value');
     }
-    const fileElem = event.target.closest(selectors.importFile);
+    const fileElem = document.querySelector(selectors.importFile);
     if (fileElem) {
         presetName = fileElem.getAttribute('value');
     }
