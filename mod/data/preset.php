@@ -120,7 +120,7 @@ if ($action == 'importzip') {
     if ($importer->needs_mapping()) {
         echo $OUTPUT->header();
         echo $OUTPUT->heading(get_string('importpreset', 'data'), 2, 'mb-4');
-        echo $renderer->importing_preset($data, $importer);
+        echo $renderer->import_mapping($importer);
         echo $OUTPUT->footer();
         exit(0);
     }
