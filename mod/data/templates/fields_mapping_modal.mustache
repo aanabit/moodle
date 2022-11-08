@@ -32,17 +32,18 @@
         {{#fieldstocreate}}
             <div class="my-2"><span>{{#str}}mapping:fieldstocreate, mod_data, {{.}}{{/str}}</span></div>
         {{/fieldstocreate}}
-        {{#fieldstodelete}}
+        {{#fieldstoremove}}
             <div class="my-2">
                 <span>{{#str}}mapping:fieldstodelete, mod_data, {{.}}{{/str}}</span>
             </div>
             <div class="my-2">
                 {{#str}}mapping:warningmessage, mod_data{{/str}}
             </div>
-        {{/fieldstodelete}}
+        {{/fieldstoremove}}
     {{/body}}
+    {{$classes}} whitebutton {{/classes}}
     {{$footer}}
-        <a href="{{cancelbutton}}" role="button" data-action="cancel">{{#str}} cancel {{/str}}</a>
+        <a href="{{cancelbutton}}" class="btn" role="button" data-action="cancel">{{#str}} cancel {{/str}}</a>
         <a href="{{mapfieldsbutton}}" class="btn btn-secondary" role="button" data-action="mapfields">{{#str}} mapping:mapfields, mod_data {{/str}}</a>
         <a href="{{applybutton}}" class="btn btn-primary" role="button" data-action="applypreset">{{#str}} mapping:applypresets, mod_data {{/str}}</a>
     {{/footer}}

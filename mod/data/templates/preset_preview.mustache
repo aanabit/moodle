@@ -38,7 +38,14 @@
         <input type="hidden" name="mode" value="usepreset">
         <input type="hidden" name="action" value="select">
         <input type="hidden" name="fullname" value="{{userid}}/{{shortname}}">
-        <input type="submit" name="selectpreset" value="{{#str}}usepreset, mod_data{{/str}}" class="btn btn-primary">
+        <input type="submit" name="selectpreset" value="{{#str}}usepreset, mod_data{{/str}}" class="btn btn-primary"
+               data-id="{{d}}" data-presetname="{{fullname}}">
     </form>
     {{/ stickycontent }}
 {{/ core/sticky_footer }}
+
+{{#js}}
+    require(['mod_data/importmappingdialogue'], function(importPreset) {
+        importPreset.init();
+    });
+{{/js}}

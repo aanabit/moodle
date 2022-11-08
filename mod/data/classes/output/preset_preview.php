@@ -113,6 +113,7 @@ class preset_preview implements templatable, renderable {
             'formactionurl' => $useurl->out(),
             'userid' => $preset->get_userid() ?? 0,
             'shortname' => $preset->shortname,
+            'fullname' => $preset->get_fullname(),
         ];
     }
 }

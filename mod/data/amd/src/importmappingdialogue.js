@@ -61,55 +61,57 @@ const mappingdialogue = (usepreset) => {
     const dataId = usepreset.getAttribute('data-id');
 
     showMappingDialogue(dataId, presetName).then((result) => {
-    if (!result.needsmapping) {
-        window.location.href = Url.relativeUrl(
-            'mod/data/field.php',
-            {
-                d: dataId,
-                mode: 'usepreset',
-            },
-            false
-        );
-    }
-    const cancelButton = Url.relativeUrl(
-           'mod/data/preset.php',
-           {
-               d: dataId,
-           },
-           false
-       );
-    result['cancel'] = cancelButton;
-    const mapButton = Url.relativeUrl(
-           'mod/data/field.php',
-           {
-               d: dataId,
-               mode: 'usepreset',
-               action: 'select'
-           },
-           false
-       );
-    result['mapfieldsbutton'] = mapButton;
-    const applyButton = Url.relativeUrl(
-           'mod/data/field.php',
-           {
-               d: dataId,
-               mode: 'usepreset',
-               action: 'select'
-           },
-           false
-       );
-    result['applybutton'] = applyButton;
-    let modalPromise = Templates.render('mod_data/fields_mapping_modal', result);
-    modalPromise.then(function(html) {
-        return new Modal(html);
-    }).fail(Notification.exception)
-        .then((modal) => {
-            modal.show();
-            return modal;
-        }).fail(Notification.exception);
-        return result;
-    }).catch(err => {
-        Notification.exception(err);
+        if (result.needsmapping) {
+            const cancelButton = Url.relativeUrl(
+                   'mod/data/preset.php',
+                   {
+                       d: dataId,
+                   },
+                   false
+               );
+            result['cancel'] = cancelButton;
+            const mapButton = Url.relativeUrl(
+                   'mod/data/field.php',
+                   {
+                       d: dataId,
+                       fullname: presetName,
+                       mode: 'usepreset',
+                       action: 'select',
+                   },
+                   false
+               );
+            result['mapfieldsbutton'] = mapButton;
+            const applyButton = Url.relativeUrl(
+                   'mod/data/field.php',
+                   {
+                       d: dataId,
+                       fullname: presetName,
+                       mode: 'usepreset',
+                       action: 'notmapping'
+                   },
+                   false
+               );
+            result['applybutton'] = applyButton;
+            let modalPromise = Templates.render('mod_data/fields_mapping_modal', result);
+            modalPromise.then(function(html) {
+                return new Modal(html);
+            }).fail(Notification.exception)
+                .then((modal) => {
+                    modal.show();
+                    return modal;
+                }).fail(Notification.exception);
+                return result;
+        } else {
+            window.location.href = Url.relativeUrl(
+                'mod/data/field.php',
+                {
+                    d: dataId,
+                    mode: 'usepreset',
+                    fullname: presetName,
+                },
+                false
+            );
+        }
     });
 };
 
