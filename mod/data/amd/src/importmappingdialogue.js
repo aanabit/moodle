@@ -29,6 +29,9 @@ import Modal from 'core/modal';
 
 const selectors = {
     selectPresetButton: 'input[name="selectpreset"]',
+    importPresetButton: 'button[data-action="save"]',
+    cmInput: 'input[name="cmid"]',
+    importFile: 'input[name="importfile"]'
 };
 
 /**
@@ -46,20 +49,56 @@ const registerEventListeners = () => {
         const usepreset = event.target.closest(selectors.selectPresetButton);
         if (usepreset) {
             event.preventDefault();
-            mappingdialogue(usepreset);
+            mappingusepreset(usepreset);
+        }
+        const importpreset = event.target.closest(selectors.importPresetButton);
+        if (importpreset) {
+            event.preventDefault();
+            mappingimportpreset();
         }
     });
 };
 
 /**
- * Show the confirmation modal to delete the preset.
+ * Show the confirmation modal for uploading a preset.
  *
  * @param {HTMLElement} usepreset the preset to import.
  */
-const mappingdialogue = (usepreset) => {
+const mappingusepreset = (usepreset) => {
     const presetName = usepreset.getAttribute('data-presetname');
     const dataId = usepreset.getAttribute('data-id');
 
+    mappingdialogue(presetName, dataId);
+};
+
+/**
+ * Show the confirmation modal for using a preset.
+ *
+ */
+const mappingimportpreset = () => {
+    let dataId, presetName;
+
+    const cmInputElem = event.target.closest(selectors.cmInput);
+    if (cmInputElem) {
+        dataId = cmInputElem.getAttribute('value');
+    }
+    const fileElem = event.target.closest(selectors.importFile);
+    if (fileElem) {
+        presetName = fileElem.getAttribute('value');
+    }
+
+alert(dataId);
+alert(presetName);
+    mappingdialogue(presetName, dataId);
+};
+
+/**
+ * Show the confirmation modal to map presets.
+ *
+ * @param {string} presetName The preset name to delete.
+ * @param {int} dataId The id of the current database activity.
+ */
+const mappingdialogue = (presetName, dataId) => {
     showMappingDialogue(dataId, presetName).then((result) => {
         if (result.needsmapping) {
             const cancelButton = Url.relativeUrl(
