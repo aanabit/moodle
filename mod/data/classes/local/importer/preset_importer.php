@@ -16,6 +16,7 @@
 
 namespace mod_data\local\importer;
 
+use core\notification;
 use mod_data\manager;
 use mod_data\preset;
 use stdClass;
@@ -475,5 +476,32 @@ abstract class preset_importer {
         } catch (\moodle_exception $e) {
             throw new \moodle_exception('errorpresetnotfound', 'mod_data', '', $name_or_directory);
         }
+    }
+
+    /**
+     * Get the information needed to decide the modal
+     *
+     * @return array An array with all the information to decide the mapping
+     */
+    public function get_mapping_information(): array {
+        return [
+            'needsmapping' => $this->needs_mapping(),
+            'presetname' => preset::get_name_from_plugin($this->get_directory()),
+            'fieldstocreate' => $this->get_field_names($this->fieldstocreate),
+            'fieldstoremove' => $this->get_field_names($this->fieldstoremove),
+        ];
+    }
+
+    /**
+     * Returns a list of the fields
+     *
+     * @param array $fields Array of fields to get name from.
+     * @return string   A string listing the names of the fields.
+     */
+    public function get_field_names(array $fields): string {
+        $fieldnames = array_map(function($field) {
+            return $field->name;
+        }, $fields);
+        return implode(', ', $fieldnames);
     }
 }

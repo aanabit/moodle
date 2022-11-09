@@ -56,7 +56,6 @@ class get_mapping_information extends \external_api {
      * @return array Information needed to decide whether to show the dialogue or not.
      */
     public static function execute(int $cmid, string $import): array {
-        global $DB;
 
         $params = self::validate_parameters(self::execute_parameters(), ['cmid' => $cmid, 'import' => $import]);
 
@@ -64,31 +63,18 @@ class get_mapping_information extends \external_api {
         list($course, $cm) = get_course_and_cm_from_cmid($params['cmid'], manager::MODULE);
         $manager = manager::create_from_coursemodule($cm);
 
-        $result = [
-            'needsmapping' => false,
-            'presetname' => $params['import'],
-            'fieldstocreate' => '',
-            'fieldstoremove' => '',
-        ];
-        $warnings = [];
-
         try {
             $importer = preset_importer::create_from_name_or_directory($manager, $params['import']);
-            $result['presetname'] = preset::get_name_from_plugin($params['import']);
-            $result['needsmapping'] = $importer->needs_mapping();
-            $result['fieldstocreate'] = self::get_field_names($importer->fieldstocreate);
-            $result['fieldstoremove'] = self::get_field_names($importer->fieldstoremove);
+            $result['data'] = $importer->get_mapping_information();
         } catch (\moodle_exception $e) {
             // The saved preset has not been deleted.
-            $warnings[] = [
+            $result['warnings'] = [
                 'item' => $instance->name,
                 'warningcode' => 'exception',
                 'message' => $e->getMessage()
             ];
             notification::error($e->getMessage());
         }
-
-        $result['warnings'] = $warnings;
         return $result;
     }
 
@@ -99,24 +85,13 @@ class get_mapping_information extends \external_api {
      */
     public static function execute_returns(): \external_single_structure {
         return new \external_single_structure([
-            'needsmapping' => new \external_value(PARAM_BOOL, 'Whether the importing needs mapping or not'),
-            'presetname' => new \external_value(PARAM_TEXT, 'Name of the applied preset'),
-            'fieldstocreate' => new \external_value(PARAM_TEXT, 'List of field names to create'),
-            'fieldstoremove' => new \external_value(PARAM_TEXT, 'List of field names to remove'),
+            'data' => new \external_single_structure([
+                'needsmapping' => new \external_value(PARAM_BOOL, 'Whether the importing needs mapping or not'),
+                'presetname' => new \external_value(PARAM_TEXT, 'Name of the applied preset'),
+                'fieldstocreate' => new \external_value(PARAM_TEXT, 'List of field names to create'),
+                'fieldstoremove' => new \external_value(PARAM_TEXT, 'List of field names to remove'),
+            ]),
             'warnings' => new \external_warnings(),
         ]);
-    }
-
-    /**
-     * Get preset parameters to display in apply preset dialog
-     *
-     * @param array $fields Array of fields to get name from.
-     * @return string   A string listing the names of the fields.
-     */
-    private static function get_field_names(array $fields): string {
-        $fieldnames = array_map(function($field) {
-            return $field->name;
-        }, $fields);
-        return implode(', ', $fieldnames);
     }
 }
