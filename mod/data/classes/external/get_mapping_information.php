@@ -43,7 +43,7 @@ class get_mapping_information extends \external_api {
      */
     public static function execute_parameters(): \external_function_parameters {
         return new \external_function_parameters([
-            'dataid' => new \external_value(PARAM_INT, 'Id of the data activity', VALUE_REQUIRED),
+            'cmid' => new \external_value(PARAM_INT, 'Id of the course module', VALUE_REQUIRED),
             'import' => new \external_value(PARAM_TEXT, 'Preset to be imported'),
         ]);
     }
@@ -51,18 +51,21 @@ class get_mapping_information extends \external_api {
     /**
      * Get importing information for the given database activity.
      *
-     * @param  int $dataid Id of the data activity where to import the preset.
+     * @param  int $cmid Id of the course module where to import the preset.
      * @param  string $import Plugin or zip file to be imported.
      * @return array Information needed to decide whether to show the dialogue or not.
      */
-    public static function execute(int $dataid, string $import): array {
+    public static function execute(int $cmid, string $import): array {
         global $DB;
 
-        $params = self::validate_parameters(self::execute_parameters(), ['dataid' => $dataid, 'import' => $import]);
+        $params = self::validate_parameters(self::execute_parameters(), ['cmid' => $cmid, 'import' => $import]);
 
         // Let's get the manager.
-        $instance = $DB->get_record('data', ['id' => $params['dataid']], '*', MUST_EXIST);
+
+        $instance = $DB->get_record('data', ['id' => 22], '*', MUST_EXIST);
         $manager = manager::create_from_instance($instance);
+
+        throw new \moodle_exception('aqui', 'aqui');
 
         $result = [
             'needsmapping' => false,
