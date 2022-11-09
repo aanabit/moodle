@@ -43,7 +43,7 @@ class get_mapping_information extends \external_api {
      */
     public static function execute_parameters(): \external_function_parameters {
         return new \external_function_parameters([
-            'dataid' => new \external_value(PARAM_INT, 'Id of the data activity', VALUE_REQUIRED),
+            'cmid' => new \external_value(PARAM_INT, 'Id of the data activity', VALUE_REQUIRED),
             'import' => new \external_value(PARAM_TEXT, 'Preset to be imported'),
         ]);
     }
@@ -55,14 +55,14 @@ class get_mapping_information extends \external_api {
      * @param  string $import Plugin or zip file to be imported.
      * @return array Information needed to decide whether to show the dialogue or not.
      */
-    public static function execute(int $dataid, string $import): array {
+    public static function execute(int $cmid, string $import): array {
         global $DB;
 
-        $params = self::validate_parameters(self::execute_parameters(), ['dataid' => $dataid, 'import' => $import]);
+        $params = self::validate_parameters(self::execute_parameters(), ['cmid' => $cmid, 'import' => $import]);
 
         // Let's get the manager.
-        $instance = $DB->get_record('data', ['id' => $params['dataid']], '*', MUST_EXIST);
-        $manager = manager::create_from_instance($instance);
+        list($course, $cm) = get_course_and_cm_from_cmid($params['cmid'], manager::MODULE);
+        $manager = manager::create_from_coursemodule($cm);
 
         $result = [
             'needsmapping' => false,
@@ -73,7 +73,7 @@ class get_mapping_information extends \external_api {
         $warnings = [];
 
         try {
-            $importer = new preset_existing_importer($manager, $params['import']);
+            $importer = preset_importer::create_from_name_or_directory($manager, $params['import']);
             $result['presetname'] = preset::get_name_from_plugin($params['import']);
             $result['needsmapping'] = $importer->needs_mapping();
             $result['fieldstocreate'] = self::get_field_names($importer->fieldstocreate);

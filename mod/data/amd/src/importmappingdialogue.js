@@ -66,9 +66,9 @@ const registerEventListeners = () => {
  */
 const mappingusepreset = (usepreset) => {
     const presetName = usepreset.getAttribute('data-presetname');
-    const dataId = usepreset.getAttribute('data-id');
+    const cmId = usepreset.getAttribute('data-cmid');
 
-    mappingdialogue(presetName, dataId);
+    mappingdialogue(presetName, cmId);
 };
 
 /**
@@ -76,35 +76,35 @@ const mappingusepreset = (usepreset) => {
  *
  */
 const mappingimportpreset = () => {
-    let dataId, presetName;
+    let cmId, presetName;
 
     const cmInputElem = document.querySelector(selectors.cmInput);
     if (cmInputElem) {
-        dataId = cmInputElem.getAttribute('value');
+        cmId = cmInputElem.getAttribute('value');
     }
     const fileElem = document.querySelector(selectors.importFile);
     if (fileElem) {
         presetName = fileElem.getAttribute('value');
     }
 
-alert(dataId);
+alert(cmId);
 alert(presetName);
-    mappingdialogue(presetName, dataId);
+    mappingdialogue(presetName, cmId);
 };
 
 /**
  * Show the confirmation modal to map presets.
  *
  * @param {string} presetName The preset name to delete.
- * @param {int} dataId The id of the current database activity.
+ * @param {int} cmId The id of the current database activity.
  */
-const mappingdialogue = (presetName, dataId) => {
-    showMappingDialogue(dataId, presetName).then((result) => {
+const mappingdialogue = (presetName, cmId) => {
+    showMappingDialogue(cmId, presetName).then((result) => {
         if (result.needsmapping) {
             const cancelButton = Url.relativeUrl(
                    'mod/data/preset.php',
                    {
-                       d: dataId,
+                       id: cmId,
                    },
                    false
                );
@@ -112,7 +112,7 @@ const mappingdialogue = (presetName, dataId) => {
             const mapButton = Url.relativeUrl(
                    'mod/data/field.php',
                    {
-                       d: dataId,
+                       id: cmId,
                        fullname: presetName,
                        mode: 'usepreset',
                        action: 'select',
@@ -123,7 +123,7 @@ const mappingdialogue = (presetName, dataId) => {
             const applyButton = Url.relativeUrl(
                    'mod/data/field.php',
                    {
-                       d: dataId,
+                       id: cmId,
                        fullname: presetName,
                        mode: 'usepreset',
                        action: 'notmapping'
@@ -144,7 +144,7 @@ const mappingdialogue = (presetName, dataId) => {
             window.location.href = Url.relativeUrl(
                 'mod/data/field.php',
                 {
-                    d: dataId,
+                    id: cmId,
                     mode: 'usepreset',
                     fullname: presetName,
                 },
@@ -157,15 +157,15 @@ const mappingdialogue = (presetName, dataId) => {
 /**
  * Check whether we should show the mapping dialogue or not.
  *
- * @param {int} dataId The id of the current database activity.
+ * @param {int} cmId The id of the current database activity.
  * @param {string} presetName The preset name to delete.
  * @return {promise} Resolved with the result and warnings of deleting a preset.
  */
-async function showMappingDialogue(dataId, presetName) {
+async function showMappingDialogue(cmId, presetName) {
     var request = {
         methodname: 'mod_data_get_mapping_information',
         args: {
-            dataid: dataId,
+            cmid: cmId,
             import: presetName,
         }
     };

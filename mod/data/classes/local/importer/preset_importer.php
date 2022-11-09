@@ -443,17 +443,37 @@ abstract class preset_importer {
      * @throws \moodle_exception when the file provided as parameter (POST or GET) does not exist
      */
     public static function create_from_parameters(manager $manager): preset_importer {
-        global $CFG;
+
         $fullname = optional_param('fullname', '', PARAM_PATH);    // Directory the preset is in.
         if (!$fullname) {
-            $presetdir = $CFG->tempdir . '/forms/' . required_param('directory', PARAM_FILE);
-            if (!file_exists($presetdir) || !is_dir($presetdir)) {
-                throw new \moodle_exception('cannotimport');
-            }
-            $importer = new preset_upload_importer($manager, $presetdir);
-        } else {
-            $importer = new preset_existing_importer($manager, $fullname);
+            $fullname = required_param('directory', PARAM_FILE);
         }
-        return $importer;
+
+        return preset_importer::create_from_name_or_directory($manager, $fullname);
+    }
+
+    /**
+     * Get the right importer instance from the provided parameters (POST or GET)
+     *
+     * @param manager $manager the current database manager
+     * @param string $name_or_directory The plugin name or directory to create the importer from.
+     * @return preset_importer the relevant preset_importer instance
+     */
+    public static function create_from_name_or_directory(manager $manager, string $name_or_directory): preset_importer {
+        global $CFG;
+
+        if (!$name_or_directory) {
+            throw new \moodle_exception('emptypresetname', 'mod_data');
+        }
+        try {
+            $presetdir = $CFG->tempdir . '/forms/' . $name_or_directory;
+            if (file_exists($presetdir) && is_dir($presetdir)) {
+                return new preset_upload_importer($manager, $presetdir);
+            } else {
+                return new preset_existing_importer($manager, $name_or_directory);
+            }
+        } catch (\moodle_exception $e) {
+            throw new \moodle_exception('errorpresetnotfound', 'mod_data', '', $name_or_directory);
+        }
     }
 }
