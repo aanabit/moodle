@@ -17,9 +17,11 @@
 namespace mod_data\form;
 
 use context;
+use mod_data\local\importer\preset_upload_importer;
 use moodle_exception;
 use moodle_url;
 use core_form\dynamic_form;
+use mod_data\manager;
 
 /**
  * Import presets form.
@@ -37,18 +39,23 @@ class import_presets extends dynamic_form {
      * @throws moodle_exception
      */
     public function process_dynamic_submission(): array {
-        global $CFG;
+
         $filepath = $this->save_temp_file('importfile');
-        $context = $this->get_context_for_dynamic_submission();
-        $returnurl = new moodle_url('/mod/data/preset.php', [
-            'id' => $context->instanceid,
-            'action' => 'importzip',
-            'filepath' => str_replace($CFG->tempdir, '', $filepath)
-        ]);
-        return [
-            'result' => true,
-            'url' => $returnurl->out(false),
-        ];
+        $importingdata = $this->get_context_for_dynamic_submission();
+        $cm = get_coursemodule_from_id('data', $importingdata->instanceid);
+        try {
+            $manager = manager::create_from_coursemodule($cm);
+            $importer = new preset_upload_importer($manager, $filepath);
+            $importingdata = $importer->get_mapping_information();
+            return [
+                'data' => $importingdata,
+                'warnings' => [],
+            ];
+        } catch (moodle_exception $e) {
+            return [
+                'warnings' => [],
+            ];
+        }
     }
 
     /**

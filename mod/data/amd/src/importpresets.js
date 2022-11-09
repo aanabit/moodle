@@ -22,8 +22,10 @@
  */
 
 import ModalForm from 'core_form/modalform';
-import Notification from 'core/notification';
+//import Notification from 'core/notification';
+import Url from 'core/url';
 import {get_string as getString} from 'core/str';
+import {mappingdialogue} from 'mod_data/importmappingdialogue';
 
 const selectors = {
     importPresetButton: '[data-action="importpresets"]',
@@ -35,6 +37,7 @@ const selectors = {
 export const init = () => {
     document.addEventListener('click', (event) => {
         const importPresetButton = event.target.closest(selectors.importPresetButton);
+        const cmId = importPresetButton.dataset.cmid;
 
         if (!importPresetButton) {
             return;
@@ -46,18 +49,27 @@ export const init = () => {
                 title: getString('importpreset', 'mod_data'),
             },
             formClass: 'mod_data\\form\\import_presets',
-            args: {cmid: importPresetButton.dataset.dataid},
+            args: {cmid: cmId},
             saveButtonText: getString('importandapply', 'mod_data'),
         });
 
         modalForm.addEventListener(modalForm.events.FORM_SUBMITTED, event => {
-            if (event.detail.result) {
-                window.location.assign(event.detail.url);
-            } else {
-                Notification.addNotification({
-                    type: 'error',
-                    message: event.detail.errors.join('<br>')
-                });
+            if (event.detail && event.detail.data) {
+                if (event.detail.data.needsmapping) {
+                    mappingdialogue('', cmId);
+                } else {
+                    const redirection = Url.relativeUrl(
+                        'mod/data/preset.php',
+                       {
+                           id: cmId,
+                           fullname: '',
+                           mode: 'finishimport',
+                           action: 'notmapping'
+                       },
+                       false
+                    );
+                    window.location.assign(redirection);
+                }
             }
         });
         modalForm.show();

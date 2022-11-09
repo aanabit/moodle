@@ -268,7 +268,7 @@ class action_bar {
                 null,
                 get_string('importpreset', 'mod_data'),
                 false,
-                ['data-action' => 'importpresets', 'data-dataid' => $this->cmid]
+                ['data-action' => 'importpresets', 'data-cmid' => $this->cmid]
             ));
         }
 

@@ -69,7 +69,9 @@ const mappingusepreset = (usepreset) => {
  * @param {string} presetName The preset name to delete.
  * @param {int} cmId The id of the current database activity.
  */
-const mappingdialogue = (presetName, cmId) => {
+export const mappingdialogue = async (presetName, cmId) => {
+alert('dentro');
+alert(cmId);
     showMappingDialogue(cmId, presetName).then((result) => {
         if (result.data && result.data.needsmapping) {
             const cancelButton = Url.relativeUrl(
