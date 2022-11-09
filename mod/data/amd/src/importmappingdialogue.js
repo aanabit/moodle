@@ -29,9 +29,6 @@ import Modal from 'core/modal';
 
 const selectors = {
     selectPresetButton: 'input[name="selectpreset"]',
-    importPresetButton: 'button[data-action="save"]',
-    cmInput: 'input[name="cmid"]',
-    importFile: 'input[name="importfile"]'
 };
 
 /**
@@ -51,11 +48,6 @@ const registerEventListeners = () => {
             event.preventDefault();
             mappingusepreset(usepreset);
         }
-        const importpreset = event.target.closest(selectors.importPresetButton);
-        if (importpreset) {
-            event.preventDefault();
-            mappingimportpreset();
-        }
     });
 };
 
@@ -72,27 +64,6 @@ const mappingusepreset = (usepreset) => {
 };
 
 /**
- * Show the confirmation modal for using a preset.
- *
- */
-const mappingimportpreset = () => {
-    let cmId, presetName;
-
-    const cmInputElem = document.querySelector(selectors.cmInput);
-    if (cmInputElem) {
-        cmId = cmInputElem.getAttribute('value');
-    }
-    const fileElem = document.querySelector(selectors.importFile);
-    if (fileElem) {
-        presetName = fileElem.getAttribute('value');
-    }
-
-alert(cmId);
-alert(presetName);
-    mappingdialogue(presetName, cmId);
-};
-
-/**
  * Show the confirmation modal to map presets.
  *
  * @param {string} presetName The preset name to delete.
@@ -100,7 +71,7 @@ alert(presetName);
  */
 const mappingdialogue = (presetName, cmId) => {
     showMappingDialogue(cmId, presetName).then((result) => {
-        if (result.needsmapping) {
+        if (result.data && result.data.needsmapping) {
             const cancelButton = Url.relativeUrl(
                    'mod/data/preset.php',
                    {
@@ -108,7 +79,7 @@ const mappingdialogue = (presetName, cmId) => {
                    },
                    false
                );
-            result['cancel'] = cancelButton;
+            result.data['cancel'] = cancelButton;
             const mapButton = Url.relativeUrl(
                    'mod/data/field.php',
                    {
@@ -119,7 +90,7 @@ const mappingdialogue = (presetName, cmId) => {
                    },
                    false
                );
-            result['mapfieldsbutton'] = mapButton;
+            result.data['mapfieldsbutton'] = mapButton;
             const applyButton = Url.relativeUrl(
                    'mod/data/field.php',
                    {
@@ -130,8 +101,8 @@ const mappingdialogue = (presetName, cmId) => {
                    },
                    false
                );
-            result['applybutton'] = applyButton;
-            let modalPromise = Templates.render('mod_data/fields_mapping_modal', result);
+            result.data['applybutton'] = applyButton;
+            let modalPromise = Templates.render('mod_data/fields_mapping_modal', result.data);
             modalPromise.then(function(html) {
                 return new Modal(html);
             }).fail(Notification.exception)
