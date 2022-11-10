@@ -21,7 +21,8 @@ Feature: Users can use predefined presets
       | database | type | name              | description              |
       | data1    | text | Test field name   | Test field description   |
 
-  Scenario: If Teacher use another preset then the previous fields are removed
+  Scenario: Using a preset that doesn't have some fields already exist in the current activity should remove
+  those fields
     Given I am on the "Mountain landscapes" "data activity" page logged in as teacher1
     And I follow "Fields"
     And I should see "Test field name"
@@ -36,7 +37,7 @@ Feature: Users can use predefined presets
     And I should see "title"
     And I should not see "Test field name"
 
-  Scenario: Using a preset could create new fields
+  Scenario: Using a preset on a non empty database could create new fields
     Given the following "mod_data > fields" exist:
       | database | type | name    |
       | data1    | text | title   |
@@ -59,7 +60,7 @@ Feature: Users can use predefined presets
     And I should see "description" in the "description" "table_row"
     And I should see "image" in the "image" "table_row"
 
-  Scenario: Using a preset could create map fields
+  Scenario: Using a preset on a non-empty database could show the option to map fields
     Given the following "mod_data > fields" exist:
       | database | type | name            |
       | data1    | text | oldtitle        |
@@ -71,7 +72,7 @@ Feature: Users can use predefined presets
     And I follow "Presets"
     And I click on "fullname" "radio" in the "Image gallery" "table_row"
     And I click on "Use this preset" "button"
-#    Let's map a field that is not mapped by default
+    # Let's map a field that is not mapped by default
     And I should see "Apply preset Image gallery"
     When I click on "Map fields" "button"
     And I should see "Create a new field" in the "oldtitle" "table_row"
@@ -85,11 +86,12 @@ Feature: Users can use predefined presets
     And I should see "description" in the "description" "table_row"
     And I should see "image" in the "image" "table_row"
 
-  Scenario: Teacher can use a preset from presets page on a database with entries
-    And the following "mod_data > entries" exist:
+  Scenario: Teacher can use a preset from presets page on a database with existing entries
+    # Creating an entry to test use a preset feature with databases with entries.
+    Given the following "mod_data > entries" exist:
       | database | Test field name |
       | data1    | Student entry 1 |
-    Given I am on the "Mountain landscapes" "data activity" page logged in as teacher1
+    And I am on the "Mountain landscapes" "data activity" page logged in as teacher1
     And I follow "Presets"
     And I click on "fullname" "radio" in the "Image gallery" "table_row"
     And the "Use this preset" "button" should be enabled
@@ -104,11 +106,8 @@ Feature: Users can use predefined presets
     And I follow "Fields"
     And I should see "image"
 
-  Scenario: Using same preset twice doesn't show mapping dialogue
-    Given the following "mod_data > fields" exist:
-      | database | type | name    |
-      | data1    | text | title   |
-    And I am on the "Mountain landscapes" "data activity" page logged in as teacher1
+  Scenario: Using same preset twice doesn't show mapping dialogue and applies the preset directly
+    Given I am on the "Mountain landscapes" "data activity" page logged in as teacher1
     And I follow "Presets"
     And I click on "fullname" "radio" in the "Image gallery" "table_row"
     When I click on "Use this preset" "button"
@@ -121,7 +120,8 @@ Feature: Users can use predefined presets
     Then I should not see "Apply preset Image gallery"
     And I should see "The preset has been successfully applied"
 
-  Scenario: If Teacher use another from preview page preset then the previous fields are removed
+  Scenario: Using a preset that doesn't have some fields already exist in the current activity from preset preview
+  page should remove those fields
     Given I am on the "Mountain landscapes" "data activity" page logged in as teacher1
     And I follow "Fields"
     And I should see "Test field name"
@@ -137,7 +137,7 @@ Feature: Users can use predefined presets
     And I should see "title"
     And I should not see "Test field name"
 
-  Scenario: Using a preset from preview page could create new fields
+  Scenario: Using a preset from preset preview page on a non empty database could create new fields
     Given the following "mod_data > fields" exist:
       | database | type | name    |
       | data1    | text | title   |
@@ -157,7 +157,7 @@ Feature: Users can use predefined presets
     And I should see "description" in the "description" "table_row"
     And I should see "image" in the "image" "table_row"
 
-  Scenario: Using a preset from preview page could create map fields
+  Scenario: Using a preset from preset preview page on a non-empty database could show the option to map fields
     Given the following "mod_data > fields" exist:
       | database | type | name            |
       | data1    | text | oldtitle        |
@@ -169,7 +169,7 @@ Feature: Users can use predefined presets
     And I follow "Presets"
     And I click on "Image gallery" "link"
     And I click on "Use this preset" "button"
-#    Let's map a field that is not mapped by default
+    # Let's map a field that is not mapped by default
     And I should see "Apply preset Image gallery"
     When I click on "Map fields" "button"
     And I should see "Create a new field" in the "oldtitle" "table_row"
@@ -183,11 +183,12 @@ Feature: Users can use predefined presets
     And I should see "description" in the "description" "table_row"
     And I should see "image" in the "image" "table_row"
 
-  Scenario: Teacher can use a preset from presets preview page on a database with entries
-    And the following "mod_data > entries" exist:
+  Scenario: Teacher can use a preset from preset preview page on a database with existing entries
+    # Creating an entry to test use a preset feature with databases with entries.
+    Given the following "mod_data > entries" exist:
       | database | Test field name |
       | data1    | Student entry 1 |
-    Given I am on the "Mountain landscapes" "data activity" page logged in as teacher1
+    And I am on the "Mountain landscapes" "data activity" page logged in as teacher1
     And I follow "Presets"
     And I click on "Image gallery" "link"
     And the "Use this preset" "button" should be enabled
@@ -202,11 +203,9 @@ Feature: Users can use predefined presets
     And I follow "Fields"
     And I should see "image"
 
-  Scenario: Using same preset twice from preview page doesn't show mapping dialogue
-    Given the following "mod_data > fields" exist:
-      | database | type | name    |
-      | data1    | text | title   |
-    And I am on the "Mountain landscapes" "data activity" page logged in as teacher1
+  Scenario: Using same preset twice from preset preview page doesn't show mapping dialogue and applies the preset
+  directly
+    Given I am on the "Mountain landscapes" "data activity" page logged in as teacher1
     And I follow "Presets"
     And I click on "Image gallery" "link"
     When I click on "Use this preset" "button"

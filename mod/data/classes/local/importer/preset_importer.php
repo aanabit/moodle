@@ -241,9 +241,8 @@ abstract class preset_importer {
     public function import(bool $overwritesettings): bool {
         global $DB, $OUTPUT;
 
-        $params = $this->settings;
         $settings = $params->settings;
-        $currentfields = $params->currentfields;
+        $currentfields = $settings->currentfields;
         $missingfieldtypes = [];
         $module = $this->manager->get_instance();
 

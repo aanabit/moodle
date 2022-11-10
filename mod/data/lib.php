@@ -2486,10 +2486,9 @@ abstract class data_preset_importer {
     function import($overwritesettings) {
         global $DB, $CFG, $OUTPUT;
 
-        $params = $this->settings;
         $settings = $params->settings;
-        $newfields = $params->importfields;
-        $currentfields = $params->currentfields;
+        $newfields = $settings->importfields;
+        $currentfields = $settings->currentfields;
         $preservedfields = array();
 
         /* Maps fields and makes new ones */

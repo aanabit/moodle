@@ -152,7 +152,7 @@ Feature: Users can import presets
     And I choose "Import preset" in the open action menu
     And I upload "mod/data/tests/fixtures/image_gallery_preset.zip" file to "Preset file" filemanager
     When I click on "Import preset and apply" "button"
-#    Let's map a field that is not mapped by default
+    # Let's map a field that is not mapped by default
     And I should see "Create a new field" in the "oldtitle" "table_row"
     And I set the field "id_title" to "Map to oldtitle"
     And I click on "Continue" "button"
@@ -165,6 +165,8 @@ Feature: Users can import presets
     And I should see "image" in the "image" "table_row"
 
   Scenario: Importing same preset twice doesn't show mapping dialogue
+    # Importing a preset on an empty database doesn't show the mapping dialogue, so we add a field for the database
+    # not to be empty.
     Given the following "mod_data > fields" exist:
       | database | type | name    |
       | data1    | text | title   |
