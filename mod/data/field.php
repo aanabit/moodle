@@ -108,13 +108,9 @@ $data->instance   = $cm->instance;
 $renderer = $manager->get_renderer();
 
 if ($action == 'finishimport' && confirm_sesskey()) {
-//    data_print_header($course, $cm, $data, false);
     $overwritesettings = optional_param('overwritesettings', false, PARAM_BOOL);
     $importer = preset_importer::create_from_parameters($manager);
     $importer->finish_import_process($overwritesettings, $data);
-//    echo $OUTPUT->continue_button(new moodle_url('/mod/data/field.php', ['d' => $data->id]));
-//    echo $OUTPUT->footer();
-//    exit;
 }
 
 switch ($mode) {
