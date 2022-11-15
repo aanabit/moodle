@@ -331,7 +331,7 @@ class preset_importer_test extends \advanced_testcase {
         $saved = $plugingenerator->create_preset($presetactivity, $record);
         $savedimporter = new preset_existing_importer($manager, $USER->id . '/Testing preset name');
         $information = $savedimporter->get_mapping_information();
-        $this->assertEquals($savedimporter->needs_mapping(),$information['needsmapping']);
+        $this->assertEquals($savedimporter->needs_mapping(), $information['needsmapping']);
         $this->assertEquals(count($savedimporter->fieldstoremove), $fieldstoremove);
         $this->assertEquals(count($savedimporter->fieldstocreate), $fieldstocreate);
         $this->assertEquals(count($savedimporter->fieldstoupdate), $fieldstoupdate);
@@ -341,7 +341,7 @@ class preset_importer_test extends \advanced_testcase {
             $plugin = preset::create_from_plugin(null, $pluginname);
             $pluginimporter = new preset_existing_importer($manager, '/' . $pluginname);
             $information = $pluginimporter->get_mapping_information();
-            $this->assertEquals($pluginimporter->needs_mapping(),$information['needsmapping']);
+            $this->assertEquals($pluginimporter->needs_mapping(), $information['needsmapping']);
             $this->assertEquals(count($pluginimporter->fieldstoremove), $fieldstoremove);
             $this->assertEquals(count($pluginimporter->fieldstocreate), $fieldstocreate);
             $this->assertEquals(count($pluginimporter->fieldstoupdate), $fieldstoupdate);
@@ -409,5 +409,51 @@ class preset_importer_test extends \advanced_testcase {
         $saved = $plugingenerator->create_preset($presetactivity, $record);
         $savedimporter = new preset_existing_importer($manager, $USER->id . '/Testing preset name');
         $this->assertEquals($expected, $savedimporter->get_field_names($manager->get_field_records()));
+    }
+
+    /**
+     * Test for create_from_plugin_or_directory creation static method.
+     *
+     * @covers ::create_from_plugin_or_directory
+     *
+     */
+    public function test_create_from_plugin_or_directory() {
+
+        global $USER;
+
+        $this->resetAfterTest();
+        $this->setAdminUser();
+        $plugingenerator = $this->getDataGenerator()->get_plugin_generator('mod_data');
+
+        // Create a course and a database activity.
+        $course = $this->getDataGenerator()->create_course();
+        $activity = $this->getDataGenerator()->create_module(manager::MODULE, ['course' => $course]);
+        $manager = manager::create_from_instance($activity);
+
+        $presetactivity = $this->getDataGenerator()->create_module(manager::MODULE, ['course' => $course]);
+
+        $record = (object) [
+            'name' => 'Testing preset name',
+            'description' => 'Testing preset description',
+        ];
+        $saved = $plugingenerator->create_preset($presetactivity, $record);
+
+        // A plugin preset returns an instance of preset_existing_importer.
+        $preset = preset_importer::create_from_plugin_or_directory($manager, '/imagegallery');
+        $this->assertInstanceOf('\mod_data\local\importer\preset_existing_importer', $preset);
+
+        // A saved preset returns an instance of preset_existing_importer.
+        $preset = preset_importer::create_from_plugin_or_directory($manager, $USER->id . '/Testing preset name');
+        $this->assertInstanceOf('\mod_data\local\importer\preset_existing_importer', $preset);
+
+        // An empty preset name throws an exception.
+        $this->expectException('moodle_exception');
+        try {
+            preset_importer::create_from_plugin_or_directory($manager, '');
+        } finally {
+            // A non-existing preset name throws an exception.
+            $this->expectException('moodle_exception');
+            preset_importer::create_from_plugin_or_directory($manager, $USER->id . '/Non-existing');
+        }
     }
 }

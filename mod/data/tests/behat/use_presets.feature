@@ -202,3 +202,46 @@ Feature: Users can use predefined presets
     And I click on "Use this preset" "button"
     Then I should not see "Field mappings"
     And I should see "The preset has been successfully applied"
+
+  Scenario: Apply preset dialogue should show helpful information to the user
+    Given the following "activities" exist:
+      | activity | name           | intro           | course | idnumber |
+      | data     | Sea landscapes | introduction... | C1     | data2    |
+    And the following "mod_data > fields" exist:
+      | database | type | name            |
+      | data2    | text | title        |
+    And I am on the "Sea landscapes" "data activity" page logged in as teacher1
+    And I follow "Presets"
+    And I click on "Image gallery" "link"
+    When I click on "Use this preset" "button"
+    And I should see "Apply preset Image gallery"
+    # Fields to be created only.
+    Then I should see "Fields to be created: image, description"
+    And I should not see "If fields to be deleted are of the same type as fields to be created"
+    And I should not see "If fields to be deleted are of the same type as new fields in the preset"
+    And I click on "Cancel" "button" in the "Apply preset Image gallery?" "dialogue"
+    And I follow "Presets"
+    And the following "mod_data > fields" exist:
+      | database | type   | name          |
+      | data2    | number | number        |
+    And I click on "Image gallery" "link"
+    And I click on "Use this preset" "button"
+    And I should see "Apply preset Image gallery"
+    # Fields to be created and fields to be deleted.
+    And I should see "Fields to be created: image, description"
+    And I should see "Existing fields to be deleted: number"
+    And I should see "If fields to be deleted are of the same type as fields to be created"
+    And I should not see "If fields to be deleted are of the same type as new fields in the preset"
+    And I click on "Cancel" "button" in the "Apply preset Image gallery?" "dialogue"
+    And I follow "Presets"
+    And the following "mod_data > fields" exist:
+      | database     | type      | name          |
+      | data2        | textarea  | description   |
+      | data2        | picture   | image         |
+    And I click on "Image gallery" "link"
+    And I click on "Use this preset" "button"
+    And I should see "Apply preset Image gallery"
+    # Fields to be deleted only.
+    And I should see "Existing fields to be deleted: number"
+    And I should not see "If fields to be deleted are of the same type as fields to be created"
+    And I should see "If fields to be deleted are of the same type as new fields in the preset"

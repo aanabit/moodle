@@ -60,17 +60,16 @@ class get_mapping_information extends \external_api {
             ['cmid' => $cmid, 'importedpreset' => $importedpreset]
         );
 
-        // Let's get the manager.
-        list($course, $cm) = get_course_and_cm_from_cmid($params['cmid'], manager::MODULE);
-        $manager = manager::create_from_coursemodule($cm);
-
         try {
+            // Let's get the manager.
+            list($course, $cm) = get_course_and_cm_from_cmid($params['cmid'], manager::MODULE);
+            $manager = manager::create_from_coursemodule($cm);
+
             $importer = preset_importer::create_from_plugin_or_directory($manager, $params['importedpreset']);
             $result['data'] = $importer->get_mapping_information();
         } catch (\moodle_exception $e) {
-            // The saved preset has not been deleted.
-            $result['warnings'] = [
-                'item' => $instance->name,
+            $result['warnings'][] = [
+                'item' => $importedpreset,
                 'warningcode' => 'exception',
                 'message' => $e->getMessage()
             ];
@@ -91,7 +90,7 @@ class get_mapping_information extends \external_api {
                 'presetname' => new \external_value(PARAM_TEXT, 'Name of the applied preset'),
                 'fieldstocreate' => new \external_value(PARAM_TEXT, 'List of field names to create'),
                 'fieldstoremove' => new \external_value(PARAM_TEXT, 'List of field names to remove'),
-            ]),
+            ], 'Information to import if everything went fine', VALUE_OPTIONAL),
             'warnings' => new \external_warnings(),
         ]);
     }

@@ -21,11 +21,8 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->dirroot . '/webservice/tests/helpers.php');
 
-use externallib_advanced_testcase;
 use external_api;
 use mod_data\manager;
-use mod_data\local\importer\preset_existing_importer;
-use mod_data\preset;
 
 /**
  * External function tests class for get_mapping_information.
@@ -127,7 +124,7 @@ class get_mapping_information_test extends \advanced_testcase {
     }
 
     /**
-     * Test for set_affected_fields method.
+     * Test for get_mapping_information method.
      *
      * @dataProvider get_mapping_information_provider
      * @covers ::execute
@@ -186,5 +183,53 @@ class get_mapping_information_test extends \advanced_testcase {
             $this->assertEquals($result['data']['fieldstoremove'], $fieldstoremove);
             $this->assertEquals($result['data']['fieldstocreate'], $fieldstocreate);
         }
+    }
+
+    /**
+     * Test for get_mapping_information method for wrong presets.
+     *
+     * @covers ::execute
+     *
+     */
+    public function test_get_mapping_information_for_wrong_preset() {
+        global $USER;
+
+        $this->resetAfterTest();
+        $this->setAdminUser();
+        $plugingenerator = $this->getDataGenerator()->get_plugin_generator('mod_data');
+
+        // Create a course and a database activity.
+        $course = $this->getDataGenerator()->create_course();
+        $activity = $this->getDataGenerator()->create_module(manager::MODULE, ['course' => $course]);
+
+        $manager = manager::create_from_instance($activity);
+        $module = $manager->get_coursemodule();
+
+        // We get warnings with empty preset name.
+        $result = get_mapping_information::execute($module->id, '');
+        $result = external_api::clean_returnvalue(get_mapping_information::execute_returns(), $result);
+
+        $this->assertFalse(array_key_exists('data', $result));
+        $this->assertTrue(array_key_exists('warnings', $result));
+
+        // We get warnings with non-existing preset name.
+        $result = get_mapping_information::execute($module->id, $USER->id . '/Non-existing');
+        $result = external_api::clean_returnvalue(get_mapping_information::execute_returns(), $result);
+
+        $this->assertFalse(array_key_exists('data', $result));
+        $this->assertTrue(array_key_exists('warnings', $result));
+
+        $record = (object) [
+            'name' => 'Testing preset name',
+            'description' => 'Testing preset description',
+        ];
+        $saved = $plugingenerator->create_preset($activity, $record);
+
+        // We get no warning with the right preset.
+        $result = get_mapping_information::execute($module->id, $USER->id . '/' . $saved->name);
+        $result = external_api::clean_returnvalue(get_mapping_information::execute_returns(), $result);
+
+        $this->assertTrue(array_key_exists('data', $result));
+        $this->assertFalse(array_key_exists('warnings', $result));
     }
 }
