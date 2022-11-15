@@ -94,10 +94,18 @@ class mod_data_renderer extends plugin_renderer_base {
                         continue;
                     }
                     if ($currentfield->name == $newfield->name) {
-                        $row[1] .= html_writer::tag('option', get_string('mapexistingfield', 'data', $currentfield->name), array('value' => $cid, 'selected' => 'selected'));
+                        $row[1] .= html_writer::tag(
+                            'option',
+                            get_string('mapexistingfield', 'data', $currentfield->name),
+                            ['value' => $cid, 'selected' => 'selected']
+                        );
                         $selected = true;
                     } else {
-                        $row[1] .= html_writer::tag('option', get_string('mapexistingfield', 'data', $currentfield->name), array('value' => $cid));
+                        $row[1] .= html_writer::tag(
+                            'option',
+                            get_string('mapexistingfield', 'data', $currentfield->name),
+                            ['value' => $cid]
+                        );
                     }
                 }
 
