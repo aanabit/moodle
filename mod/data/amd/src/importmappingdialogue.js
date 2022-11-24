@@ -61,7 +61,7 @@ const registerEventListeners = () => {
  *
  * @param {HTMLElement} usepreset the preset to import.
  */
-const showMappingDialogue = (usepreset) => {
+export const showMappingDialogue = (usepreset) => {
     const presetName = usepreset.dataset.presetname;
     const cmId = usepreset.dataset.cmid;
 

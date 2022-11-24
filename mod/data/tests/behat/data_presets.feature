@@ -1,8 +1,8 @@
 @mod @mod_data
 Feature: Users can view and manage data presets
-    In order to use presets
-    As a user
-    I need to view, manage and use presets
+  In order to use presets
+  As a user
+  I need to view, manage and use presets
 
   Background:
     Given the following "users" exist:
@@ -322,3 +322,35 @@ Feature: Users can view and manage data presets
       | user     |
       | admin    |
       | teacher1 |
+
+  @javascript
+  Scenario: Teachers can see "Use this preset" and "Preview" in the action menu next to each preset.
+    Given I am on the "Mountain landscapes" "data activity" page logged in as teacher1
+    When I follow "Presets"
+    Then I open the action menu in "Image gallery" "table_row"
+    Then I should see "Use this preset" in the "Image gallery" "table_row"
+    Then I should see "Preview" in the "Image gallery" "table_row"
+    Then I open the action menu in "Saved preset 1 (Admin User)" "table_row"
+    Then I should see "Use this preset" in the "Saved preset 1 (Admin User)" "table_row"
+    Then I should see "Preview" in the "Saved preset 1 (Admin User)" "table_row"
+    Then I open the action menu in "Saved preset by teacher1 (Teacher 1)" "table_row"
+    Then I should see "Use this preset" in the "Saved preset by teacher1 (Teacher 1)" "table_row"
+    Then I should see "Preview" in the "Saved preset by teacher1 (Teacher 1)" "table_row"
+
+  @javascript
+  Scenario Outline: Teachers can use "Use this preset" and "Preview" actions menu next to each preset.
+    Given I am on the "Mountain landscapes" "data activity" page logged in as teacher1
+    When I follow "Presets"
+    Then I open the action menu in "<Preset Name>" "table_row"
+    Then I click on "Preview" "link" in the "<Preset Name>" "table_row"
+    Then I should see "Preview of <Preset preview name>"
+    Then I follow "Presets"
+    Then I open the action menu in "<Preset Name>" "table_row"
+    Then I click on "Use this preset" "link" in the "<Preset Name>" "table_row"
+    Then I should see "Preset applied"
+
+    Examples:
+      | Preset Name                          | Preset preview name      |
+      | Image gallery                        | Image gallery            |
+      | Saved preset 1 (Admin User)          | Saved preset 1           |
+      | Saved preset by teacher1 (Teacher 1) | Saved preset by teacher1 |
