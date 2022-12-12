@@ -94,7 +94,7 @@ Feature: Users can use mod_data without editing the templates
     And I should not see "Student entry 2"
     And I should not see "Some content 2"
     When I navigate to "Fields" in current page administration
-    And I click on "Actions" "button" in the "field2" "table_row"
+    And I click on "Actions" "link" in the "field2" "table_row"
     And I choose "Delete" in the open action menu
     And I click on "Continue" "button"
     Then I navigate to "Database" in current page administration

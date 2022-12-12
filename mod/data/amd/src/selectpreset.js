@@ -13,8 +13,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-import {showMappingDialogue} from "mod_data/importmappingdialogue";
-
 /**
  * Javascript module to control the form responsible for selecting a preset.
  *
@@ -26,7 +24,6 @@ import {showMappingDialogue} from "mod_data/importmappingdialogue";
 const selectors = {
     presetRadioButton: 'input[name="fullname"]',
     selectPresetButton: 'input[name="selectpreset"]',
-    selectPresetMenu: '[data-action="usepreset"]',
     selectedPresetRadioButton: 'input[name="fullname"]:checked',
 };
 
@@ -45,13 +42,6 @@ export const init = () => {
             // Enable the "Use a preset" button when any of the radio buttons in the presets list is checked.
             disableUsePresetButton();
         });
-    });
-    document.addEventListener('click', (event) => {
-        const preset = event.target.closest(selectors.selectPresetMenu);
-        if (preset) {
-            event.preventDefault();
-            showMappingDialogue(preset);
-        }
     });
 };
 
