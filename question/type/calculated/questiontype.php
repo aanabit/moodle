@@ -94,10 +94,8 @@ class qtype_calculated extends question_type {
 
         $question->hints = $DB->get_records('question_hints',
                 array('questionid' => $question->id), 'id ASC');
+        $question->options->datasets = $this->get_datasets_for_export($question);
 
-        if (isset($question->export_process)&&$question->export_process) {
-            $question->options->datasets = $this->get_datasets_for_export($question);
-        }
         return true;
     }
 
