@@ -89,6 +89,7 @@ class cm implements renderable {
             'sectionnumber' => $section->section,
             'uservisible' => $cm->uservisible,
             'hascmrestrictions' => $this->get_has_restrictions(),
+            'indent' => $cm->indent,
         ];
 
         // Check the user access type to this cm.
