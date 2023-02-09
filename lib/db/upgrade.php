@@ -2983,7 +2983,6 @@ privatefiles,moodle|/user/files.php';
         // Main savepoint reached.
         upgrade_main_savepoint(true, 2023020800.00);
     }
-
     if ($oldversion < 2023021700.01) {
         // Define field pdfexportfont to be added to course.
         $table = new xmldb_table('course');
@@ -3017,6 +3016,17 @@ privatefiles,moodle|/user/files.php';
 
         // Main savepoint reached.
         upgrade_main_savepoint(true, 2023022000.00);
+    }
+
+    if ($oldversion < 2023022000.01) {
+        // For sites migrating from 4.0.x or 4.1.x where the indentation was removed,
+        // we are disabling 'courseindentation' value by default.
+        if ($oldversion >= 2022041900.00) {
+            set_config('courseindentation', 0);
+        } else {
+            set_config('courseindentation', 1);
+        }
+        upgrade_main_savepoint(true, 2023021700.01);
     }
 
     return true;

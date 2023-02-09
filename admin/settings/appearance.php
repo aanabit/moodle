@@ -293,6 +293,12 @@ reports,core_reportbuilder|/reportbuilder/index.php',
     $temp->add(new admin_setting_filetypes('courseoverviewfilesext', new lang_string('courseoverviewfilesext'),
         new lang_string('configcourseoverviewfilesext', 'admin'), 'web_image'
     ));
+    $temp->add(new admin_setting_configcheckbox(
+        'courseindentation',
+        new lang_string('courseindentation'),
+        new lang_string('courseindentation_help'),
+        1
+    ));
 
     $temp->add(new admin_setting_configtext('coursegraceperiodbefore', new lang_string('coursegraceperiodbefore', 'admin'),
         new lang_string('configcoursegraceperiodbefore', 'admin'), 0, PARAM_INT));
