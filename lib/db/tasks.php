@@ -436,5 +436,15 @@ $tasks = array(
         'day' => '*',
         'dayofweek' => '*',
         'month' => '*'
-    ]
+    ],
+    [
+        'classname' => 'core\task\reset_course_module_indentation',
+        'blocking' => 0,
+        'minute' => 'R',
+        'hour' => 'R',
+        'day' => '*',
+        'dayofweek' => '*',
+        'month' => '*',
+        'disabled' => true,
+    ],
 );

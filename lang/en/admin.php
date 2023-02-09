@@ -1331,6 +1331,7 @@ $string['task_logtostdout_desc'] = 'When jobs are running and the output is capt
 $string['task_type:adhoc'] = 'Ad hoc';
 $string['task_type:scheduled'] = 'Scheduled';
 $string['task_result:failed'] = 'Fail';
+$string['task_resetcourseindentation'] = 'Reset indentation on course page';
 $string['task_stats:dbreads'] = '{$a} reads';
 $string['task_stats:dbwrites'] = '{$a} writes';
 $string['task_status'] = 'Task status';
