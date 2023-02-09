@@ -457,7 +457,9 @@ abstract class base {
      * @return bool if the course format uses indentation.
      */
     public function uses_indentation(): bool {
-        return true;
+        global $CFG;
+
+        return ($CFG->courseindentation) ? true : false;
     }
 
     /**

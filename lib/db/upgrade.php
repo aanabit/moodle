@@ -3019,5 +3019,14 @@ privatefiles,moodle|/user/files.php';
         upgrade_main_savepoint(true, 2023022000.00);
     }
 
+    if ($oldversion < 2023022400.00) {
+        // For sites migrating from 4.0.x or 4.1.x where the indentation was removed,
+        // we are disabling 'courseindentation' value by default.
+        if ($oldversion >= 2022041900.00) {
+            set_config('courseindentation', 0);
+        }
+        upgrade_main_savepoint(true, 2023022400.01);
+    }
+
     return true;
 }
