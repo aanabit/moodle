@@ -293,10 +293,13 @@ reports,core_reportbuilder|/reportbuilder/index.php',
     $temp->add(new admin_setting_filetypes('courseoverviewfilesext', new lang_string('courseoverviewfilesext'),
         new lang_string('configcourseoverviewfilesext', 'admin'), 'web_image'
     ));
+
+    $url = new moodle_url('/admin/course/resetindentation.php');
+    $link = html_writer::link($url, get_string('resetcourseindentation', 'admin'));
     $temp->add(new admin_setting_configcheckbox(
         'courseindentation',
         new lang_string('courseindentation'),
-        new lang_string('courseindentation_help'),
+        new lang_string('courseindentation_help').'<br />'.$link,
         1
     ));
 
