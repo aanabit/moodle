@@ -295,7 +295,7 @@ reports,core_reportbuilder|/reportbuilder/index.php',
     ));
 
     $url = new moodle_url('/admin/course/resetindentation.php');
-    $link = html_writer::link($url, get_string('resetcourseindentation', 'admin'));
+    $link = html_writer::link($url, get_string('resetindentation', 'admin'));
     $temp->add(new admin_setting_configcheckbox(
         'courseindentation',
         new lang_string('courseindentation'),

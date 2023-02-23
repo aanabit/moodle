@@ -34,14 +34,28 @@ $strtitle = get_string('resetindentation', 'admin');
 $PAGE->set_title($strtitle);
 $PAGE->set_heading($strtitle);
 
-navigation_node::override_active_url(new moodle_url('/admin/settings.php', ['section' => 'coursecontact']));
+navigation_node::override_active_url(new moodle_url('/admin/course/resetindentation.php', ['action' => 'confirm']));
 
 echo $OUTPUT->header();
 
-echo html_writer::div(get_string('confirmtoresetcourse', 'admin'));
-echo $OUTPUT->single_button(new moodle_url('/admin/course/resetindentation.php', ['confirm' => 1, 'sesskey' => sesskey()]),
-    get_string('resetindentation', 'admin'));
+
+$displayoptions = ['confirmtitle' => get_string('resetindentation_title', 'admin')];
+$confirmbutton = new single_button(new moodle_url('admin/settings.php', ['section' => 'coursecontact']), get_string('resetindentation', 'admin'), 'post', single_button::BUTTON_DANGER);
+$cancelbutton = new single_button(new moodle_url('admin/settings.php', ['section' => 'coursecontact']), get_string('cancel'));
+
+echo $OUTPUT->confirm(get_string('resetindentation_help', 'admin'), $confirmbutton, $cancelbutton, $displayoptions);
+
+echo html_writer::tag('h4', get_string('resetindentation_title', 'admin'));
+echo html_writer::div(get_string('resetindentation_help', 'admin'));
 echo $OUTPUT->single_button(new moodle_url('/admin/settings', ['section' => 'coursecontact']),
     get_string('cancel'));
+echo $OUTPUT->single_button(new moodle_url('/admin/course/resetindentation.php', ['confirm' => 1, 'sesskey' => sesskey()]),
+    get_string('resetindentation', 'admin'));
+
+echo $OUTPUT->box_start('generalbox', 'notice');
+echo format_text(get_string('upgradestalefilesinfo', 'admin', get_docs_url('Upgrading')), FORMAT_MARKDOWN);
+echo html_writer::empty_tag('br');
+echo html_writer::tag('div', $this->single_button($this->page->url, get_string('reload'), 'get'), array('class' => 'buttons'));
+echo $this->box_end();
 
 echo $OUTPUT->footer();
