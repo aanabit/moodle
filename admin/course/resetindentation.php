@@ -27,7 +27,7 @@ require_once('../../config.php');
 $PAGE->set_url('/admin/course/resetindentation.php');
 $PAGE->set_context(context_system::instance());
 
-//require_admin();
+require_admin();
 
 $strtitle = get_string('resetindentation', 'admin');
 
