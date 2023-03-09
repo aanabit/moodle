@@ -44,7 +44,7 @@ const selectors = {
     toggleTemplateEditor: 'input[name="useeditor"]',
     resetTemplate: 'input[name="defaultform"]',
     resetAllTemplates: 'input[name="resetall"]',
-    resetButton: 'input[name="resetbutton"]',
+    resetButton: '[data-action="resettemplate"]',
     resetAllCheck: 'input[name="resetallcheck"]',
     editForm: '#edittemplateform',
 };

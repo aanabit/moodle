@@ -196,6 +196,17 @@ class action_bar {
 
         $presetsactions = $this->get_presets_actions_select(false);
 
+        // Reset current template action.
+        $resetcurrrent = new moodle_url($this->currenturl);
+        $resetcurrrent->param('action', 'resettemplate');
+        $presetsactions->add(new \action_menu_link(
+            $resetcurrrent,
+            null,
+            get_string('resettemplate', 'mod_data'),
+            false,
+            ['data-action' => 'resettemplate', 'data-dataid' => $this->id, 'data-mode' => 'addtemplate']
+        ));
+
         // Reset all templates action.
         $resetallurl = new moodle_url($this->currenturl);
         $resetallurl->param('action', 'resetalltemplates');
