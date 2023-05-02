@@ -72,6 +72,7 @@ $string['nopermissiontocopy'] = 'You do not have permission to copy content.';
 $string['nopermissiontodelete'] = 'You do not have permission to delete content.';
 $string['nopermissiontomanage'] = 'You do not have permission to manage content.';
 $string['notvalidpackage'] = 'Sorry, this file is not valid.';
+$string['oneactivityonly'] = 'Only one activity backup files allowed';
 $string['privacy:metadata:content:contenttype'] = 'The contenttype plugin of the content in the content bank.';
 $string['privacy:metadata:content:name'] = 'Name of the content in the content bank.';
 $string['privacy:metadata:content:timecreated'] = 'The time when the content was created.';
