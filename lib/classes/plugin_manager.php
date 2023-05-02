@@ -1830,7 +1830,8 @@ class core_plugin_manager {
             ],
 
             'contenttype' => array(
-                'h5p'
+                'h5p',
+                'modules'
             ),
 
             'customfield' => array(
