@@ -80,7 +80,7 @@ class content extends \core_contentbank\content {
      * Before importing the file, this method will check if the file is a valid H5P package. If it's not valid, it will thrown
      * an exception.
      *
-     * @throws \file_exception If file operations fail
+     * @throws \moodle_exception If file operations fail
      * @param \stored_file $file File to store in the content file area.
      * @return \stored_file|null the stored content file or null if the file is discarted.
      */
@@ -90,7 +90,7 @@ class content extends \core_contentbank\content {
         $onlyupdatelibs = !\core_h5p\helper::can_update_library($file);
 
         if (!\core_h5p\api::is_valid_package($file, $onlyupdatelibs)) {
-            throw new \file_exception('invalidpackage');
+            throw new \moodle_exception('notvalidpackage');
         }
         return parent::import_file($file);
     }

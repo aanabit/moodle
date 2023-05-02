@@ -296,7 +296,6 @@ abstract class content {
      * as parent::import_file in case any plugin want to store the file in the public area
      * and also parse it.
      *
-     * @throws file_exception If file operations fail
      * @param stored_file $file File to store in the content file area.
      * @return stored_file|null the stored content file or null if the file is discarted.
      */
