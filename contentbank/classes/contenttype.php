@@ -122,7 +122,6 @@ abstract class contenttype {
         } catch (\moodle_exception $e) {
             $this->delete_content($content);
             throw new \moodle_exception($e->errorcode);
-//            throw new \moodle_exception('notvalidpackage');
         }
 
         return $content;
