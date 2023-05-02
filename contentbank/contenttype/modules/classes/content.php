@@ -24,8 +24,6 @@
 
 namespace contenttype_modules;
 
-use Matrix\Exception;
-
 defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot . '/backup/util/includes/backup_includes.php');
 
@@ -54,10 +52,11 @@ class content extends \core_contentbank\content {
         } catch (\Exception $e) {
             throw new \moodle_exception('notvalidpackage');
         }
-        if (!is_array($details->activities) || count($details->activities) != 1) {
+        if (!is_array($activities) || count($activities) != 1) {
             throw new \moodle_exception('oneactivityonly', 'contentype_modules');
         }
-
+        $configdata = reset($activities);
+        $this->set_configdata(json_encode($configdata));
         return parent::import_file($file);
     }
 }
