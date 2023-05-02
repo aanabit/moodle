@@ -62,36 +62,18 @@ class contenttype extends \core_contentbank\contenttype {
 //        return $html;
 //    }
 
-//    /**
-//     * Returns the HTML code to render the icon for H5P content types.
-//     *
-//     * @param  content $content The content to be displayed.
-//     * @return string            HTML code to render the icon
-//     */
-//    public function get_icon(\core_contentbank\content $content): string {
-//        global $OUTPUT, $DB;
-//
-//        $iconurl = $OUTPUT->image_url('f/h5p-64', 'moodle')->out(false);
-//        $file = $content->get_file();
-//        if (!empty($file)) {
-//            $h5p = \core_h5p\api::get_content_from_pathnamehash($file->get_pathnamehash());
-//            if (!empty($h5p)) {
-//                \core_h5p\local\library\autoloader::register();
-//                if ($h5plib = $DB->get_record('h5p_libraries', ['id' => $h5p->mainlibraryid])) {
-//                    $h5pfilestorage = new \core_h5p\file_storage();
-//                    $h5picon = $h5pfilestorage->get_icon_url(
-//                            $h5plib->id,
-//                            $h5plib->machinename,
-//                            $h5plib->majorversion,
-//                            $h5plib->minorversion);
-//                    if (!empty($h5picon)) {
-//                        $iconurl = $h5picon;
-//                    }
-//                }
-//            }
-//        }
-//        return $iconurl;
-//    }
+    /**
+     * Returns the HTML code to render the icon for H5P content types.
+     *
+     * @param  content $content The content to be displayed.
+     * @return string            HTML code to render the icon
+     */
+    public function get_icon(\core_contentbank\content $content): string {
+        global $OUTPUT;
+
+        $configdata = json_decode($content->get_configdata());
+        return $OUTPUT->image_url('monologo', "mod_{$configdata->modulename}")->out(false);
+    }
 
     /**
      * Return an array of implemented features by this plugin.
