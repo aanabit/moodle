@@ -23,9 +23,12 @@
  */
 
 $string['description'] = 'Moodle activity and resources saving and sharing';
+$string['details'] = 'Activity details';
 $string['pluginname'] = 'modules';
 $string['pluginname_help'] = 'Content bank to upload and share activities and resources';
 $string['privacy:metadata'] = 'The Modules content bank plugin does not store any personal data.';
+$string['module'] = 'Actiity type';
 $string['modules:access'] = 'Access saved activities and resources in the content bank';
 $string['modules:upload'] = 'Upload new Moodle activities and resources';
 $string['oneactivityonly'] = 'Only one activity or resource is allowed';
+$string['title'] = 'Title';
