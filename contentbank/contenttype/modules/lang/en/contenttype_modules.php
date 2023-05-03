@@ -32,3 +32,4 @@ $string['modules:access'] = 'Access saved activities and resources in the conten
 $string['modules:upload'] = 'Upload new Moodle activities and resources';
 $string['oneactivityonly'] = 'Only one activity or resource is allowed';
 $string['title'] = 'Title';
+$string['sendto'] = 'Save in the Content bank';
