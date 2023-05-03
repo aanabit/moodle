@@ -29,38 +29,25 @@ use stdClass;
 
 class contenttype extends \core_contentbank\contenttype {
 
-//    /**
-//     * Delete this content from the content_bank and remove all the H5P related information.
-//     *
-//     * @param  content $content The content to delete.
-//     * @return boolean true if the content has been deleted; false otherwise.
-//     */
-//    public function delete_content(\core_contentbank\content $content): bool {
-//        // Delete the H5P content.
-//        $factory = new \core_h5p\factory();
-//        if (!empty($content->get_file_url())) {
-//            \core_h5p\api::delete_content_from_pluginfile_url($content->get_file_url(), $factory);
-//        }
-//
-//        // Delete the content from the content_bank.
-//        return parent::delete_content($content);
-//    }
+    /**
+     * Returns the HTML content to add to view.php visualizer.
+     *
+     * @param  content $content The content to be displayed.
+     * @return string            HTML code to include in view.php.
+     */
+    public function get_view_content(\core_contentbank\content $content): string {
+        global $OUTPUT;
 
-//    /**
-//     * Returns the HTML content to add to view.php visualizer.
-//     *
-//     * @param  content $content The content to be displayed.
-//     * @return string            HTML code to include in view.php.
-//     */
-//    public function get_view_content(\core_contentbank\content $content): string {
-//        // Trigger an event for viewing this content.
-//        $event = contentbank_content_viewed::create_from_record($content->get_content());
-//        $event->trigger();
-//
-//        $fileurl = $content->get_file_url();
-//        $html = \core_h5p\player::display($fileurl, new \stdClass(), true);
-//        return $html;
-//    }
+        // Trigger an event for viewing this content.
+        $event = contentbank_content_viewed::create_from_record($content->get_content());
+        $event->trigger();
+
+        $configdata = json_decode($content->get_configdata());
+        $configdata->icon = $this->get_icon($content);
+        $configdata->pluginname = get_string('pluginname', 'mod_' . $configdata->modulename);
+
+        return $OUTPUT->render_from_template('contenttype_modules/view_content', $configdata);
+    }
 
     /**
      * Returns the HTML code to render the icon for H5P content types.
