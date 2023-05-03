@@ -1663,6 +1663,9 @@ function course_get_cm_edit_actions(cm_info $mod, $indent = -1, $sr = null) {
         $str->groupsnone     = get_string('clicktochangeinbrackets', 'moodle', get_string("groupsnone"));
         $str->groupsseparate = get_string('clicktochangeinbrackets', 'moodle', get_string("groupsseparate"));
         $str->groupsvisible  = get_string('clicktochangeinbrackets', 'moodle', get_string("groupsvisible"));
+
+        // Modules content bank content type
+        $str->sendto = get_string('sendto', 'contenttype_modules');
     }
 
     $baseurl = new moodle_url('/course/mod.php', array('sesskey' => sesskey()));
@@ -1865,6 +1868,14 @@ function course_get_cm_edit_actions(cm_info $mod, $indent = -1, $sr = null) {
             ]
         );
     }
+
+    // Modules content bank content type
+    $actions['sendto'] = new action_menu_link_secondary(
+        new moodle_url('/contentbank/contenttype/modules/backupmodule.php', ['courseid' => $mod->course, 'cmid' => $mod->id]),
+        new pix_icon('t/contentbank', '', 'moodle', ['class' => 'iconsmall']),
+        $str->sendto,
+        ['class' => 'editing_assign', 'data-action' => 'sendto', 'data-sectionreturn' => $sr]
+    );
 
     return $actions;
 }
