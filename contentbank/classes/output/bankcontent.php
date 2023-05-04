@@ -111,7 +111,8 @@ class bankcontent implements renderable, templatable {
                 'size' => display_size($filesize),
                 'type' => $mimetype,
                 'author' => fullname($author),
-                'visibilityunlisted' => $content->get_visibility() == content::VISIBILITY_UNLISTED
+                'visibilityunlisted' => $content->get_visibility() == content::VISIBILITY_UNLISTED,
+                'contenttype' => $content->get_content_type(),
             );
         }
         $data->viewlist = get_user_preferences('core_contentbank_view_list');

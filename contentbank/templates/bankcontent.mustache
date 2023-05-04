@@ -192,7 +192,7 @@ data-region="contentbank">
                         data-type="{{ type }}"
                         data-author="{{ author }}">
                         <div {{#viewlist}}role="cell"{{/viewlist}} class="cb-file cb-column position-relative">
-                            <div class="cb-thumbnail" style="background-image: url('{{{ icon }}}');">
+                            <div class="cb-thumbnail {{{ contenttype }}}" style="background-image: url('{{{ icon }}}');">
                             </div>
                             <a href="{{{ link }}}" class="cb-link stretched-link">
                                 <span class="cb-name word-break-all clamp-2" data-region="cb-content-name">
