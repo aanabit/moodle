@@ -465,10 +465,10 @@ abstract class contenttype {
      * Returns whether or not the user has permission to download the content.
      *
      * @since  Moodle 3.10
-     * @param  content $content The content to be downloaded.
+     * @param  null|content $content The content to be downloaded.
      * @return bool    True if the user can download the content. False otherwise.
      */
-    final public function can_download(content $content): bool {
+    final public function can_download(?content $content = null): bool {
         if (!$this->is_feature_supported(self::CAN_DOWNLOAD)) {
             return false;
         }
@@ -478,6 +478,9 @@ abstract class contenttype {
         }
 
         $hascapability = has_capability('moodle/contentbank:downloadcontent', $this->context);
+        if (empty($content)) {
+            return $hascapability;
+        }
         return $hascapability && $this->is_download_allowed($content);
     }
 
@@ -497,10 +500,10 @@ abstract class contenttype {
      * Returns whether or not the user has permission to use a new course module in course.
      *
      * @since  Moodle 4.3
-     * @param  content $content The content to be downloaded.
+     * @param  null|content $content The content to be downloaded.
      * @return bool    True if the user can download the content. False otherwise.
      */
-    final public function can_useincourse(content $content): bool {
+    final public function can_useincourse(?content $content): bool {
         if (!$this->is_feature_supported(self::CAN_USEINCOURSE)) {
             return false;
         }
@@ -510,6 +513,9 @@ abstract class contenttype {
         }
 
         $hascapability = has_capability('moodle/course:manageactivities', $this->context);
+        if (empty($content)) {
+            return $hascapability;
+        }
         return $hascapability && $this->is_useincourse_allowed($content);
     }
 
