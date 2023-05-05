@@ -503,7 +503,7 @@ abstract class contenttype {
      * @param  null|content $content The content to be downloaded.
      * @return bool    True if the user can download the content. False otherwise.
      */
-    final public function can_useincourse(?content $content): bool {
+    final public function can_useincourse(?content $content = null): bool {
         if (!$this->is_feature_supported(self::CAN_USEINCOURSE)) {
             return false;
         }
