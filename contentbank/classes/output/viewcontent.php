@@ -120,9 +120,16 @@ class viewcontent implements renderable, templatable {
         if ($this->contenttype->can_copy($this->content)) {
             // Add the copy content item to the menu.
             $options[get_string('copycontent', 'contentbank')] = [
-                'data-action' => 'copycontent',
-                'data-contentname' => get_string('copyof', 'contentbank', $this->content->get_name()),
-                'data-contentid' => $this->content->get_id(),
+                    'data-action' => 'copycontent',
+                    'data-contentname' => get_string('copyof', 'contentbank', $this->content->get_name()),
+                    'data-contentid' => $this->content->get_id(),
+            ];
+        }
+
+        if ($this->contenttype->can_useincourse($this->content)) {
+            $url = new moodle_url($this->contenttype->get_useincourse_url($this->content));
+            $options[get_string('useincourse', 'core_contentbank')] = [
+                    'url' => $url->out()
             ];
         }
 

@@ -25,6 +25,8 @@
 namespace contenttype_modules;
 
 use core\event\contentbank_content_viewed;
+use core_contentbank\content;
+use enrol_self\self_test;
 use stdClass;
 
 class contenttype extends \core_contentbank\contenttype {
@@ -68,7 +70,7 @@ class contenttype extends \core_contentbank\contenttype {
      * @return array
      */
     protected function get_implemented_features(): array {
-        return [self::CAN_UPLOAD, self::CAN_DOWNLOAD];
+        return [self::CAN_UPLOAD, self::CAN_DOWNLOAD, self::CAN_USEINCOURSE];
     }
 
     /**
@@ -102,5 +104,16 @@ class contenttype extends \core_contentbank\contenttype {
      */
     public function get_contenttype_types(): array {
         return [];
+    }
+
+    /**
+     * Returns the HTML content to use the current content in course.
+     *
+     * @param  content $content The content to be displayed.
+     * @return string           URL to instiate page.
+     */
+    public function get_useincourse_url(content $content): string {
+        $url = new \moodle_url('/contentbank/contenttype/modules/useincourse.php', ['id' => $content->get_id()]);
+        return $url->out();
     }
 }
