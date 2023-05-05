@@ -51,6 +51,12 @@ abstract class contenttype {
      */
     const CAN_DOWNLOAD = 'download';
 
+    /**
+     * @var string Constant representing whether the plugin implements a way to use in course.
+     * @since  Moodle 4.3
+     */
+    const CAN_USEINCOURSE = 'useincourse';
+
     /** @var \context This contenttype's context. **/
     protected $context = null;
 
@@ -273,6 +279,17 @@ abstract class contenttype {
     }
 
     /**
+     * Returns the HTML content to use the current content in course.
+     *
+     * @param  content $content The content to be displayed.
+     * @return string           URL to instiate page.
+     */
+    public function get_useincourse_url(content $content): string {
+        $url = new moodle_url('/contentbank/view.php', ['id' => $content->get_id()]);
+        return $url->out();
+    }
+
+    /**
      * Returns the HTML code to render the icon for content bank contents.
      *
      * @param  content $content The content to be displayed.
@@ -472,6 +489,38 @@ abstract class contenttype {
      * @return bool    True if plugin allows downloading. False otherwise.
      */
     protected function is_download_allowed(content $content): bool {
+        // Plugins can overwrite this function to add any check they need.
+        return true;
+    }
+
+    /**
+     * Returns whether or not the user has permission to use a new course module in course.
+     *
+     * @since  Moodle 4.3
+     * @param  content $content The content to be downloaded.
+     * @return bool    True if the user can download the content. False otherwise.
+     */
+    final public function can_useincourse(content $content): bool {
+        if (!$this->is_feature_supported(self::CAN_USEINCOURSE)) {
+            return false;
+        }
+
+        if (!$this->can_access()) {
+            return false;
+        }
+
+        $hascapability = has_capability('moodle/course:manageactivities', $this->context);
+        return $hascapability && $this->is_useincourse_allowed($content);
+    }
+
+    /**
+     * Returns plugin allows using in course.
+     *
+     * @since  Moodle 4.3
+     * @param  content $content The content to be used in course.
+     * @return bool    True if plugin allows using in course. False otherwise.
+     */
+    protected function is_useincourse_allowed(content $content): bool {
         // Plugins can overwrite this function to add any check they need.
         return true;
     }
