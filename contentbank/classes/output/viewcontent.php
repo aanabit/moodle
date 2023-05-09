@@ -117,8 +117,9 @@ class viewcontent implements renderable, templatable {
             ];
         }
 
-        if ($this->contenttype->can_useincourse($this->content)) {
-            $url = new moodle_url($this->contenttype->get_useincourse_url($this->content));
+        if ($this->contenttype->can_useincourse()) {
+            $url = new moodle_url('/contentbank/selectcourse.php', ['id' => $this->content->get_id()]);
+//            $url = $this->contenttype->get_useincourse_url($this->content);
             $options[get_string('useincourse', 'core_contentbank')] = [
                 'url' => $url->out()
             ];

@@ -61,6 +61,7 @@ $string['addedtogroup'] = 'Added to group "{$a}"';
 $string['addedtogroupnot'] = 'Not added to group "{$a}"';
 $string['addedtogroupnotenrolled'] = 'Not added to group "{$a}", because not enrolled in course';
 $string['addfilehere'] = 'Drop files here to add them at the bottom of this section';
+$string['addfromcontentbank'] = 'Add from Content bank';
 $string['addinganew'] = 'Adding a new {$a}';
 $string['additionalcustomnav'] = 'Additional custom navigation';
 $string['addnew'] = 'Add a new {$a}';

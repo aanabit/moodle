@@ -27,11 +27,11 @@ require_once('../../../config.php');
 require_login();
 
 $id = required_param('id', PARAM_INT);
-$course = optional_param('course', 0, PARAM_INT);
+$courseid = optional_param('courseid', 0, PARAM_INT);
 $record = $DB->get_record('contentbank_content', ['id' => $id], '*', MUST_EXIST);
 $context = context::instance_by_id($record->contextid, MUST_EXIST);
-if (!$course) {
-    $course = $context->get_course_context()->instanceid;
+if (!$courseid) {
+    $courseid = $context->get_course_context()->instanceid;
 }
 require_capability('moodle/contentbank:access', $context);
 
@@ -46,7 +46,7 @@ $cb = new \core_contentbank\contentbank();
 $content = $cb->get_content_from_id($record->id);
 $contenttype = $content->get_content_type_instance();
 
-if (!$contenttype->can_useincourse($content)) {
+if (!$contenttype->can_useincourse()) {
     $cburl = new \moodle_url('/contentbank/view.php', ['id' => $id, 'errormsg' => 'notavailable']);
     redirect($cburl);
 }
@@ -60,7 +60,7 @@ if ($context->contextlevel != CONTEXT_COURSE) {
 require_once($CFG->dirroot . '/backup/util/includes/restore_includes.php');
 
 // Grab the course context.
-$coursecontext = \context_course::instance($course);
+$coursecontext = \context_course::instance($courseid);
 
 // Get the files..
 $fs = get_file_storage();
@@ -99,7 +99,7 @@ $CFG->forced_plugin_settings['restore'] = ['restore_general_users' => 1, 'restor
 // Define the import.
 $controller = new \restore_controller(
     $tempdir,
-    $course,
+    $courseid,
     \backup::INTERACTIVE_NO,
     \backup::MODE_GENERAL,
     $USER->id,
@@ -137,5 +137,5 @@ $controller->destroy();
 //$event->add_record_snapshot('tool_recyclebin_course', $item);
 //$event->trigger();
 
-$courseurl = new moodle_url('/course/view.php', ['id' => $course]);
+$courseurl = new moodle_url('/course/view.php', ['id' => $courseid]);
 redirect($courseurl);

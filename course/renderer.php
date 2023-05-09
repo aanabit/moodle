@@ -279,10 +279,14 @@ class core_course_renderer extends plugin_renderer_base {
                 || !$this->page->user_is_editing()) {
             return '';
         }
-
+        $contentbank = new moodle_url(
+            '/contentbank/useincourse.php',
+            ['courseid' => $course->id, 'contextid' => context_course::instance($course->id)->id]
+        );
         $data = [
             'sectionid' => $section,
-            'sectionreturn' => $sectionreturn
+            'sectionreturn' => $sectionreturn,
+            'addcontentbank' => $contentbank->out(false),
         ];
         $ajaxcontrol = $this->render_from_template('course/activitychooserbutton', $data);
 

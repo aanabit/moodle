@@ -78,6 +78,7 @@ $string['rename'] = 'Rename';
 $string['renamecontent'] = 'Rename content';
 $string['replacecontent'] = 'Replace with file';
 $string['searchcontentbankbyname'] = 'Search for content by name';
+$string['selectacourse'] = 'Select a course';
 $string['size'] = 'Size';
 $string['timecreated'] = 'Time created';
 $string['type'] = 'Type';

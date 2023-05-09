@@ -60,17 +60,24 @@ class bankcontent implements renderable, templatable {
     private $allowedcourses;
 
     /**
+     * @var int   Course id parameter for useincourse page or 0 for general view page.
+     */
+    private $foruseincourse;
+
+    /**
      * Construct this renderable.
      *
      * @param \core_contentbank\content[] $contents   Array of content bank contents.
      * @param array $toolbar List of content bank toolbar options.
      * @param \context|null $context Optional context to check (default null)
      * @param contentbank $cb Contenbank object.
+     * @param int $foruseincourse Course id parameter for useincourse page or 0 for general view page.
      */
-    public function __construct(array $contents, array $toolbar, ?\context $context, contentbank $cb) {
+    public function __construct(array $contents, array $toolbar, ?\context $context, contentbank $cb, int $foruseincourse = 0) {
         $this->contents = $contents;
         $this->toolbar = $toolbar;
         $this->context = $context;
+        $this->foruseincourse = $foruseincourse;
         list($this->allowedcategories, $this->allowedcourses) = $cb->get_contexts_with_capabilities_by_user();
     }
 
@@ -100,10 +107,17 @@ class bankcontent implements renderable, templatable {
                 $name = $content->get_name();
             }
             $author = \core_user::get_user($content->get_content()->usercreated);
+            if ($this->foruseincourse) {
+                $linkurl = $contenttype->get_useincourse_url($content);
+                $linkurl->param('courseid', $this->foruseincourse);
+                $link = $linkurl->out();
+            } else {
+                $link = $contenttype->get_view_url($content);
+            }
             $contentdata[] = array(
                 'name' => $name,
                 'title' => strtolower($name),
-                'link' => $contenttype->get_view_url($content),
+                'link' => $link,
                 'icon' => $contenttype->get_icon($content),
                 'uses' => count($content->get_uses()),
                 'timemodified' => $content->get_timemodified(),
@@ -155,8 +169,13 @@ class bankcontent implements renderable, templatable {
         }
         if (!empty($allowedcontexts)) {
             $strchoosecontext = get_string('choosecontext', 'core_contentbank');
+            if ($this->foruseincourse) {
+                $selecturl = new \moodle_url('/contentbank/useincourse.php', ['courseid' => $this->foruseincourse]);
+            } else {
+                $selecturl = new \moodle_url('/contentbank/index.php');
+            }
             $singleselect = new \single_select(
-                new \moodle_url('/contentbank/index.php'),
+                $selecturl,
                 'contextid',
                 $allowedcontexts,
                 $this->context->id,
