@@ -26,7 +26,6 @@ namespace contenttype_modules;
 
 use core\event\contentbank_content_viewed;
 use core_contentbank\content;
-use enrol_self\self_test;
 use stdClass;
 
 class contenttype extends \core_contentbank\contenttype {
