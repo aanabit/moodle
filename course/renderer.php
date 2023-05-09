@@ -241,6 +241,19 @@ class core_course_renderer extends plugin_renderer_base {
 
         $activitychooserbutton = new \core_course\output\activitychooserbutton($sectioninfo, null, $sectionreturn);
 
+        /**
+        $contentbank = new moodle_url(
+            '/contentbank/useincourse.php',
+            ['courseid' => $course->id, 'contextid' => context_course::instance($course->id)->id]
+        );
+        $data = [
+            'sectionid' => $section,
+            'sectionreturn' => $sectionreturn,
+            'addcontentbank' => $contentbank->out(false),
+        ];
+        $ajaxcontrol = $this->render_from_template('course/activitychooserbutton', $data);
+**/
+
         // Load the JS for the modal.
         $this->course_activitychooser($course->id);
 

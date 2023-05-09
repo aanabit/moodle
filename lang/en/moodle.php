@@ -66,6 +66,7 @@ $string['addedtogroupnotenrolled'] = 'Not added to group "{$a}", because not enr
 $string['addfilehere'] = 'Drop files here to add them at the bottom of this section';
 $string['addfilesdrop'] = 'You can drag and drop files here to upload or click to select.';
 $string['addinganew'] = 'New {$a}';
+$string['addfromcontentbank'] = 'Add from Content bank';
 $string['additionalcustomnav'] = 'Additional custom navigation';
 $string['addnew'] = 'Add a new {$a}';
 $string['addingdatatoexisting'] = 'Adding data to existing';

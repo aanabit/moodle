@@ -121,5 +121,6 @@ if (!$fs->create_file_from_storedfile($filerecord, $file)) {
 }
 $file->delete();
 
-$url = new moodle_url('/contentbank/index.php', ['contextid' => $context->id]);
-redirect($url);
+$url = new moodle_url('/course/view.php', ['id' => $courseid]);
+
+redirect($url, get_string('activitysaved', 'contenttype_modules'), null, \core\output\notification::NOTIFY_SUCCESS);

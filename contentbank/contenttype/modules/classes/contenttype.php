@@ -110,10 +110,9 @@ class contenttype extends \core_contentbank\contenttype {
      * Returns the HTML content to use the current content in course.
      *
      * @param  content $content The content to be displayed.
-     * @return string           URL to instiate page.
+     * @return \moodle_url      URL to instiate page.
      */
-    public function get_useincourse_url(content $content): string {
-        $url = new \moodle_url('/contentbank/contenttype/modules/useincourse.php', ['id' => $content->get_id()]);
-        return $url->out();
+    public function get_useincourse_url(content $content): \moodle_url {
+        return new \moodle_url('/contentbank/contenttype/modules/useincourse.php', ['id' => $content->get_id()]);
     }
 }
