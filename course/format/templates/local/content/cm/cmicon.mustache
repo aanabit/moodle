@@ -15,25 +15,23 @@
     along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 }}
 {{!
-    @template core_courseformat/local/content/cm/badges
+    @template core_courseformat/local/content/cm/cmname
 
-    Convenience mustache to displays if an activity is in hidden or stealth mode.
+    Convenience mustache to displays a course module inplcae editable from the format renderer.
 
     Format plugins are free to implement an alternative inplace editable for activities.
 
     Example context (json):
     {
-        "modhiddenfromstudents" : "1",
-        "modstealth" : "1"
+        "url": "#",
+        "icon": "../../../pix/help.svg",
+        "iconclass": "",
+        "purpose": "content",
+        "modname": "resource"
     }
 }}
-{{#modhiddenfromstudents}}
-    <div class="activity-badges my-1 d-flex align-self-start align-items-center">
-        <span class="badge badge-pill badge-warning">{{#str}}hiddenfromstudents{{/str}}</span>
+{{#url}}
+    <div class="activity-icon activityiconcontainer {{purpose}} courseicon align-self-start mr-3">
+        <img src="{{{icon}}}" class="activityicon {{iconclass}}" alt="{{{modname}}} icon">
     </div>
-{{/modhiddenfromstudents}}
-{{#modstealth}}
-    <div class="activity-badges my-1 d-flex align-self-start align-items-center">
-        <span class="badge badge-pill badge-warning">{{#str}}hiddenoncoursepage{{/str}}</span>
-    </div>
-{{/modstealth}}
+{{/url}}
