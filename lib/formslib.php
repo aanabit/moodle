@@ -486,6 +486,24 @@ abstract class moodleform {
     }
 
     /**
+     * Use this method to indicate that the fieldsets should be shown as expanded
+     * and all other fieldsets should be collapsed.
+     * The method is applicable to header elements only.
+     *
+     * @param array $shownonly array of header element names
+     * @return void
+     */
+    function shownOnly(array $shownonly): void {
+        $toshow = [];
+        foreach ($shownonly as $show) {
+            if ($this->_form->elementExists($show) && $this->_form->getElementType($show) == 'header') {
+                $toshow[] = $show;
+            }
+        }
+        $this->_form->shownOnly($toshow);
+    }
+
+    /**
      * Check that form was submitted. Does not check validity of submitted data.
      *
      * @return bool true if form properly submitted
@@ -1609,6 +1627,14 @@ class MoodleQuickForm extends HTML_QuickForm_DHTMLRulesTableless {
     var $_collapsibleElements = array();
 
     /**
+     * Array whose keys are element names and values are the desired shown elements.
+     * Rest of the elements that are not in this array and are collapsible will be collapsed.
+     *
+     * @var array
+     */
+    var $_shownOnlyElements = [];
+
+    /**
      * Whether to enable shortforms for this form
      *
      * @var boolean
@@ -1751,6 +1777,44 @@ class MoodleQuickForm extends HTML_QuickForm_DHTMLRulesTableless {
         } else {
             return optional_param($name, $default, $type);
         }
+    }
+
+    /**
+     * Use this method to indicate that the fieldsets should be shown as expanded
+     * and all other fieldsets should be collapsed.
+     * The method is applicable to header elements only.
+     *
+     * @param array $shownonly array of header element names
+     * @return void
+     */
+    function shownOnly(array $headernames): void {
+        if (empty($headernames)) {
+            return;
+        }
+        foreach ($headernames as $headername) {
+            $element = $this->getElement($headername);
+            if ($element->getType() == 'header') {
+                $this->setExpanded($headername, true, true);
+            }
+        }
+        $this->_shownOnlyElements = $headernames;
+    }
+
+    /**
+     * Use this method to check if the fieldsets could be shown as expanded.
+     * The method is applicable to header elements only.
+     *
+     * @param array $headernames array of header element names
+     * @return void
+     */
+    function isShown(string $headername): bool {
+        if (empty($headername)) {
+            return true;
+        }
+        if (empty($this->_shownOnlyElements)) {
+            return true;
+        }
+        return in_array($headername, $this->_shownOnlyElements);
     }
 
     /**
@@ -1973,15 +2037,19 @@ class MoodleQuickForm extends HTML_QuickForm_DHTMLRulesTableless {
                 }
 
                 if ($element->getType() == 'header') {
-                    if ($headercounter === 1 && !isset($this->_collapsibleElements[$headername])) {
-                        // By default the first section is always expanded, except if a state has already been set.
-                        $this->setExpanded($headername, true);
-                    } else if (($headercounter === 2 && $headerscount === 2) && !isset($this->_collapsibleElements[$headername])) {
-                        // The second section is always expanded if the form only contains 2 sections),
-                        // except if a state has already been set.
-                        $this->setExpanded($headername, true);
+                    if ($this->isShown($headername)) {
+                        if ($headercounter === 1 && !isset($this->_collapsibleElements[$headername])) {
+                            // By default the first section is always expanded, except if a state has already been set.
+                            $this->setExpanded($headername, true);
+                        } else if (($headercounter === 2 && $headerscount === 2) && !isset($this->_collapsibleElements[$headername])) {
+                            // The second section is always expanded if the form only contains 2 sections),
+                            // except if a state has already been set.
+                            $this->setExpanded($headername, true);
+                        }
+                    } else {
+                        $this->setExpanded($headername, false);
                     }
-                } else if ($anyrequiredorerror) {
+                } else if ($anyrequiredorerror && (empty($headername) || $this->isShown($headername))) {
                     // If any error or required field are present within the header, we need to expand it.
                     $this->setExpanded($headername, true, true);
                 } else if (!isset($this->_collapsibleElements[$headername])) {
