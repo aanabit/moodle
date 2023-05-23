@@ -27,6 +27,7 @@ class course_edit_form extends moodleform {
         $editoroptions = $this->_customdata['editoroptions'];
         $returnto = $this->_customdata['returnto'];
         $returnurl = $this->_customdata['returnurl'];
+        $expand = $this->_customdata['expand'];
 
         $systemcontext   = context_system::instance();
         $categorycontext = context_coursecat::instance($category->id);
@@ -54,6 +55,10 @@ class course_edit_form extends moodleform {
         $mform->addElement('hidden', 'returnurl', null);
         $mform->setType('returnurl', PARAM_LOCALURL);
         $mform->setConstant('returnurl', $returnurl);
+
+        $mform->addElement('hidden', 'expand', null);
+        $mform->setType('expand', PARAM_ALPHANUM);
+        $mform->setConstant('expand', $expand);
 
         $mform->addElement('text','fullname', get_string('fullnamecourse'),'maxlength="254" size="50"');
         $mform->addHelpButton('fullname', 'fullnamecourse');
@@ -426,6 +431,10 @@ class course_edit_form extends moodleform {
 
         $mform->addElement('hidden', 'id', null);
         $mform->setType('id', PARAM_INT);
+
+        if(!empty($expand) && $mform->elementExists($expand)) {
+            $mform->setExpanded($expand);
+        }
 
         // Prepare custom fields data.
         $handler->instance_form_before_set_data($course);

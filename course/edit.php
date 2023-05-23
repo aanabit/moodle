@@ -30,6 +30,7 @@ $id = optional_param('id', 0, PARAM_INT); // Course id.
 $categoryid = optional_param('category', 0, PARAM_INT); // Course category - can be changed in edit form.
 $returnto = optional_param('returnto', 0, PARAM_ALPHANUM); // Generic navigation return page switch.
 $returnurl = optional_param('returnurl', '', PARAM_LOCALURL); // A return URL. returnto must also be set to 'url'.
+$expand = optional_param('expand', '', PARAM_ALPHANUM); // Settings group to expand and scroll to.
 
 if ($returnto === 'url' && confirm_sesskey() && $returnurl) {
     // If returnto is 'url' then $returnurl may be used as the destination to return to after saving or cancelling.
@@ -73,6 +74,9 @@ if ($returnto !== 0) {
     if ($returnto === 'url' && $returnurl) {
         $pageparams['returnurl'] = $returnurl;
     }
+}
+if (!empty($settings)) {
+    $pageparams['expand'] = $expand;
 }
 $PAGE->set_url('/course/edit.php', $pageparams);
 
@@ -154,7 +158,8 @@ $args = array(
     'category' => $category,
     'editoroptions' => $editoroptions,
     'returnto' => $returnto,
-    'returnurl' => $returnurl
+    'returnurl' => $returnurl,
+    'expand' => $expand,
 );
 $editform = new course_edit_form(null, $args);
 if ($editform->is_cancelled()) {
