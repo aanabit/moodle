@@ -150,6 +150,15 @@ $iconsizes: map-merge((
         width: $activity-iconcontainer-width - 10px;
         height: $activity-iconcontainer-height - 10px;
     }
+    // TODO MDL-78284: Remove theses styles when MDL-78284 lands with new icons.
+    &.smaller {
+        width: $activity-iconcontainer-width - 20px;
+        height: $activity-iconcontainer-width - 20px;
+        .activityicon {
+            width: $icon-width;
+            height: $icon-height;
+        }
+    }
 }
 
 @each $type, $value in $activity-icon-colors {
