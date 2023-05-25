@@ -2061,6 +2061,21 @@ class MoodleQuickForm extends HTML_QuickForm_DHTMLRulesTableless {
             // Pass the array to renderer object.
             $renderer->setCollapsibleElements($this->_collapsibleElements);
         }
+        if (method_exists($renderer, 'setNonvisibleElements') && !$this->_disableShortforms) {
+            $nonvisibles = [];
+            foreach (array_keys($this->_elements) as $elementIndex){
+                $element =& $this->_elements[$elementIndex];
+                if ($element->getType() == 'header') {
+                    $headername = $element->getName();
+                    if (!$this->isShown($headername)) {
+                        $nonvisibles[] = $headername;
+                    }
+                }
+            }
+
+            // Pass the array to renderer object.
+            $renderer->setNonvisibleElements($nonvisibles);
+        }
         parent::accept($renderer);
     }
 
@@ -3131,6 +3146,14 @@ class MoodleQuickForm_Renderer extends HTML_QuickForm_Renderer_Tableless{
     var $_collapseButtons = '';
 
     /**
+     * Array whose keys are element names and the the boolean values reflect the current visibility state.
+     * If the key exists this is a invisible element.
+     *
+     * @var array
+     */
+    var $_nonvisibleElements = [];
+
+    /**
      * Constructor
      */
     public function __construct() {
@@ -3178,6 +3201,15 @@ class MoodleQuickForm_Renderer extends HTML_QuickForm_Renderer_Tableless{
      */
     function setCollapsibleElements($elements) {
         $this->_collapsibleElements = $elements;
+    }
+
+    /**
+     * Setting non visible elements
+     *
+     * @param array $elements
+     */
+    function setNonvisibleElements($elements) {
+        $this->_nonvisibleElements = $elements;
     }
 
     /**
@@ -3389,7 +3421,8 @@ class MoodleQuickForm_Renderer extends HTML_QuickForm_Renderer_Tableless{
     * @param HTML_QuickForm_header $header An HTML_QuickForm_header element being visited
     * @global moodle_page $PAGE
     */
-    function renderHeader(&$header) {
+    function renderHeader(&$header)
+    {
         global $PAGE, $OUTPUT;
 
         $header->_generateId();
@@ -3428,6 +3461,11 @@ class MoodleQuickForm_Renderer extends HTML_QuickForm_Renderer_Tableless{
             if ($this->_collapsibleElements[$header->getName()]) {
                 $fieldsetclasses[] = 'collapsed';
             }
+        }
+
+        // Hide fieldsets not included in the ShownOnly
+        if (in_array($header->getName(), $this->_nonvisibleElements)) {
+            $fieldsetclasses[] = 'd-none';
         }
 
         if (isset($this->_advancedElements[$name])){
