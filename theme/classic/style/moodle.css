@@ -26057,6 +26057,14 @@ blockquote {
   width: 40px;
   height: 40px;
 }
+.activityiconcontainer.smaller {
+  width: 30px;
+  height: 30px;
+}
+.activityiconcontainer.smaller .activityicon {
+  width: 16px;
+  height: 16px;
+}
 
 .activityiconcontainer.administration {
   background-color: #5d63f6;
