@@ -122,10 +122,7 @@
 
     {{! Description }}
     {{#altcontent}}
-        <div class="activity-altcontent d-flex
-            {{#hasname}}small{{/hasname}}
-            {{^hasname}}contentwithoutlink{{/hasname}}"
-        >
+        <div class="activity-altcontent d-flex {{#hasname}}activity-description{{/hasname}}">
             {{{altcontent}}}
         </div>
     {{/altcontent}}

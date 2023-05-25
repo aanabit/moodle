@@ -28962,6 +28962,9 @@ span.editinstructions .alert-link {
   display: flex;
   align-items: center;
 }
+.course-section .summarytext img {
+  border-radius: 1rem;
+}
 .course-section.section-summary {
   padding-left: 1rem;
   padding-right: 1rem;
@@ -29124,6 +29127,16 @@ span.editinstructions .alert-link {
 }
 .activity-item .activity-altcontent {
   grid-area: altcontent;
+  margin-top: 0.25rem;
+}
+.activity-item .activity-altcontent.activity-description {
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid #dee2e6;
+  font-size: 0.875em;
+}
+.activity-item .activity-altcontent img {
+  border-radius: 1rem;
 }
 .activity-item .activity-availability {
   grid-area: availability;
