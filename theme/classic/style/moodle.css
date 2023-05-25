@@ -29096,6 +29096,10 @@ span.editinstructions .alert-link {
 .activity-item .activity-actions .dropdown-toggle::after {
   display: none;
 }
+.activity-item .activity-actions .action-menu .btn.btn-icon {
+  height: 31px;
+  width: 31px;
+}
 .activity-item .activity-icon {
   grid-area: icon;
 }

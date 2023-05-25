@@ -1521,6 +1521,10 @@ $activity-add-hover: theme-color-level('primary', -10) !default;
         .dropdown-toggle::after {
             display: none;
         }
+        .action-menu .btn.btn-icon {
+            height: ($icon-width + 15px);
+            width: ($icon-width + 15px);
+        }
     }
 
     .activity-icon {
