@@ -1539,6 +1539,14 @@ $activity-add-hover: theme-color-level('primary', -10) !default;
 
     .activity-dates {
         grid-area: dates;
+        @include font-size($small-font-size);
+        color: $gray-700;
+        display: flex;
+        flex-wrap: wrap;
+        column-gap: 0.75rem;
+        @include media-breakpoint-down(sm) {
+            margin-top: map-get($spacers, 2);
+        }
     }
 
     .activity-name-area {
