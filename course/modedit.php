@@ -37,6 +37,7 @@ $return = optional_param('return', 0, PARAM_BOOL);    //return to course/view.ph
 $type   = optional_param('type', '', PARAM_ALPHANUM); //TODO: hopefully will be removed in 2.0
 $sectionreturn = optional_param('sr', null, PARAM_INT);
 $beforemod = optional_param('beforemod', 0, PARAM_INT);
+$showonly = optional_param('showonly', '', PARAM_ALPHANUM); // Settings group to show expanded and collapse the rest.
 
 $url = new moodle_url('/course/modedit.php');
 $url->param('sr', $sectionreturn);
@@ -153,6 +154,9 @@ if (file_exists($modmoodleform)) {
 $mformclassname = 'mod_'.$module->name.'_mod_form';
 $mform = new $mformclassname($data, $cw->section, $cm, $course);
 $mform->set_data($data);
+if(!empty($showonly)) {
+    $mform->shownOnly([$showonly]);
+}
 
 if ($mform->is_cancelled()) {
     if ($return && !empty($cm->id)) {
