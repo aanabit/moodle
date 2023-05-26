@@ -28965,6 +28965,12 @@ span.editinstructions .alert-link {
 .course-section .summarytext img {
   border-radius: 1rem;
 }
+.course-section .availabilityinfo {
+  margin-top: 0.5rem;
+  padding: 0.25rem 1rem;
+  background-color: #e9ecef;
+  border-radius: 1rem;
+}
 .course-section.section-summary {
   padding-left: 1rem;
   padding-right: 1rem;
@@ -29150,6 +29156,7 @@ span.editinstructions .alert-link {
 }
 .activity-item .activity-availability {
   grid-area: availability;
+  font-size: 0.875em;
 }
 .activity-item .inplaceeditable {
   display: flex;
