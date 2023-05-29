@@ -1593,6 +1593,14 @@ $activity-add-hover: theme-color-level('primary', -10) !default;
 
     .activity-badges {
         grid-area: visibility;
+        .badge {
+            font-weight: normal;
+            .icon {
+                font-size: 12px;
+                width: 12px;
+                height: 12px;
+            }
+        }
     }
 
     .activity-altcontent {

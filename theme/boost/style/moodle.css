@@ -29157,6 +29157,14 @@ span.editinstructions .alert-link {
 .activity-item .activity-badges {
   grid-area: visibility;
 }
+.activity-item .activity-badges .badge {
+  font-weight: normal;
+}
+.activity-item .activity-badges .badge .icon {
+  font-size: 12px;
+  width: 12px;
+  height: 12px;
+}
 .activity-item .activity-altcontent {
   grid-area: altcontent;
   margin-top: 0.25rem;
