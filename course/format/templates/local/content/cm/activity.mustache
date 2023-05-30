@@ -102,6 +102,15 @@
         {{> core_courseformat/local/content/cm/badges }}
     {{/ core_courseformat/local/content/cm/badges }}
 
+    {{! Group mode }}
+    {{#groupmodeinfo}}
+        <div class="group-mode align-self-start">
+            {{$ core_courseformat/local/content/cm/groupmode_info}}
+                {{> core_courseformat/local/content/cm/groupmode_info}}
+            {{/ core_courseformat/local/content/cm/groupmode_info}}
+        </div>
+    {{/groupmodeinfo}}
+
     {{! Completion }}
     {{#activityinfo}}
         <div class="activity-info  align-self-start">
