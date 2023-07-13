@@ -447,6 +447,12 @@ class mod_forum_mod_form extends moodleform_mod {
         $mform = $this->_form;
 
         $suffix = $this->get_suffix();
+        $indentationattributes = ['parentclass' => 'ml-2'];
+
+        $postinforumsel = 'postinforums' . $suffix;
+        $completionel = 'completion' . $suffix;
+        $mform->addElement('checkbox', $postinforumsel, null, get_string('completionpostsinforums', 'forum'), $indentationattributes);
+        $mform->hideIf($postinforumsel, $completionel, 'ne', COMPLETION_TRACKING_AUTOMATIC);
 
         $group = [];
         $completionpostsenabledel = 'completionpostsenabled' . $suffix;
@@ -455,8 +461,9 @@ class mod_forum_mod_form extends moodleform_mod {
         $group[] =& $mform->createElement('text', $completionpostsel, '', ['size' => 3]);
         $mform->setType($completionpostsel, PARAM_INT);
         $completionpostsgroupel = 'completionpostsgroup' . $suffix;
-        $mform->addGroup($group, $completionpostsgroupel, get_string('completionpostsgroup', 'forum'), ' ', false);
-        $mform->disabledIf($completionpostsel, $completionpostsenabledel, 'notchecked');
+        $mform->addGroup($group, $completionpostsgroupel, get_string('completionpostsgroup', 'forum'), ' ', false, $indentationattributes);
+        $mform->hideIf($completionpostsel, $completionpostsenabledel, 'notchecked');
+        $mform->hideIf($completionpostsgroupel, $postinforumsel, 'notchecked');
 
         $group = [];
         $completiondiscussionsenabledel = 'completiondiscussionsenabled' . $suffix;
@@ -464,15 +471,15 @@ class mod_forum_mod_form extends moodleform_mod {
             'checkbox',
             $completiondiscussionsenabledel,
             '',
-            get_string('completiondiscussions',
-            'forum')
+            get_string('completiondiscussions','forum')
         );
         $completiondiscussionsel = 'completiondiscussions' . $suffix;
         $group[] =& $mform->createElement('text', $completiondiscussionsel, '', ['size' => 3]);
         $mform->setType($completiondiscussionsel, PARAM_INT);
         $completiondiscussionsgroupel = 'completiondiscussionsgroup' . $suffix;
-        $mform->addGroup($group, $completiondiscussionsgroupel, get_string('completiondiscussionsgroup', 'forum'), ' ', false);
-        $mform->disabledIf($completiondiscussionsel, $completiondiscussionsenabledel, 'notchecked');
+        $mform->addGroup($group, $completiondiscussionsgroupel, get_string('completiondiscussionsgroup', 'forum'), ' ', false, $indentationattributes);
+        $mform->hideIf($completiondiscussionsel, $completiondiscussionsenabledel, 'notchecked');
+        $mform->hideIf($completionpostsgroupel, $postinforumsel, 'notchecked');
 
         $group = [];
         $completionrepliesenabledel = 'completionrepliesenabled' . $suffix;
@@ -481,8 +488,9 @@ class mod_forum_mod_form extends moodleform_mod {
         $group[] =& $mform->createElement('text', $completionrepliesel, '', ['size' => 3]);
         $mform->setType($completionrepliesel, PARAM_INT);
         $completionrepliesgroupel = 'completionrepliesgroup' . $suffix;
-        $mform->addGroup($group, $completionrepliesgroupel, get_string('completionrepliesgroup', 'forum'), ' ', false);
-        $mform->disabledIf($completionrepliesel, $completionrepliesenabledel, 'notchecked');
+        $mform->addGroup($group, $completionrepliesgroupel, get_string('completionrepliesgroup', 'forum'), ' ', false, $indentationattributes);
+        $mform->hideIf($completionrepliesel, $completionrepliesenabledel, 'notchecked');
+        $mform->hideIf($completionpostsgroupel, $completionrepliesgroupel, 'notchecked');
 
         return [$completiondiscussionsgroupel, $completionrepliesgroupel, $completionpostsgroupel];
     }

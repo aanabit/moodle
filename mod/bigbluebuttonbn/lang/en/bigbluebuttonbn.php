@@ -123,8 +123,6 @@ $string['completionupdatestate'] = 'Completion update state';
 $string['completionvalidatestate'] = 'Validate completion';
 $string['completionvalidatestatetriggered'] = 'Validate completion has been triggered.';
 
-$string['completionview'] = 'Require view';
-$string['completionview_desc'] = 'Student must view the room to complete it.';
 $string['completionview_event_desc'] = 'Has viewed the room.';
 $string['sendnotification'] = 'Send notification';
 
@@ -664,3 +662,7 @@ $string['recordingurlnotfound'] = 'The recording URL is invalid.';
 
 $string['subplugintype_bbbext'] = 'BigBlueButton activity extension';
 $string['subplugintype_bbbext_plural'] = 'BigBlueButton activity extensions';
+
+// Deprecated since Moodle 4.3.
+$string['completionview'] = 'Require view';
+$string['completionview_desc'] = 'View the room';

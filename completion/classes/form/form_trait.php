@@ -128,6 +128,7 @@ trait form_trait {
                 throw new \coding_exception('You must specify the modname parameter if you are not using a moodleform_mod.');
             }
         }
+        $indentationattributes = ['parentclass' => 'ml-2'];
 
         // Unlock button if people have completed it. The button will be removed later in definition_after_data if they haven't.
         // The unlock buttons don't need suffix because they are only displayed in the module settings page.
@@ -151,36 +152,42 @@ trait form_trait {
         $suffix = $this->get_suffix();
 
         $completionel = 'completion' . $suffix;
-        $mform->addElement(
-            'select',
-            $completionel,
-            get_string('completion', 'completion'),
-            [
-                COMPLETION_TRACKING_NONE => get_string('completion_none', 'completion'),
-                COMPLETION_TRACKING_MANUAL => get_string('completion_manual', 'completion'),
-            ]
-        );
-        $mform->setDefault($completionel, $trackingdefault);
-        $mform->addHelpButton($completionel, 'completion', 'completion');
+//        $mform->addElement(
+//            'select',
+//            $completionel,
+//            get_string('completion', 'completion'),
+//            [
+//                COMPLETION_TRACKING_NONE => get_string('completion_none', 'completion'),
+//                COMPLETION_TRACKING_MANUAL => get_string('completion_manual', 'completion'),
+//            ]
+//        );
+//        $mform->setDefault($completionel, $trackingdefault);
+//        $mform->addHelpButton($completionel, 'completion', 'completion');
+        $mform->addElement('radio', $completionel, '', get_string('completion_none', 'completion'), COMPLETION_TRACKING_NONE);
+        $mform->addElement('radio', $completionel, '', get_string('completion_manual', 'completion'), COMPLETION_TRACKING_MANUAL);
+
+        $allconditions = $mform->createElement(
+            'static',
+            'allconditions',
+            '',
+            get_string('allconditions', 'completion'));
+        $conditionsgroup = $mform->addGroup([$allconditions], 'conditionsgroup', '', null, false, $indentationattributes);
+        $mform->hideIf('conditionsgroup', $completionel, 'ne', COMPLETION_TRACKING_AUTOMATIC);
+
+        $mform->setType($completionel, PARAM_INT);
+        $mform->setDefault($completionel, COMPLETION_TRACKING_NONE);
 
         // Automatic completion once you view it.
-        $autocompletionpossible = false;
         if ($supportviews) {
             $completionviewel = 'completionview' . $suffix;
-            $mform->addElement('checkbox', $completionviewel, get_string('completionview', 'completion'),
-                get_string('completionview_desc', 'completion'));
+            $mform->addElement('checkbox', $completionviewel, '',
+                get_string('completionview_desc', 'completion'),
+                $indentationattributes);
             $mform->hideIf($completionviewel, $completionel, 'ne', COMPLETION_TRACKING_AUTOMATIC);
             // Check by default if automatic completion tracking is set.
             if ($trackingdefault == COMPLETION_TRACKING_AUTOMATIC) {
                 $mform->setDefault($completionviewel, 1);
             }
-            $autocompletionpossible = true;
-        }
-
-        // If the activity supports grading, the grade elements must be added.
-        if ($supportgrades) {
-            $autocompletionpossible = true;
-            $this->add_completiongrade_elements($modname, $rating);
         }
 
         // Automatic completion according to module-specific rules.
@@ -193,23 +200,31 @@ trait form_trait {
             foreach ($customcompletionelements as $element) {
                 $mform->hideIf($element, $completionel, 'ne', COMPLETION_TRACKING_AUTOMATIC);
             }
-            $autocompletionpossible = $autocompletionpossible || count($customcompletionelements) > 0;
         }
+
+        // If the activity supports grading, the grade elements must be added.
+        if ($supportgrades) {
+            $this->add_completiongrade_elements($modname, $rating);
+        }
+
+        $autocompletionpossible = $supportviews || $supportgrades || ($customcompletionelements) > 0;
 
         // Automatic option only appears if possible.
         if ($autocompletionpossible) {
-            $mform->getElement($completionel)->addOption(
-                get_string('completion_automatic', 'completion'),
-                COMPLETION_TRACKING_AUTOMATIC);
+            $automatic = $mform->createElement('radio', $completionel, '', get_string('completion_automatic', 'completion'), COMPLETION_TRACKING_AUTOMATIC);
+            $mform->insertElementBefore($automatic, 'conditionsgroup');
         }
 
         // Completion expected at particular date? (For progress tracking).
         $completionexpectedel = 'completionexpected' . $suffix;
-        $mform->addElement('date_time_selector', $completionexpectedel, get_string('completionexpected', 'completion'),
-                ['optional' => true]);
+        $mform->addElement(
+            'date_time_selector',
+            $completionexpectedel,
+            get_string('completionexpected', 'completion'),
+            ['optional' => true]);
         $a = get_string('pluginname', $modname);
-        $mform->addHelpButton($completionexpectedel, 'completionexpected', 'completion', '', false, $a);
-        $mform->hideIf($completionexpectedel, 'completion', 'eq', COMPLETION_TRACKING_NONE);
+        $mform->addHelpButton($completionexpectedel, 'completionexpected', $completionel, '', false, $a);
+        $mform->hideIf($completionexpectedel, $completionel, 'eq', COMPLETION_TRACKING_NONE);
     }
 
     /**
@@ -231,6 +246,15 @@ trait form_trait {
         $completionelementexists = $mform->elementExists($completionel);
         $component = "mod_{$modname}";
         $itemnames = component_gradeitems::get_itemname_mapping_for_component($component);
+
+        $indentationonelevel = ['parentclass' => 'ml-2'];
+        $indentationtwolevels = ['parentclass' => 'ml-4'];
+        $receiveagradeel = 'receiveagrade' . $suffix;
+        $mform->addElement('checkbox', $receiveagradeel, null, get_string('completionusegrade_desc', 'completion'), $indentationonelevel);
+        if ($completionelementexists) {
+            $mform->hideIf($receiveagradeel, 'completion', 'ne', COMPLETION_TRACKING_AUTOMATIC);
+        }
+
         if (count($itemnames) === 1) {
             // Only one gradeitem in this activity.
             // We use the completionusegrade field here.
@@ -243,15 +267,27 @@ trait form_trait {
             );
             $mform->addHelpButton($completionusegradeel, 'completionusegrade', 'completion');
 
+            // Complete if the user has reached any grade.
+            $mform->addElement(
+                'radio',
+                'completionpassgrade',
+                null,
+                get_string('completionanygrade_desc', 'completion'),
+                0,
+                $indentationtwolevels
+            );
+            $mform->hideIf('completionpassgrade', $receiveagradeel, 'notchecked');
             // Complete if the user has reached the pass grade.
             $completionpassgradeel = 'completionpassgrade' . $suffix;
             $mform->addElement(
-                'checkbox',
-                $completionpassgradeel, null,
-                get_string('completionpassgrade_desc', 'completion')
+                'radio',
+                $completionpassgradeel,
+                null,
+                get_string('completionpassgrade_desc', 'completion'),
+                1,
+                $indentationonelevel
             );
-            $mform->disabledIf($completionpassgradeel, $completionusegradeel, 'notchecked');
-            $mform->addHelpButton($completionpassgradeel, 'completionpassgrade', 'completion');
+            $mform->hideIf($completionpassgradeel, $completionusegradeel, 'notchecked');
 
             if ($completionelementexists) {
                 $mform->hideIf($completionpassgradeel, $completionel, 'ne', COMPLETION_TRACKING_AUTOMATIC);
@@ -261,43 +297,61 @@ trait form_trait {
             // The disabledIf logic differs between ratings and other grade items due to different field types.
             if ($rating) {
                 // If using the rating system, there is no grade unless ratings are enabled.
-                $mform->disabledIf($completionusegradeel, 'assessed', 'eq', 0);
-                $mform->disabledIf($completionusegradeel, 'assessed', 'eq', 0);
+                $mform->hideIf($completionusegradeel, 'assessed', 'eq', 0);
+                $mform->hideIf($completionusegradeel, 'assessed', 'eq', 0);
             } else {
                 // All other field types use the '$gradefieldname' field's modgrade_type.
                 $itemnumbers = array_keys($itemnames);
                 $itemnumber = array_shift($itemnumbers);
                 $gradefieldname = component_gradeitems::get_field_name_for_itemnumber($component, $itemnumber, 'grade');
-                $mform->disabledIf($completionusegradeel, "{$gradefieldname}[modgrade_type]", 'eq', 'none');
-                $mform->disabledIf($completionusegradeel, "{$gradefieldname}[modgrade_type]", 'eq', 'none');
+                $mform->hideIf($completionusegradeel, "{$gradefieldname}[modgrade_type]", 'eq', 'none');
+                $mform->hideIf($completionusegradeel, "{$gradefieldname}[modgrade_type]", 'eq', 'none');
             }
         } else if (count($itemnames) > 1) {
             // There are multiple grade items in this activity.
             // Show them all.
-            $options = [
-                '' => get_string('activitygradenotrequired', 'completion'),
-            ];
+            $options = [];
             foreach ($itemnames as $itemnumber => $itemname) {
                 $options[$itemnumber] = get_string("grade_{$itemname}_name", $component);
             }
 
             $completiongradeitemnumberel = 'completiongradeitemnumber' . $suffix;
-            $mform->addElement(
+            $group = [$mform->removeElement($receiveagradeel, false)];
+            $group[] =& $mform->createElement(
                 'select',
                 $completiongradeitemnumberel,
-                get_string('completionusegrade', 'completion'),
+                '',
                 $options
             );
+            $receiveagradegroupel = 'receiveagradegroup' . $suffix;
+//            $mform->addElement('group', $receiveagradegroupel, '', $group, ' ', false, $indentationonelevel);
+            $mform->addGroup($group, $receiveagradegroupel, '', [' '], false, $indentationonelevel);
+            if ($completionelementexists) {
+                $mform->hideIf($receiveagradegroupel, 'completion', 'ne', COMPLETION_TRACKING_AUTOMATIC);
+            }
+            $mform->hideIf('completiongradeitemnumber',$receiveagradeel,'notchecked');
 
+            // Complete if the user has reached any grade.
+            $mform->addElement(
+                'radio',
+                'completionpassgrade',
+                null,
+                get_string('completionanygrade_desc', 'completion'),
+                0,
+                $indentationtwolevels
+            );
+            $mform->hideIf('completionpassgrade', $receiveagradeel, 'notchecked');
             // Complete if the user has reached the pass grade.
             $completionpassgradeel = 'completionpassgrade' . $suffix;
             $mform->addElement(
-                'checkbox',
-                $completionpassgradeel, null,
-                get_string('completionpassgrade_desc', 'completion')
+                'radio',
+                completionpassgradeel,
+                null,
+                get_string('completionpassgrade_desc', 'completion'),
+                1,
+                $indentationtwolevels
             );
-            $mform->disabledIf($completionpassgradeel, $completiongradeitemnumberel, 'eq', '');
-            $mform->addHelpButton($completionpassgradeel, 'completionpassgrade', 'completion');
+            $mform->hideIf('completionpassgrade', $receiveagradeel, 'notchecked');
 
             if ($completionelementexists) {
                 $mform->hideIf($completiongradeitemnumberel, $completionel, 'ne', COMPLETION_TRACKING_AUTOMATIC);
