@@ -439,27 +439,35 @@ class mod_forum_mod_form extends moodleform_mod {
      */
     public function add_completion_rules() {
         $mform =& $this->_form;
+        $indentationattributes = ['parentclass' => 'ml-2'];
 
+        $mform->addElement('checkbox', 'postinforums', null, get_string('completionpostsinforums', 'forum'), $indentationattributes);
+        $mform->hideIf('postinforums', 'completion', 'ne', COMPLETION_TRACKING_AUTOMATIC);
+
+        $indentationattributes = ['parentclass' => 'ml-4'];
         $group=array();
         $group[] =& $mform->createElement('checkbox', 'completionpostsenabled', '', get_string('completionposts','forum'));
         $group[] =& $mform->createElement('text', 'completionposts', '', array('size'=>3));
         $mform->setType('completionposts',PARAM_INT);
-        $mform->addGroup($group, 'completionpostsgroup', get_string('completionpostsgroup','forum'), array(' '), false);
-        $mform->disabledIf('completionposts','completionpostsenabled','notchecked');
+        $mform->addGroup($group, 'completionpostsgroup', '', [' '], false, $indentationattributes);
+        $mform->hideIf('completionposts','completionpostsenabled','notchecked');
+        $mform->hideIf('completionpostsgroup','postinforums','notchecked');
 
         $group=array();
         $group[] =& $mform->createElement('checkbox', 'completiondiscussionsenabled', '', get_string('completiondiscussions','forum'));
         $group[] =& $mform->createElement('text', 'completiondiscussions', '', array('size'=>3));
         $mform->setType('completiondiscussions',PARAM_INT);
-        $mform->addGroup($group, 'completiondiscussionsgroup', get_string('completiondiscussionsgroup','forum'), array(' '), false);
-        $mform->disabledIf('completiondiscussions','completiondiscussionsenabled','notchecked');
+        $mform->addGroup($group, 'completiondiscussionsgroup', '', [' '], false, $indentationattributes);
+        $mform->hideIf('completiondiscussions','completiondiscussionsenabled','notchecked');
+        $mform->hideIf('completiondiscussionsgroup','postinforums','notchecked');
 
         $group=array();
         $group[] =& $mform->createElement('checkbox', 'completionrepliesenabled', '', get_string('completionreplies','forum'));
         $group[] =& $mform->createElement('text', 'completionreplies', '', array('size'=>3));
         $mform->setType('completionreplies',PARAM_INT);
-        $mform->addGroup($group, 'completionrepliesgroup', get_string('completionrepliesgroup','forum'), array(' '), false);
-        $mform->disabledIf('completionreplies','completionrepliesenabled','notchecked');
+        $mform->addGroup($group, 'completionrepliesgroup', '', [' '], false, $indentationattributes);
+        $mform->hideIf('completionreplies','completionrepliesenabled','notchecked');
+        $mform->hideIf('completionrepliesgroup','postinforums','notchecked');
 
         return array('completiondiscussionsgroup','completionrepliesgroup','completionpostsgroup');
     }
