@@ -3344,7 +3344,9 @@ class MoodleQuickForm_Renderer extends HTML_QuickForm_Renderer_Tableless{
         $groupid = 'fgroup_' . $group->getAttribute('id');
 
         // Update the ID.
-        $group->updateAttributes(array('id' => $groupid));
+        $attributes = $group->getAttributes();
+        $attributes['id'] = $groupid;
+        $group->updateAttributes($attributes);
         $advanced = isset($this->_advancedElements[$group->getName()]);
 
         $html = $OUTPUT->mform_element($group, $required, $advanced, $error, false);
