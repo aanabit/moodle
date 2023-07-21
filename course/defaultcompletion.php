@@ -59,6 +59,18 @@ $PAGE->set_pagelayout('admin');
 // Get all that stuff I need for the renderer.
 $manager = new \core_completion\manager($id);
 $activityresourcedata = $manager->get_activities_and_resources();
+// Get list of modules that have been sent in the form.
+$manager = new \core_completion\manager($course->id);
+[$allmodules, $modules] = $manager->get_manageable_activities_and_resources($modids, false);
+
+$form = null;
+if (!empty($modules)) {
+    $form = new core_completion_defaultedit_form(null, ['course' => $id, 'modules' => $modules, 'displaycancel' => false]);
+    if (!$form->is_cancelled() && $data = $form->get_data()) {
+        $data->modules = $modules;
+        $manager->apply_default_completion($data, $form->has_custom_completion_rules(), $form->get_suffix());
+    }
+}
 
 $renderer = $PAGE->get_renderer('core_course', 'bulk_activity_completion');
 

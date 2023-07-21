@@ -75,6 +75,23 @@ trait form_trait {
     }
 
     /**
+     * Get the course associated to this class.
+     * This method must be overriden by the class using this trait if it doesn't include a _course property.
+     *
+     * @return \stdClass Course object.
+     * @throws \coding_exception If the class does not have a _course property.
+     */
+    protected function get_course(): \stdClass {
+        if (property_exists($this, '_course')) {
+            return $this->_course;
+        }
+
+        throw new \coding_exception(
+            'This class does not have a _course property. Please, add it or override the get_course() method.'
+        );
+    }
+
+    /**
      * Add completion elements to the form.
      *
      * @param string|null $modname The module name (for example, 'assign'). If null and form is moodleform_mod, the parameters are
@@ -92,7 +109,7 @@ trait form_trait {
         bool $rating = false,
         bool $defaultcompletion = true
     ): void {
-        global $CFG;
+        global $CFG, $SITE;
 
         $mform = $this->get_form();
         if ($modname === null) {
@@ -210,13 +227,14 @@ trait form_trait {
         }
 
         // Completion expected at particular date? (For progress tracking).
-        $mform->addElement('date_time_selector',
-            'completionexpected',
-            get_string('completionexpected', 'completion'),
-            ['optional' => true]
-        );
-        $mform->addHelpButton('completionexpected', 'completionexpected', 'completion');
-        $mform->hideIf('completionexpected', 'completion', 'eq', COMPLETION_TRACKING_NONE);
+        // We don't show completion expected at site level default completion.
+        if ($this->get_course()->id != $SITE->id) {
+            $completionexpectedel = 'completionexpected' . $suffix;
+            $mform->addElement('date_time_selector', $completionexpectedel, get_string('completionexpected', 'completion'),
+                ['optional' => true]);
+            $mform->addHelpButton($completionexpectedel, 'completionexpected', 'completion');
+            $mform->hideIf($completionexpectedel, $completionel, 'eq', COMPLETION_TRACKING_NONE);
+        };
     }
 
     /**
@@ -395,15 +413,19 @@ trait form_trait {
      * It should be called from the definition_after_data() to setup the completion settings in the form.
      */
     protected function definition_after_data_completion(): void {
-        global $COURSE;
-
+        global $COURSE, $SITE;
         $mform = $this->get_form();
 
         $completion = new \completion_info($COURSE);
-        if ($completion->is_enabled()) {
+        // We use $SITE course for site default activity completion,
+        // so users could set default values regardless of whether completion is enabled or not.".
+        if ($completion->is_enabled() || $COURSE->id == $SITE->id) {
+            $suffix = $this->get_suffix();
+
             // If anybody has completed the activity, these options will be 'locked'.
             $cm = $this->get_cm();
-            $completedcount = empty($cm) ? 0 : $completion->count_user_data($cm);
+            // We use $SITE course for site default activity completion, so we don't need any unlock button.
+            $completedcount = (empty($cm) || $COURSE->id == $SITE->id) ? 0 : $completion->count_user_data($cm);
             $freeze = false;
             if (!$completedcount) {
                 if ($mform->elementExists('unlockcompletion')) {
@@ -411,7 +433,9 @@ trait form_trait {
                 }
                 // Automatically set to unlocked. Note: this is necessary in order to make it recalculate completion once
                 // the option is changed, maybe someone has completed it now.
-                $mform->getElement('completionunlocked')->setValue(1);
+                if ($mform->elementExists('completionunlocked')) {
+                    $mform->getElement('completionunlocked')->setValue(1);
+                }
             } else {
                 // Has the element been unlocked, either by the button being pressed in this request, or the field already
                 // being set from a previous one?

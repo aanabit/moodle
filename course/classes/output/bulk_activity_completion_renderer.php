@@ -72,7 +72,28 @@ class core_course_bulk_activity_completion_renderer extends plugin_renderer_base
      * @param Array|stdClass $data the context data to pass to the template.
      * @return bool|string
      */
-    public function defaultcompletion($data) {
+    public function defaultcompletion($data, $modules, $form) {
+        $course = get_course($data->courseid);
+        foreach ($data->modules as $module) {
+            // If the user can manage this module, then the activity completion form needs to be returned too, without the
+            // cancel button (so only "Save changes" button is displayed).
+            if ($module->canmanage) {
+                // Only create the form if it's different from the one that has been sent.
+                $modform = $form;
+                if (empty($form) || !in_array($module->id, array_keys($modules))) {
+                    $modform = new \core_completion_defaultedit_form(null, [
+                        'course' => $course->id,
+                        'modules' => [
+                            $module->id => $module,
+                        ],
+                        'displaycancel' => false,
+                    ]);
+                    $module->modulecollapsed = true;
+                }
+                $module->formhtml = $modform->render();
+            }
+        }
+
         return parent::render_from_template('core_course/defaultactivitycompletion', $data);
     }
 
