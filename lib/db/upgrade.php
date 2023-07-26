@@ -3484,7 +3484,7 @@ privatefiles,moodle|/user/files.php';
             $DB->delete_records_select(
                 'reportbuilder_filter',
                 'id <> :id AND reportid = :reportid AND uniqueidentifier = :uniqueidentifier AND iscondition = :iscondition',
-                (array) $duplicate
+                (array)$duplicate
             );
         }
 
@@ -3499,6 +3499,13 @@ privatefiles,moodle|/user/files.php';
 
         // Main savepoint reached.
         upgrade_main_savepoint(true, 2023082200.04);
+    }
+
+    if ($oldversion < 2023082600.01) {
+        unset_config('completiondefault');
+
+        // Main savepoint reached.
+        upgrade_main_savepoint(true, 2023082600.01);
     }
 
     return true;
