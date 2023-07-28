@@ -439,12 +439,11 @@ class mod_forum_mod_form extends moodleform_mod {
      */
     public function add_completion_rules() {
         $mform =& $this->_form;
-        $indentationattributes = ['parentclass' => 'ml-2'];
 
-        $mform->addElement('checkbox', 'postinforums', null, get_string('completionpostsinforums', 'forum'), $indentationattributes);
+        $mform->addElement('checkbox', 'postinforums', null, get_string('completionpostsinforums', 'forum'));
         $mform->hideIf('postinforums', 'completion', 'ne', COMPLETION_TRACKING_AUTOMATIC);
 
-        $indentationattributes = ['parentclass' => 'ml-4'];
+        $indentationattributes = ['parentclass' => 'ml-2'];
         $group=array();
         $group[] =& $mform->createElement('checkbox', 'completionpostsenabled', '', get_string('completionposts','forum'));
         $group[] =& $mform->createElement('text', 'completionposts', '', array('size'=>3));

@@ -15198,6 +15198,9 @@ textarea.form-control {
   display: block;
   padding-left: 1.25rem;
 }
+.form-check.left-indented {
+  padding-left: 0px;
+}
 
 .form-check-input {
   position: absolute;

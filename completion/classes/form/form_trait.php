@@ -137,15 +137,29 @@ trait form_trait {
 //        );
 //        $mform->setDefault('completion', $trackingdefault);
 //        $mform->addHelpButton('completion', 'completion', 'completion');
-        $mform->addElement('radio', 'completion', '', get_string('completion_none', 'completion'), COMPLETION_TRACKING_NONE);
-        $mform->addElement('radio', 'completion', '', get_string('completion_manual', 'completion'), COMPLETION_TRACKING_MANUAL);
+        $mform->addElement(
+            'radio',
+            'completion',
+            '',
+            get_string('completion_none', 'completion'),
+            COMPLETION_TRACKING_NONE,
+            ['class' => 'left-indented']
+        );
+        $mform->addElement(
+            'radio',
+            'completion',
+            '',
+            get_string('completion_manual', 'completion'),
+            COMPLETION_TRACKING_MANUAL,
+            ['class' => 'left-indented']
+        );
 
         $allconditions = $mform->createElement(
             'static',
             'allconditions',
             '',
             get_string('allconditions', 'completion'));
-        $conditionsgroup = $mform->addGroup([$allconditions], 'conditionsgroup', '', null, false, $indentationattributes);
+        $conditionsgroup = $mform->addGroup([$allconditions], 'conditionsgroup', '', null, false);
         $mform->hideIf('conditionsgroup', 'completion', 'ne', COMPLETION_TRACKING_AUTOMATIC);
 
         $mform->setType('completion', PARAM_INT);
@@ -154,8 +168,7 @@ trait form_trait {
         // Automatic completion once you view it.
         if ($supportviews) {
             $mform->addElement('checkbox', 'completionview', '',
-                get_string('completionview_desc', 'completion'),
-                $indentationattributes
+                get_string('completionview_desc', 'completion')
             );
             $mform->hideIf('completionview', 'completion', 'ne', COMPLETION_TRACKING_AUTOMATIC);
             // Check by default if automatic completion tracking is set.
@@ -185,7 +198,14 @@ trait form_trait {
 
         // Automatic option only appears if possible.
         if ($autocompletionpossible) {
-            $automatic = $mform->createElement('radio', 'completion', '', get_string('completion_automatic', 'completion'), COMPLETION_TRACKING_AUTOMATIC);
+            $automatic = $mform->createElement(
+                'radio',
+                'completion',
+                '',
+                get_string('completion_automatic', 'completion'),
+                COMPLETION_TRACKING_AUTOMATIC,
+                ['class' => 'left-indented']
+            );
             $mform->insertElementBefore($automatic, 'conditionsgroup');
         }
 
@@ -217,7 +237,7 @@ trait form_trait {
 
         $indentationonelevel = ['parentclass' => 'ml-2'];
         $indentationtwolevels = ['parentclass' => 'ml-4'];
-        $mform->addElement('checkbox', 'receiveagrade', null, get_string('completionusegrade_desc', 'completion'), $indentationonelevel);
+        $mform->addElement('checkbox', 'receiveagrade', null, get_string('completionusegrade_desc', 'completion'));
         if ($completionelementexists) {
             $mform->hideIf('receiveagrade', 'completion', 'ne', COMPLETION_TRACKING_AUTOMATIC);
         }
@@ -240,7 +260,7 @@ trait form_trait {
                 null,
                 get_string('completionanygrade_desc', 'completion'),
                 0,
-                $indentationtwolevels
+                $indentationonelevel
             );
             $mform->hideIf('completionpassgrade', 'receiveagrade', 'notchecked');
             // Complete if the user has reached the pass grade.
@@ -250,7 +270,7 @@ trait form_trait {
                 null,
                 get_string('completionpassgrade_desc', 'completion'),
                 1,
-                $indentationtwolevels
+                $indentationonelevel
             );
             $mform->hideIf('completionpassgrade', 'receiveagrade', 'notchecked');
 //
@@ -299,7 +319,7 @@ trait form_trait {
                 $options
             );
 //            $mform->addElement('group', 'receiveagradegroup', '', $group, ' ', false, $indentationonelevel);
-            $mform->addGroup($group, 'receiveagradegroup', '', [' '], false, $indentationonelevel);
+            $mform->addGroup($group, 'receiveagradegroup', '', [' '], false);
             if ($completionelementexists) {
                 $mform->hideIf('receiveagradegroup', 'completion', 'ne', COMPLETION_TRACKING_AUTOMATIC);
             }
@@ -312,7 +332,7 @@ trait form_trait {
                 null,
                 get_string('completionanygrade_desc', 'completion'),
                 0,
-                $indentationtwolevels
+                $indentationonelevel
             );
             $mform->hideIf('completionpassgrade', 'receiveagrade', 'notchecked');
             // Complete if the user has reached the pass grade.
@@ -322,7 +342,7 @@ trait form_trait {
                 null,
                 get_string('completionpassgrade_desc', 'completion'),
                 1,
-                $indentationtwolevels
+                $indentationonelevel
             );
             $mform->hideIf('completionpassgrade', 'receiveagrade', 'notchecked');
 //            $mform->addHelpButton('completionpassgrade', 'completionpassgrade', 'completion');

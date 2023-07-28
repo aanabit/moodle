@@ -218,6 +218,10 @@ textarea.form-control {
   position: relative;
   display: block;
   padding-left: $form-check-input-gutter;
+
+  &.left-indented {
+    padding-left: 0px;
+  }
 }
 
 .form-check-input {
