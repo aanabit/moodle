@@ -256,7 +256,7 @@ trait form_trait {
      * @param string $modname The name of the module (for example, 'assign').
      * @param bool $rating True if the rating feature is enabled and false otherwise.
      */
-    protected function add_completiongrade_elements(
+    protected final function add_completiongrade_elements(
         string $modname,
         bool $rating = false
     ): void {
@@ -383,6 +383,22 @@ trait form_trait {
                 $mform->hideIf($completionpassgradeel, $completionel, 'ne', COMPLETION_TRACKING_AUTOMATIC);
             }
         }
+
+        $customgradingelements = $this->add_completiongrade_rules();
+        if ($completionelementexists) {
+            foreach ($customgradingelements as $customgradingelement) {
+                $mform->hideIf($customgradingelement, $completionel, 'ne', COMPLETION_TRACKING_AUTOMATIC);
+            }
+        }
+    }
+
+    /**
+     * Add completion grading elements to the form and return the list of element ids.
+     *
+     * @return array Array of string IDs of added items, empty array if none
+     */
+    protected function add_completiongrade_rules(): array {
+        return [];
     }
 
     /**
