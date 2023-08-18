@@ -246,7 +246,7 @@ trait form_trait {
             get_string('completionexpected', 'completion'),
             ['optional' => true]);
         $a = get_string('pluginname', $modname);
-        $mform->addHelpButton($completionexpectedel, 'completionexpected', $completionel, '', false, $a);
+        $mform->addHelpButton($completionexpectedel, 'completionexpected', 'completion', '', false, $a);
         $mform->hideIf($completionexpectedel, $completionel, 'eq', COMPLETION_TRACKING_NONE);
     }
 
