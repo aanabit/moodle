@@ -288,7 +288,6 @@ trait form_trait {
                 '',
                 get_string('completionusegrade_desc', 'completion')
             );
-            $mform->addHelpButton($completionusegradeel, 'completionusegrade', 'completion');
 
             // Complete if the user has reached any grade.
             $mform->addElement(

@@ -209,25 +209,23 @@ class mod_bigbluebuttonbn_mod_form extends moodleform_mod {
         }
 
         $suffix = $this->get_suffix();
+        $indentation = ['parentclass' => 'ml-2'];
 
         // Elements for completion by Attendance.
-        $attendance['grouplabel'] = get_string('completionattendancegroup', 'bigbluebuttonbn');
-        $attendance['rulelabel'] = get_string('completionattendance', 'bigbluebuttonbn');
+        $attendance['rulelabel'] = get_string('completionattendancegroup', 'bigbluebuttonbn');
         $completionattendanceenabledel = 'completionattendanceenabled' . $suffix;
         $completionattendanceel = 'completionattendance' . $suffix;
         $completionattendanceunitel = 'completionattendanceunit' . $suffix;
         $attendance['group'] = [
             $mform->createElement('advcheckbox', $completionattendanceenabledel, '', $attendance['rulelabel'] . '&nbsp;'),
             $mform->createElement('text', $completionattendanceel, '', ['size' => 3]),
-            $mform->createElement('static', $completionattendanceunitel, ' ', get_string('minutes', 'bigbluebuttonbn'))
         ];
         $mform->setType($completionattendanceel, PARAM_INT);
         $completionattendancegroupel = 'completionattendancegroup' . $suffix;
-        $mform->addGroup($attendance['group'], $completionattendancegroupel, $attendance['grouplabel'], ' ', false);
-        $mform->addHelpButton($completionattendancegroupel, 'completionattendancegroup', 'bigbluebuttonbn');
+        $mform->addGroup($attendance['group'], $completionattendancegroupel, '', ' ', false);
         $completionel = 'completion' . $suffix;
-        $mform->disabledIf($completionattendancegroupel, $completionel, 'neq', COMPLETION_AGGREGATION_ANY);
-        $mform->disabledIf($completionattendanceel, $completionattendanceenabledel, 'notchecked');
+        $mform->hideIf($completionattendancegroupel, $completionel, 'neq', COMPLETION_AGGREGATION_ANY);
+        $mform->hideIf($completionattendanceel, $completionattendanceenabledel, 'notchecked');
 
         // Elements for completion by Engagement.
         $engagement['grouplabel'] = get_string('completionengagementgroup', 'bigbluebuttonbn');
@@ -237,29 +235,50 @@ class mod_bigbluebuttonbn_mod_form extends moodleform_mod {
         $engagement['pollvotes'] = get_string('completionengagementpollvotes', 'bigbluebuttonbn');
         $engagement['emojis'] = get_string('completionengagementemojis', 'bigbluebuttonbn');
 
+        $completionengagementel = 'completionengagement' . $suffix;
+        $mform->addElement('advcheckbox', $completionengagementel, '', $engagement['grouplabel']);
+        $mform->hideIf($completionengagementel, $completionel, 'neq', COMPLETION_AGGREGATION_ANY);
+
         $completionengagementchatsel = 'completionengagementchats' . $suffix;
         $completionengagementtalksel = 'completionengagementtalks' . $suffix;
         $completionengagementraisehandel = 'completionengagementraisehand' . $suffix;
         $completionengagementpollvotesel = 'completionengagementpollvotes' . $suffix;
         $completionengagementemojisel = 'completionengagementemojis' . $suffix;
-        $engagement['group'] = [
-            $mform->createElement('advcheckbox', $completionengagementchatsel, '', $engagement['chatlabel'] . '&nbsp;&nbsp;'),
-            $mform->createElement('advcheckbox', $completionengagementtalksel, '', $engagement['talklabel'] . '&nbsp;&nbsp;'),
-            $mform->createElement('advcheckbox', $completionengagementraisehandel, '', $engagement['raisehand'] . '&nbsp;&nbsp;'),
-            $mform->createElement('advcheckbox', $completionengagementpollvotesel, '', $engagement['pollvotes'] . '&nbsp;&nbsp;'),
-            $mform->createElement('advcheckbox', $completionengagementemojisel, '', $engagement['emojis'] . '&nbsp;&nbsp;'),
-        ];
-        $completionengagementgroupel = 'completionengagementgroup' . $suffix;
-        $mform->addGroup($engagement['group'], $completionengagementgroupel, $engagement['grouplabel'], ' ', false);
-        $mform->addGroupRule($completionattendancegroupel, [
-            $completionattendanceel => [
-                [null, 'numeric', null, 'client']
-            ]
-        ]);
-        $mform->addHelpButton($completionengagementgroupel, 'completionengagementgroup', 'bigbluebuttonbn');
-        $mform->disabledIf($completionengagementgroupel, $completionel, 'neq', COMPLETION_AGGREGATION_ANY);
+        $mform->addElement('advcheckbox', $completionengagementchatsel, '', $engagement['chatlabel'], $indentation);
+        $mform->hideIf($completionengagementchatsel, $completionel, 'neq', COMPLETION_AGGREGATION_ANY);
+        $mform->hideIf($completionengagementchatsel, $completionengagementel, 'notchecked');
+        $mform->addElement('advcheckbox', $completionengagementtalksel, '', $engagement['talklabel'], $indentation);
+        $mform->hideIf($completionengagementtalksel, $completionel, 'neq', COMPLETION_AGGREGATION_ANY);
+        $mform->hideIf($completionengagementtalksel, $completionengagementel, 'notchecked');
+        $mform->addElement('advcheckbox', $completionengagementraisehandel, '', $engagement['raisehand'], $indentation);
+        $mform->hideIf($completionengagementraisehandel, $completionel, 'neq', COMPLETION_AGGREGATION_ANY);
+        $mform->hideIf($completionengagementraisehandel, $completionengagementel, 'notchecked');
+        $mform->addElement('advcheckbox', $completionengagementpollvotesel, '', $engagement['pollvotes'], $indentation);
+        $mform->hideIf($completionengagementpollvotesel, $completionel, 'neq', COMPLETION_AGGREGATION_ANY);
+        $mform->hideIf($completionengagementpollvotesel, $completionengagementel, 'notchecked');
+        $mform->addElement('advcheckbox', $completionengagementemojisel, '', $engagement['emojis'], $indentation);
+        $mform->hideIf($completionengagementemojisel, $completionel, 'neq', COMPLETION_AGGREGATION_ANY);
+        $mform->hideIf($completionengagementemojisel, $completionengagementel, 'notchecked');
 
-        return [$completionattendancegroupel, $completionengagementgroupel];
+//        $engagement['group'] = [
+//            $mform->createElement('advcheckbox', $completionengagementchatsel, '', $engagement['chatlabel']),
+//            $mform->createElement('advcheckbox', $completionengagementtalksel, '', $engagement['talklabel']),
+//            $mform->createElement('advcheckbox', $completionengagementraisehandel, '', $engagement['raisehand']),
+//            $mform->createElement('advcheckbox', $completionengagementpollvotesel, '', $engagement['pollvotes']),
+//            $mform->createElement('advcheckbox', $completionengagementemojisel, '', $engagement['emojis']),
+//        ];
+//        $completionengagementgroupel = 'completionengagementgroup' . $suffix;
+//        $mform->addGroup($engagement['group'], $completionengagementgroupel, '', '<br />', false);
+//        $mform->addGroupRule($completionattendancegroupel, [
+//            $completionattendanceel => [
+//                [null, 'numeric', null, 'client']
+//            ]
+//        ]);
+//        $mform->hideIf($completionengagementgroupel, $completionel, 'neq', COMPLETION_AGGREGATION_ANY);
+//        $mform->hideIf($completionengagementgroupel, $completionengagementel, 'notchecked');
+
+//        return [$completionattendancegroupel, $completionengagementgroupel];
+        return [$completionattendancegroupel];
     }
 
     /**

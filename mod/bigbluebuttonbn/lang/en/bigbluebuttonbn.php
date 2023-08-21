@@ -96,8 +96,7 @@ $string['privacy:metadata:bigbluebuttonbn_recordings:userid'] = 'The user ID of 
 $string['completionattendance'] = 'Student must attend the session for:';
 $string['completionattendance_desc'] = 'Enter and remain in the room for at least {$a} minute(s).';
 $string['completionattendance_event_desc'] = 'Student has entered the room and remained in the session for at least {$a} minute(s)';
-$string['completionattendancegroup'] = 'Require attendance';
-$string['completionattendancegroup_help'] = 'Attending the meeting for (n) minutes is required for completion.';
+$string['completionattendancegroup'] = 'Require attendance (minutes)';
 
 $string['completionengagementchats'] = 'Chats';
 $string['completionengagementchats_desc'] = 'Participate in {$a} chat(s).';
@@ -117,7 +116,6 @@ $string['completionengagementemojis_event_desc'] = 'Changed their emoji {$a} tim
 
 $string['completionengagement_desc'] = 'Engage in activities during the meeting.';
 $string['completionengagementgroup'] = 'Require participation';
-$string['completionengagementgroup_help'] = 'Active participation during the session is required for completion.';
 
 $string['completionupdatestate'] = 'Completion update state';
 $string['completionvalidatestate'] = 'Validate completion';
@@ -666,3 +664,5 @@ $string['subplugintype_bbbext_plural'] = 'BigBlueButton activity extensions';
 // Deprecated since Moodle 4.3.
 $string['completionview'] = 'Require view';
 $string['completionview_desc'] = 'View the room';
+$string['completionattendancegroup_help'] = 'Attending the meeting for (n) minutes is required for completion.';
+$string['completionengagementgroup_help'] = 'Active participation during the session is required for completion.';

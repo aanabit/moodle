@@ -205,7 +205,7 @@ class mod_glossary_mod_form extends moodleform_mod {
         $group[] =& $mform->createElement('text', $completionentriesel, '', ['size' => 3]);
         $mform->setType($completionentriesel, PARAM_INT);
         $completionentriesgroupel = 'completionentriesgroup' . $suffix;
-        $mform->addGroup($group, $completionentriesgroupel, get_string('completionentriesgroup', 'glossary'), ' ', false);
+        $mform->addGroup($group, $completionentriesgroupel, '', ' ', false);
         $mform->disabledIf($completionentriesel, $completionentriesenabledel, 'notchecked');
 
         return [$completionentriesgroupel];

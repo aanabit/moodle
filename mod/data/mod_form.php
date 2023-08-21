@@ -145,7 +145,7 @@ class mod_data_mod_form extends moodleform_mod {
         $mform->addGroup(
             $group,
             $completionentriesgroupel,
-            get_string('completionentries', 'data'),
+            '',
             [' '],
             false
         );
