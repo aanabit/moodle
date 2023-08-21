@@ -640,7 +640,7 @@ class mod_quiz_mod_form extends moodleform_mod {
      *
      * @return array Array of string IDs of added items, empty array if none
      */
-    protected function add_completiongrade_rules(): array {
+    public function add_completiongrade_rules(): array {
         $mform = $this->_form;
         $suffix = $this->get_suffix();
 

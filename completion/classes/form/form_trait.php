@@ -272,6 +272,7 @@ trait form_trait {
 
         $indentation = ['parentclass' => 'ml-2'];
         $receiveagradeel = 'receiveagrade' . $suffix;
+        $completionpassgradeel = 'completionpassgrade' . $suffix;
 //        $mform->addElement('checkbox', $receiveagradeel, null, get_string('completionusegrade_desc', 'completion'));
 //        if ($completionelementexists) {
 //            $mform->hideIf($receiveagradeel, 'completion', 'ne', COMPLETION_TRACKING_AUTOMATIC);
@@ -289,7 +290,6 @@ trait form_trait {
             );
             $mform->addHelpButton($completionusegradeel, 'completionusegrade', 'completion');
 
-            $completionpassgradeel = 'completionpassgrade' . $suffix;
             // Complete if the user has reached any grade.
             $mform->addElement(
                 'radio',
@@ -337,11 +337,8 @@ trait form_trait {
                 $options[$itemnumber] = get_string("grade_{$itemname}_name", $component);
             }
 
+            $group = [$mform->createElement('checkbox', $receiveagradeel, null, get_string('completionusegrade_desc', 'completion'))];
             $completiongradeitemnumberel = 'completiongradeitemnumber' . $suffix;
-            $group = [];
-            if ($mform->elementExists($receiveagradeel)) {
-                $group[] = $mform->removeElement($receiveagradeel, false);
-            }
             $group[] =& $mform->createElement(
                 'select',
                 $completiongradeitemnumberel,
@@ -349,25 +346,23 @@ trait form_trait {
                 $options
             );
             $receiveagradegroupel = 'receiveagradegroup' . $suffix;
-//            $mform->addElement('group', $receiveagradegroupel, '', $group, ' ', false, $indentation);
             $mform->addGroup($group, $receiveagradegroupel, '', [' '], false);
             if ($completionelementexists) {
-                $mform->hideIf($receiveagradegroupel, 'completion', 'ne', COMPLETION_TRACKING_AUTOMATIC);
+                $mform->hideIf($receiveagradeel, $completionel, 'ne', COMPLETION_TRACKING_AUTOMATIC);
+                $mform->hideIf($receiveagradegroupel, $completionel, 'ne', COMPLETION_TRACKING_AUTOMATIC);
             }
-            $mform->hideIf('completiongradeitemnumber',$receiveagradeel,'notchecked');
+            $mform->hideIf($completiongradeitemnumberel, $receiveagradeel,'notchecked');
 
             // Complete if the user has reached any grade.
             $mform->addElement(
                 'radio',
-                'completionpassgrade',
+                $completionpassgradeel,
                 null,
                 get_string('completionanygrade_desc', 'completion'),
                 0,
                 $indentation
             );
-            $mform->hideIf('completionpassgrade', $receiveagradeel, 'notchecked');
             // Complete if the user has reached the pass grade.
-            $completionpassgradeel = 'completionpassgrade' . $suffix;
             $mform->addElement(
                 'radio',
                 $completionpassgradeel,
@@ -376,7 +371,7 @@ trait form_trait {
                 1,
                 $indentation
             );
-            $mform->hideIf('completionpassgrade', $receiveagradeel, 'notchecked');
+            $mform->hideIf($completionpassgradeel, $receiveagradeel, 'notchecked');
 
             if ($completionelementexists) {
                 $mform->hideIf($completiongradeitemnumberel, $completionel, 'ne', COMPLETION_TRACKING_AUTOMATIC);
@@ -387,7 +382,7 @@ trait form_trait {
         $customgradingelements = $this->add_completiongrade_rules();
         if ($completionelementexists) {
             foreach ($customgradingelements as $customgradingelement) {
-                $mform->hideIf($customgradingelement, $completionel, 'ne', COMPLETION_TRACKING_AUTOMATIC);
+//                $mform->hideIf($customgradingelement, $completionel, 'ne', COMPLETION_TRACKING_AUTOMATIC);
             }
         }
     }
@@ -397,9 +392,7 @@ trait form_trait {
      *
      * @return array Array of string IDs of added items, empty array if none
      */
-    protected function add_completiongrade_rules(): array {
-        return [];
-    }
+    abstract public function add_completiongrade_rules(): array;
 
     /**
      * Perform some extra validation for completion settings.
@@ -426,7 +419,6 @@ trait form_trait {
 
             // Use grade to complete (only one grade item).
             $completionusegradeel = 'completionusegrade' . $suffix;
-            $completionpassgradeel = 'completionpassgrade' . $suffix;
             $rulesenabled = $rulesenabled || !empty($data[$completionusegradeel]) || !empty($data[$completionpassgradeel]);
 
             // Use grade to complete (specific grade item).

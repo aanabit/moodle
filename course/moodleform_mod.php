@@ -813,6 +813,15 @@ abstract class moodleform_mod extends moodleform {
         return false;
     }
 
+    /**
+     * Add completion grading elements to the form and return the list of element ids.
+     *
+     * @return array Array of string IDs of added items, empty array if none
+     */
+    public function add_completiongrade_rules(): array {
+        return [];
+    }
+
     function standard_hidden_coursemodule_elements(){
         $mform =& $this->_form;
         $mform->addElement('hidden', 'course', 0);
