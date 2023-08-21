@@ -223,7 +223,7 @@ trait form_trait {
             $this->add_completiongrade_elements($modname, $rating);
         }
 
-        $autocompletionpossible = $supportviews || $supportgrades || ($customcompletionelements) > 0;
+        $autocompletionpossible = $supportviews || $supportgrades || (count($customcompletionelements) > 0);
 
         // Automatic option only appears if possible.
         if ($autocompletionpossible) {
@@ -382,7 +382,7 @@ trait form_trait {
         $customgradingelements = $this->add_completiongrade_rules();
         if ($completionelementexists) {
             foreach ($customgradingelements as $customgradingelement) {
-//                $mform->hideIf($customgradingelement, $completionel, 'ne', COMPLETION_TRACKING_AUTOMATIC);
+                $mform->hideIf($customgradingelement, $completionel, 'ne', COMPLETION_TRACKING_AUTOMATIC);
             }
         }
     }
