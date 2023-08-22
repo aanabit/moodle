@@ -248,6 +248,12 @@ class manager {
                 $module->completionstatus = $this->get_completion_detail($defaults);
             }
         }
+        // Order modules by displayed name.
+        $modules = (array) $data->modules;
+        usort($modules, function($a, $b) {
+            return strcmp($a->formattedname, $b->formattedname);
+        });
+        $data->modules = $modules;
 
         return $data;
     }
