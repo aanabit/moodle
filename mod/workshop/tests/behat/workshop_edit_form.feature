@@ -25,8 +25,9 @@ Feature: Workshop assessment with grade to pass
     And I expand all fieldsets
     When I set the following fields to these values:
       | Workshop name          | Test workshop                                     |
-      | Completion tracking    | Show activity as complete when conditions are met |
-      | Require grade          | Assessment                                        |
+      | Add requirements         | 1                  |
+      | Receive a grade        | Assessment                                        |
+      | Any grade              | 1                                                 |
       | completionpassgrade    | 1                                                 |
     And I press "Save and display"
     And I should see "This activity does not have a valid grade to pass set. It may be set in the Grade section of the activity settings."

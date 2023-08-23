@@ -32,11 +32,11 @@ Feature: Edit completion settings of an activity
     And I press "Unlock completion settings"
     And I expand all fieldsets
     Then I should see "Completion options unlocked"
-    And I set the field "Completion tracking" to "Students can manually mark the activity as completed"
+    And I set the field "Students must manually mark the activity as done" to "1"
     And I press "Save and display"
     And I navigate to "Settings" in current page administration
     And I expand all fieldsets
-    Then the field "Completion tracking" matches value "Students can manually mark the activity as completed"
+    Then the field "Students must manually mark the activity as done" matches value "1"
 
   @javascript
   Scenario: Even when completion is locked, the user can still set the date

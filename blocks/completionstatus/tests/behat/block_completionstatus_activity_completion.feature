@@ -27,8 +27,8 @@ Feature: Enable Block Completion in a course using activity completion
     And I follow "Test page name"
     And I navigate to "Settings" in current page administration
     And I set the following fields to these values:
-      | Completion tracking | Show activity as complete when conditions are met |
-      | Require view | 1 |
+      | Add requirements         | 1                  |
+      | View the activity | 1 |
     And I press "Save and return to course"
     And I add the "Course completion status" block
     And I navigate to "Course completion" in current page administration
@@ -48,8 +48,8 @@ Feature: Enable Block Completion in a course using activity completion
     And I follow "Test page name"
     And I navigate to "Settings" in current page administration
     And I set the following fields to these values:
-      | Completion tracking | Show activity as complete when conditions are met |
-      | Require view | 1 |
+      | Add requirements         | 1                  |
+      | View the activity | 1 |
     And I press "Save and return to course"
     And I add the "Course completion status" block
     And I navigate to "Course completion" in current page administration
@@ -72,7 +72,7 @@ Feature: Enable Block Completion in a course using activity completion
     Given I am on the "Test assign name" "assign activity" page logged in as teacher1
     And I navigate to "Settings" in current page administration
     And I set the following fields to these values:
-      | Completion tracking       | Show activity as complete when conditions are met |
+      | Add requirements         | 1                  |
       | completionusegrade        | 1                                                 |
       | completionpassgrade       | 1                                                 |
       | gradepass                 | 50                                                |
@@ -106,7 +106,7 @@ Feature: Enable Block Completion in a course using activity completion
     Given I am on the "Test assign name" "assign activity" page logged in as teacher1
     And I navigate to "Settings" in current page administration
     And I set the following fields to these values:
-      | Completion tracking       | Show activity as complete when conditions are met |
+      | Add requirements         | 1                  |
       | completionusegrade        | 1                                                 |
       | completionpassgrade       | 1                                                 |
       | gradepass                 | 50                                                |
