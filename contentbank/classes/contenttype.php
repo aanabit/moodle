@@ -51,7 +51,11 @@ abstract class contenttype {
 
     /**
      * @var string Constant representing whether the plugin implements a way to use in course.
+<<<<<<< HEAD
      * @since  Moodle 4.3
+=======
+     * @since  Moodle 4.4
+>>>>>>> 9671ae6c4b9 (Commit inicial)
      */
     const CAN_USEINCOURSE = 'useincourse';
 
@@ -287,7 +291,11 @@ abstract class contenttype {
      * Returns the HTML content to use the current content in course.
      *
      * @param  content $content The content to be displayed.
+<<<<<<< HEAD
      * @return moodle_url       URL to instiate page.
+=======
+     * @return moodle_url       URL to use instantiated page.
+>>>>>>> 9671ae6c4b9 (Commit inicial)
      */
     public function get_useincourse_url(content $content): moodle_url {
         return new moodle_url('/contentbank/view.php', ['id' => $content->get_id()]);
