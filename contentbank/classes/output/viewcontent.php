@@ -126,6 +126,15 @@ class viewcontent implements renderable, templatable {
             ];
         }
 
+        if ($this->contenttype->can_useincourse()) {
+//            $url = new moodle_url('/contentbank/selectcourse.php', ['id' => $this->content->get_id()]);
+            $options[get_string('useincourse', 'core_contentbank')] = [
+                'data-action' => 'useincourse',
+                'data-contentname' => $this->content->get_name(),
+                'data-contentid' => $this->content->get_id(),
+            ];
+        }
+
         // Add the delete content item to the menu.
         if ($this->contenttype->can_delete($this->content)) {
             $options[get_string('delete')] = [
