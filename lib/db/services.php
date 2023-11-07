@@ -736,6 +736,12 @@ $functions = array(
         'type' => 'write',
         'ajax' => true,
     ),
+    'core_course_get_courses_and_sections' => array(
+        'classname'     => 'core_course\external\get_courses_and_sections',
+        'description'   => 'Get courses and sections information',
+        'type'          => 'read',
+        'ajax'          => true,
+    ),
     'core_enrol_get_course_enrolment_methods' => array(
         'classname' => 'core_enrol_external',
         'methodname' => 'get_course_enrolment_methods',

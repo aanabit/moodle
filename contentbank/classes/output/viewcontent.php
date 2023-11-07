@@ -126,10 +126,10 @@ class viewcontent implements renderable, templatable {
             ];
         }
 
-        if ($this->contenttype->can_useincourse()) {
+        if ($this->contenttype->can_addtocourse()) {
 //            $url = new moodle_url('/contentbank/selectcourse.php', ['id' => $this->content->get_id()]);
-            $options[get_string('useincourse', 'core_contentbank')] = [
-                'data-action' => 'useincourse',
+            $options[get_string('addtocourse', 'core_contentbank')] = [
+                'data-action' => 'addtocourse',
                 'data-contentname' => $this->content->get_name(),
                 'data-contentid' => $this->content->get_id(),
             ];

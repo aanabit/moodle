@@ -41,6 +41,7 @@ function($, Ajax, Notification, Str, Templates, Url, ModalSaveCancel, ModalEvent
         RENAME_CONTENT: '[data-action="renamecontent"]',
         SET_CONTENT_VISIBILITY: '[data-action="setcontentvisibility"]',
         COPY_CONTENT: '[data-action="copycontent"]',
+        ADD_TO_COURSE: '[data-action="addtocourse"]',
     };
 
     /**
@@ -226,6 +227,76 @@ function($, Ajax, Notification, Str, Templates, Url, ModalSaveCancel, ModalEvent
 
             setContentVisibility(contentid, visibility);
         });
+
+        $(ACTIONS.ADD_TO_COURSE).click(function(e) {
+            e.preventDefault();
+
+            // var contentname = $(this).data('contentname');
+            var contentid = $(this).data('contentid');
+
+            if (contentid) {
+                event.preventDefault();
+                showSelectCourseDialogue();
+            }
+            //
+            // var strings = [
+            //     {
+            //         key: 'selectcoursetoadd',
+            //         component: 'core_contentbank'
+            //     },
+            //     {
+            //         key: 'next',
+            //         component: 'core'
+            //     },
+            // ];
+            //
+            // var saveButtonText = '';
+            // Str.get_strings(strings).then(function(langStrings) {
+            //     var modalTitle = langStrings[0];
+            //     saveButtonText = langStrings[1];
+            //
+            //     return ModalSaveCancel.create({
+            //         title: modalTitle,
+            //         body: Templates.render('core_contentbank/addtocourse',
+            //             {'contentid': contentid, 'name': contentname,
+            //                 "courses": {
+            //                     "id": "2",
+            //                     "name": "Testing",
+            //                 },
+            //             }
+            //         ),
+            //         removeOnClose: true,
+            //         show: true,
+            //         buttons: {
+            //             save: saveButtonText,
+            //         },
+            //     });
+            // }).then(function(modal) {
+            //     modal.getRoot().on(ModalEvents.save, function(e) {
+            //         // The action is now confirmed, sending an action for it.
+            //         var newname = $("#newname").val().trim();
+            //         if (newname) {
+            //             renameContent(contentid, newname);
+            //         } else {
+            //             var errorStrings = [
+            //                 {
+            //                     key: 'error',
+            //                 },
+            //                 {
+            //                     key: 'emptynamenotallowed',
+            //                     component: 'core_contentbank',
+            //                 },
+            //             ];
+            //             Str.get_strings(errorStrings).then(function(langStrings) {
+            //                 Notification.alert(langStrings[0], langStrings[1]);
+            //             }).catch(Notification.exception);
+            //             e.preventDefault();
+            //         }
+            //     });
+            //
+            //     return;
+            // }).catch(Notification.exception);
+        });
     };
 
     /**
@@ -384,6 +455,35 @@ function($, Ajax, Notification, Str, Templates, Url, ModalSaveCancel, ModalEvent
             return;
         }).catch(Notification.exception);
     }
+
+    /**
+     * Show the modal to select a course and section.
+     */
+    const showSelectCourseDialogue = () => {
+        var request = {
+            methodname: 'core_course_get_courses_and_sections',
+            args: {
+                'capability': 'moodle/course:manageactivities',
+            }
+        };
+        Ajax.call([request])[0].then(function(data) {
+            if (data.result) {
+                return ModalSaveCancel.create({
+                    title: 'Select',
+                    body: Templates.render('core_contentbank/addtocourse', data),
+                    removeOnClose: true,
+                    show: true,
+                });
+            }
+        }).then(function(message) {
+            // Fetch error notifications.
+            Notification.addNotification({
+                message: message,
+                type: 'error'
+            });
+            Notification.fetchNotifications();
+        }).catch(Notification.exception);
+    };
 
     return /** @alias module:core_contentbank/actions */ {
         // Public variables and functions.

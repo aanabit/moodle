@@ -113,5 +113,4 @@ if ($contenttype->can_access()) {
     $message = get_string('contenttypenoaccess', 'core_contentbank', $record->contenttype);
     echo $OUTPUT->notification($message, 'error');
 }
-
 echo $OUTPUT->footer();

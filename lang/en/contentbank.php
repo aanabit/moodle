@@ -23,6 +23,7 @@
  */
 
 $string['author'] = 'Author';
+$string['addtocourse'] = 'Add to course';
 $string['contentbank'] = 'Content bank';
 $string['choosecontext'] = 'Choose course or category...';
 $string['contentbankpreferences'] = 'Content bank preferences';
@@ -84,6 +85,7 @@ $string['rename'] = 'Rename';
 $string['renamecontent'] = 'Rename content';
 $string['replacecontent'] = 'Replace with file';
 $string['searchcontentbankbyname'] = 'Search for content by name';
+$string['selectcoursetoadd'] = 'Select course or category to add';
 $string['size'] = 'Size';
 $string['timecreated'] = 'Time created';
 $string['type'] = 'Type';
@@ -94,8 +96,6 @@ $string['visibilitychoicepublic'] = 'Public';
 $string['visibilitychoiceunlisted'] = 'Unlisted';
 $string['public'] = 'public';
 $string['unlisted'] = 'unlisted';
-$string['useincourse'] = 'Use in course';
-$string['adduseincourse'] = 'Add instance to selected course and section';
 $string['visibilitypref'] = 'Default content visibility';
 $string['visibilitypref_help'] = 'Content you create in the content bank will use this visibility setting by default.';
 $string['visibilitysetpublic'] = 'Make public';
