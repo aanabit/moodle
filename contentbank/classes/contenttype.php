@@ -50,14 +50,10 @@ abstract class contenttype {
     const CAN_COPY = 'copy';
 
     /**
-     * @var string Constant representing whether the plugin implements a way to use in course.
-<<<<<<< HEAD
-     * @since  Moodle 4.3
-=======
+     * @var string Constant representing whether the plugin implements a way to add the content to a course.
      * @since  Moodle 4.4
->>>>>>> 9671ae6c4b9 (Commit inicial)
      */
-    const CAN_USEINCOURSE = 'useincourse';
+    const CAN_ADDTOCOURSE = 'addtocourse';
 
     /** @var \context This contenttype's context. **/
     protected $context = null;
@@ -288,16 +284,12 @@ abstract class contenttype {
     }
 
     /**
-     * Returns the HTML content to use the current content in course.
+     * Returns the HTML content to add the current content in course.
      *
      * @param  content $content The content to be displayed.
-<<<<<<< HEAD
-     * @return moodle_url       URL to instiate page.
-=======
      * @return moodle_url       URL to use instantiated page.
->>>>>>> 9671ae6c4b9 (Commit inicial)
      */
-    public function get_useincourse_url(content $content): moodle_url {
+    public function get_addtocourse_url(content $content): moodle_url {
         return new moodle_url('/contentbank/view.php', ['id' => $content->get_id()]);
     }
 
@@ -550,14 +542,14 @@ abstract class contenttype {
     }
 
     /**
-     * Returns whether or not the user has permission to use a new course module in course.
+     * Returns whether or not the user has permission to add the content to a course.
      *
      * @since  Moodle 4.3
      * @param  null|content $content The content to be downloaded.
      * @return bool    True if the user can download the content. False otherwise.
      */
-    final public function can_useincourse(?content $content = null): bool {
-        if (!$this->is_feature_supported(self::CAN_USEINCOURSE)) {
+    final public function can_addtocourse(?content $content = null): bool {
+        if (!$this->is_feature_supported(self::CAN_ADDTOCOURSE)) {
             return false;
         }
 
@@ -569,7 +561,7 @@ abstract class contenttype {
         if (empty($content)) {
             return $hascapability;
         }
-        return $hascapability && $this->is_useincourse_allowed($content);
+        return $hascapability && $this->is_addtocourse_allowed($content);
     }
 
     /**
@@ -579,7 +571,7 @@ abstract class contenttype {
      * @param  content $content The content to be used in course.
      * @return bool    True if plugin allows using in course. False otherwise.
      */
-    protected function is_useincourse_allowed(content $content): bool {
+    protected function is_addtocourse_allowed(content $content): bool {
         // Plugins can overwrite this function to add any check they need.
         return true;
     }

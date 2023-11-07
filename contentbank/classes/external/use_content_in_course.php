@@ -30,9 +30,9 @@ use core_external\external_warnings;
  * @copyright  2023 Amaia Anabitarte <amaia@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class use_content_in_course extends external_api {
+class add_content_to_course extends external_api {
     /**
-     * use_content_in_course parameters.
+     * add_content_to_course parameters.
      *
      * @since  Moodle 4.4
      * @return external_function_parameters
@@ -118,7 +118,7 @@ class use_content_in_course extends external_api {
     }
 
     /**
-     * use_in_course return.
+     * add_to_course return.
      *
      * @since  Moodle 4.4
      * @return external_single_structure
