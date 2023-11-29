@@ -5234,3 +5234,22 @@ function course_update_communication_instance_data(stdClass $data): void {
     $data->id = $data->instanceid; // For correct use in update_course.
     update_course($data);
 }
+
+/**
+ * Trigger course section viewed event.
+ *
+ * @param stdClass  $context course context object
+ * @param int $sectionid section number
+ * @since Moodle 4.4.
+ */
+function course_section_view($context, $sectionid) {
+
+    $eventdata = [
+        'objectid' => $sectionid,
+        'context' => $context,
+    ];
+    $event = \core\event\section_viewed::create($eventdata);
+    $event->trigger();
+
+    user_accesstime_log($context->instanceid);
+}

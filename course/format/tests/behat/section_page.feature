@@ -80,3 +80,6 @@ Feature: Single section course page
     And I should see "Activity sample 1.3"
     And I should see "Activity sample 2.1" in the "region-main" "region"
     And I should see "Activity sample 2.1" in the "region-main" "region"
+    # The section viewed has been trigered.
+    And I navigate to "Reports > Live logs" in current page administration
+    And I should see "Section viewed"
