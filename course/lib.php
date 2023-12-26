@@ -3378,7 +3378,15 @@ function get_sorted_course_formats($enabledonly = false) {
  * @return moodle_url The url of course
  */
 function course_get_url($courseorid, $section = null, $options = array()) {
-    return course_get_format($courseorid)->get_view_url($section, $options);
+    $format = course_get_format($courseorid);
+    $sectioninfo = null;
+    if (is_int($section)) {
+        $sectioninfo = $format->get_section($section);
+    }
+    if (is_object($section) && property_exists($section, 'section')) {
+        $sectioninfo = $format->get_section($section->section);
+    }
+    return $format->get_view_url($sectioninfo, $options);
 }
 
 /**

@@ -67,11 +67,12 @@ class format_site extends course_format {
      * For this fake course referring to the whole site, the site homepage is always returned
      * regardless of arguments
      *
-     * @param int|stdClass $section
+     * @param int|stdClass|section_info $sectioninfo Section info object. The use of sectionnumber or section object
+     *        from database has been deprecated since 4.4 in MDL-80250. If omitted the course view page is returned
      * @param array $options
      * @return null|moodle_url
      */
-    public function get_view_url($section, $options = array()) {
+    public function get_view_url($sectioninfo, $options = []) {
         return new moodle_url('/', array('redirect' => 0));
     }
 

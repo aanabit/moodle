@@ -247,21 +247,24 @@ class format_weeks_test extends \advanced_testcase {
         $format = course_get_format($course1);
         $format->update_course_format_options($data);
 
+        $section0 = $format->get_section(0);
+        $section1 = $format->get_section(1);
+
         // In page.
         $this->assertNotEmpty($format->get_view_url(null));
-        $this->assertNotEmpty($format->get_view_url(0));
-        $this->assertNotEmpty($format->get_view_url(1));
+        $this->assertNotEmpty($format->get_view_url($section0));
+        $this->assertNotEmpty($format->get_view_url($section1));
 
         // Navigation.
-        $this->assertStringContainsString('course/view.php', $format->get_view_url(0));
-        $this->assertStringContainsString('course/view.php', $format->get_view_url(1));
-        $this->assertStringContainsString('course/section.php', $format->get_view_url(0, ['navigation' => 1]));
-        $this->assertStringContainsString('course/section.php', $format->get_view_url(1, ['navigation' => 1]));
+        $this->assertStringContainsString('course/view.php', $format->get_view_url($section0));
+        $this->assertStringContainsString('course/view.php', $format->get_view_url($section1));
+        $this->assertStringContainsString('course/section.php', $format->get_view_url($section0, ['navigation' => 1]));
+        $this->assertStringContainsString('course/section.php', $format->get_view_url($section1, ['navigation' => 1]));
         // When sr parameter is defined, the section.php page should be returned.
-        $this->assertStringContainsString('course/section.php', $format->get_view_url(0, ['sr' => 1]));
-        $this->assertStringContainsString('course/section.php', $format->get_view_url(1, ['sr' => 1]));
-        $this->assertStringContainsString('course/section.php', $format->get_view_url(0, ['sr' => 0]));
-        $this->assertStringContainsString('course/section.php', $format->get_view_url(1, ['sr' => 0]));
+        $this->assertStringContainsString('course/section.php', $format->get_view_url($section0, ['sr' => 1]));
+        $this->assertStringContainsString('course/section.php', $format->get_view_url($section1, ['sr' => 1]));
+        $this->assertStringContainsString('course/section.php', $format->get_view_url($section0, ['sr' => 0]));
+        $this->assertStringContainsString('course/section.php', $format->get_view_url($section1, ['sr' => 0]));
     }
 
     /**

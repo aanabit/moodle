@@ -74,24 +74,33 @@ class format_legacy extends core_courseformat\base {
      *
      * This function calls function callback_FORMATNAME_get_section_url() if it exists
      *
-     * @param int|stdClass $section Section object from database or just field course_sections.section
-     *     if omitted the course view page is returned
+     * @param int|stdClass|section_info $sectioninfo Section info object. The use of sectionnumber or section object
+     *       from database has been deprecated since 4.4 in MDL-80250. If omitted the course view page is returned
      * @param array $options options for view URL. At the moment core uses:
      *     'navigation' (bool) if true and section has no separate page, the function returns null
      *     'sr' (int) used by multipage formats to specify to which section to return
      * @return null|moodle_url
      */
-    public function get_view_url($section, $options = array()) {
+    public function get_view_url($sectioninfo, $options = []) {
+        if (!empty($sectioninfo) && !($sectioninfo instanceof section_info)) {
+            debugging(
+                'The use of $section parameter as integer or stdClass in get_view_url() function has been deprecated,'.
+                ' please use section_info object instead.',
+                DEBUG_DEVELOPER,
+            );
+            if (is_int($sectioninfo)) {
+                $sectioninfo = $this->get_section($sectioninfo);
+            }
+            if (is_object($sectioninfo) && property_exists($sectioninfo, 'section')) {
+                $sectioninfo = $this->get_section($sectioninfo->section);
+            }
+        }
+
         // Use course formatter callback if it exists
         $featurefunction = 'callback_'.$this->format.'_get_section_url';
         if (function_exists($featurefunction) && ($course = $this->get_course())) {
-            if (is_object($section)) {
-                $sectionnum = $section->section;
-            } else {
-                $sectionnum = $section;
-            }
-            if ($sectionnum) {
-                $url = $featurefunction($course, $sectionnum);
+            if ($sectioninfo) {
+                $url = $featurefunction($course, $sectioninfo->sectionnum);
                 if ($url || !empty($options['navigation'])) {
                     return $url;
                 }
@@ -102,7 +111,7 @@ class format_legacy extends core_courseformat\base {
         if (!$this->uses_sections() ||
                 !array_key_exists('coursedisplay', $this->course_format_options())) {
             // default behaviour
-            return parent::get_view_url($section, $options);
+            return parent::get_view_url($sectioninfo, $options);
         }
 
         $course = $this->get_course();
@@ -112,29 +121,24 @@ class format_legacy extends core_courseformat\base {
         if (array_key_exists('sr', $options)) {
             $sr = $options['sr'];
         }
-        if (is_object($section)) {
-            $sectionno = $section->section;
-        } else {
-            $sectionno = $section;
-        }
-        if ($sectionno !== null) {
+        if ($sectioninfo) {
             if ($sr !== null) {
                 if ($sr) {
                     $usercoursedisplay = COURSE_DISPLAY_MULTIPAGE;
-                    $sectionno = $sr;
+                    $sectioninfo = $this->get_section($sr);
                 } else {
                     $usercoursedisplay = COURSE_DISPLAY_SINGLEPAGE;
                 }
             } else {
                 $usercoursedisplay = $course->coursedisplay ?? COURSE_DISPLAY_SINGLEPAGE;
             }
-            if ($sectionno != 0 && $usercoursedisplay == COURSE_DISPLAY_MULTIPAGE) {
-                $url->param('section', $sectionno);
+            if ($sectioninfo && $usercoursedisplay == COURSE_DISPLAY_MULTIPAGE) {
+                $url->param('section', $sectioninfo->sectionnum);
             } else {
                 if (!empty($options['navigation'])) {
                     return null;
                 }
-                $url->set_anchor('section-'.$sectionno);
+                $url->set_anchor('section-'.$sectioninfo->sectionnum);
             }
         }
         return $url;

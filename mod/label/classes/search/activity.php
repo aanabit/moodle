@@ -57,7 +57,9 @@ class activity extends \core_search\base_activity {
         // Get correct URL to section that contains label, from course format.
         $cminfo = $this->get_cm($this->get_module_name(), strval($doc->get('itemid')), $doc->get('courseid'));
         $format = course_get_format($cminfo->get_course());
-        $url = $format->get_view_url($cminfo->sectionnum);
+        $sectioninfo = $format->get_section($cminfo->sectionnum);
+
+        $url = $format->get_view_url($sectioninfo);
 
         // Add the ID of the label to the section URL.
         $url->set_anchor('module-' . $cminfo->id);

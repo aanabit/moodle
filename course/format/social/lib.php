@@ -38,14 +38,21 @@ class format_social extends core_courseformat\base {
     /**
      * The URL to use for the specified course
      *
-     * @param int|stdClass $section Section object from database or just field course_sections.section
-     *     if null the course view page is returned
+     * @param int|stdClass|section_info $sectioninfo Section info object. The use of sectionnumber or section object
+     *        from database has been deprecated since 4.4 in MDL-80250. If omitted the course view page is returned
      * @param array $options options for view URL. At the moment core uses:
      *     'navigation' (bool) ignored by this format
      *     'sr' (int) ignored by this format
      * @return null|moodle_url
      */
-    public function get_view_url($section, $options = array()) {
+    public function get_view_url($sectioninfo, $options = []) {
+        if (!empty($sectioninfo) && !($sectioninfo instanceof section_info)) {
+            debugging(
+                'The use of $section parameter as integer or stdClass in get_view_url() function has been deprecated,'.
+                ' please use section_info object instead.',
+                DEBUG_DEVELOPER,
+            );
+        }
         return new moodle_url('/course/view.php', ['id' => $this->courseid]);
     }
 

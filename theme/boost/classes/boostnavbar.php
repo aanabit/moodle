@@ -111,7 +111,8 @@ class boostnavbar implements \renderable {
                 // Remove if it is a course category breadcrumb node.
                 $this->remove($item->key, \breadcrumb_navigation_node::TYPE_CATEGORY);
             }
-            $courseformat = course_get_format($this->page->course)->get_course();
+            $format = course_get_format($this->page->course);
+            $courseformat = $format->get_course();
             // Section items can be only removed if a course layout (coursedisplay) is not explicitly set in the
             // given course format or the set course layout is not 'One section per page'.
             $removesections = !isset($courseformat->coursedisplay) ||
@@ -120,7 +121,8 @@ class boostnavbar implements \renderable {
                 // If the course sections are removed, we need to add the anchor of current section to the Course.
                 $coursenode = $this->get_item($this->page->course->id);
                 if (!is_null($coursenode) && $this->page->cm->sectionnum !== null) {
-                    $coursenode->action = course_get_format($this->page->course)->get_view_url($this->page->cm->sectionnum);
+                    $sectioninfo = $format->get_section($this->page->cm->sectionnum);
+                    $coursenode->action = $format->get_view_url($sectioninfo);
                 }
             }
         }
