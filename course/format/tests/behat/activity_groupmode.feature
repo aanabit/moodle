@@ -92,16 +92,20 @@ Feature: Verify activity group mode interface.
 
   @javascript
   Scenario: Teacher cannot see Group mode submenu for an activity when group mode has been forced
-    Given the following "activities" exist:
-      | activity | name            | intro                  | course | idnumber | section | groupmode |
-      | forum    | Activity sample | Test forum description | C1     | sample   | 1       | 1         |
-    And I am on the "C1" "Course editing" page logged in as "admin"
-    And I expand all fieldsets
-    And I set the field "Force group mode" to "Yes"
-    And I set the field "Group mode" to "Visible groups"
-    And I press "Save and display"
-    And I log out
-    And I am on the "C1" "Course" page logged in as "teacher1"
+    Given the following "course" exists:
+      | fullname         | Course 2 |
+      | shortname        | C2       |
+      | category         | 0        |
+      | numsections      | 3        |
+      | groupmode        | 1        |
+      | groupmodeforce   | 1        |
+    And the following "course enrolments" exist:
+      | user     | course | role           |
+      | teacher1 | C2     | editingteacher |
+    And the following "activities" exist:
+      | activity | name            | intro                  | course | idnumber | section |
+      | forum    | Activity sample | Test forum description | C2     | sample   | 1       |
+    And I am on the "C2" "Course" page logged in as "teacher1"
     And I turn editing mode on
     When I open "Activity sample" actions menu
     Then "Group mode" "link" should not exist in the "Activity sample" "activity"
