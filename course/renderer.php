@@ -1263,7 +1263,7 @@ class core_course_renderer extends plugin_renderer_base {
                 $tagfeed = new core_tag\output\tagfeed();
                 $img = $this->output->pix_icon('i/course', '');
                 foreach ($courses as $course) {
-                    $url = course_get_url($course);
+                    $url = course_get_url($course->id);
                     $imgwithlink = html_writer::link($url, $img);
                     $coursename = html_writer::link($url, $course->get_formatted_name());
                     $details = '';

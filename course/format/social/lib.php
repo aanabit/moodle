@@ -44,8 +44,29 @@ class format_social extends core_courseformat\base {
      *     'navigation' (bool) ignored by this format
      *     'sr' (int) ignored by this format
      * @return null|moodle_url
+     *
+     * @deprecated Since 4.4. Use get_format_view_url instead.
+     * @todo MDL-80116 This will be deleted in Moodle 4.8.
      */
     public function get_view_url($section, $options = array()) {
+        debugging(
+            'The method get_view_url() has been deprecated, please use get_format_view_url() instead.',
+            DEBUG_DEVELOPER
+        );
+
+        return $this->get_format_view_url(null, $options);
+    }
+
+    /**
+     * The URL to use for the specified course
+     *
+     * @param section_info|null $section Section info object. If null the course view page is returned
+     * @param array $options options for view URL. At the moment core uses:
+     *     'navigatetosection' (bool) ignored by this format
+     *     'sectiontoreturnto' (int) ignored by this format
+     * @return null|moodle_url
+     */
+    public function get_format_view_url(?section_info $section, array $options = []): ?moodle_url {
         return new moodle_url('/course/view.php', ['id' => $this->courseid]);
     }
 

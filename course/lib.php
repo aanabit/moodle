@@ -3236,7 +3236,25 @@ function get_sorted_course_formats($enabledonly = false) {
  * @return moodle_url The url of course
  */
 function course_get_url($courseorid, $section = null, $options = array()) {
-    return course_get_format($courseorid)->get_view_url($section, $options);
+    if (is_object($section)) {
+        $sectionno = $section->section;
+    } else {
+        $sectionno = $section;
+    }
+    $sectioninfo = get_fast_modinfo($courseorid)->get_section_info($sectionno);
+    $format = course_get_format($courseorid);
+
+    // Map old option names to new names: 'navigation' => 'navigatetosection' and 'sr' => 'sectiontoreturnto'.
+    if (array_key_exists('navigation', $options)) {
+        $options['navigatetosection'] = $options['navigation'];
+        unset($options['navigation']);
+    }
+    if (array_key_exists('sr', $options)) {
+        $options['sectiontoreturnto'] = $options['sr'];
+        unset($options['sr']);
+    }
+
+    return $format->get_format_view_url($sectioninfo, $options);
 }
 
 /**

@@ -154,9 +154,13 @@ class section extends \core_search\base {
      */
     public function get_doc_url(\core_search\document $doc) {
         global $DB;
-        $section = $DB->get_field('course_sections', 'section', ['id' => $doc->get('itemid')], MUST_EXIST);
-        $format = course_get_format($doc->get('courseid'));
-        return $format->get_view_url($section);
+        $courseid = $doc->get('courseid');
+        $sectionid = $doc->get('itemid');
+
+        $format = course_get_format($courseid);
+        $sectioninfo = get_fast_modinfo($courseid)->get_section_info_by_id($sectionid);
+
+        return $format->get_format_view_url($sectioninfo);
     }
 
     /**

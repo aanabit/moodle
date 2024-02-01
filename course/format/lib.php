@@ -70,9 +70,29 @@ class format_site extends course_format {
      * @param int|stdClass $section
      * @param array $options
      * @return null|moodle_url
+     *
+     * @deprecated Since 4.4. Use get_format_view_url instead.
+     * @todo MDL-80116 This will be deleted in Moodle 4.8.
      */
     public function get_view_url($section, $options = array()) {
-        return new moodle_url('/', array('redirect' => 0));
+        debugging(
+            'The method get_view_url() has been deprecated, please use get_format_view_url() instead.',
+            DEBUG_DEVELOPER
+        );
+
+        return $this->get_format_view_url(null, $options);
+    }
+
+    /**
+     * For this fake course referring to the whole site, the site homepage is always returned
+     * regardless of arguments
+     *
+     * @param section_info|null $section Section info object.
+     * @param array $options
+     * @return null|moodle_url
+     */
+    public function get_format_view_url(?section_info $section, array $options = []): ?moodle_url {
+        return new moodle_url('/', ['redirect' => 0]);
     }
 
     /**
