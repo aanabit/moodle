@@ -812,11 +812,17 @@ abstract class base {
      *     'sr' (int) used by course formats to specify to which section to return
      *     'expanded' (bool) if true the section will be shown expanded, true by default
      * @return null|moodle_url
+     *
+     * @deprecated Since 4.4. Use get_format_view_url instead.
+     * @todo MDL-80116 This will be deleted in Moodle 4.8.
      */
     public function get_view_url($section, $options = array()) {
-        $course = $this->get_course();
-        $url = new moodle_url('/course/view.php', ['id' => $course->id]);
+        debugging(
+            'The method get_view_url() has been deprecated, please use get_format_view_url() instead.',
+            DEBUG_DEVELOPER
+        );
 
+        $course = $this->get_course();
         if (array_key_exists('sr', $options)) {
             $sectionno = $options['sr'];
         } else if (is_object($section)) {
@@ -824,24 +830,66 @@ abstract class base {
         } else {
             $sectionno = $section;
         }
-        if ((!empty($options['navigation']) || array_key_exists('sr', $options)) && $sectionno !== null) {
+        $sectioninfo = get_fast_modinfo($course->id)->get_section_info($sectionno);
+        return $this->get_format_view_url($sectioninfo, $this->map_get_format_view_url_options($options));
+    }
+
+
+    /**
+     * The URL to use for the specified course (with section)
+     *
+     * Please note that course view page /course/view.php?id=COURSEID is hardcoded in many
+     * places in core and contributed modules. If course format wants to change the location
+     * of the view script, it is not enough to change just this function. Do not forget
+     * to add proper redirection.
+     *
+     * @param section_info|null $section Section info object. If null the course view page is returned
+     * @param array $options options for view URL. At the moment core uses:
+     *     'navigatetosection' (bool) if true and section not empty, the function returns section page; otherwise, it returns course page.
+     *     'sectiontoreturnto' (int) used by course formats to specify to which section to return
+     *     'expanded' (bool) if true the section will be shown expanded, true by default
+     * @return null|moodle_url
+     */
+    public function get_format_view_url(?section_info $section, array $options = []): ?moodle_url {
+        $course = $this->get_course();
+        $url = new moodle_url('/course/view.php', ['id' => $course->id]);
+
+        if ((!empty($options['navigatetosection']) || array_key_exists('sectiontoreturnto', $options)) && $section !== null) {
             // Display section on separate page.
-            $sectioninfo = $this->get_section($sectionno);
-            return new moodle_url('/course/section.php', ['id' => $sectioninfo->id]);
+            return new moodle_url('/course/section.php', ['id' => $section->id]);
         }
-        if ($this->uses_sections() && $sectionno !== null) {
+        if ($this->uses_sections() && $section !== null) {
             // The url includes the parameter to expand the section by default.
             if (!array_key_exists('expanded', $options)) {
                 $options['expanded'] = true;
             }
             if ($options['expanded']) {
                 // This parameter is being set by default.
-                $url->param('expandsection', $sectionno);
+                $url->param('expandsection', $section->sectionnum);
             }
-            $url->set_anchor('section-'.$sectionno);
+            $url->set_anchor('section-'.$section->sectionnum);
         }
 
         return $url;
+    }
+
+    /**
+     * Map old option names to new names:
+     *      'navigation' => 'navigatetosection' (bool) ignored by this format
+     *      'sr' => 'sectiontoreturnto' (int) ignored by this format
+     *
+     * @return array
+     */
+    public final function map_get_format_view_url_options(array $options) {
+        if (array_key_exists('navigation', $options)) {
+            $options['navigatetosection'] = $options['navigation'];
+            unset($options['navigation']);
+        }
+        if (array_key_exists('sr', $options)) {
+            $options['sectiontoreturnto'] = $options['sr'];
+            unset($options['sr']);
+        }
+        return $options;
     }
 
     /**
@@ -1044,7 +1092,7 @@ abstract class base {
      * Additionally section format options may have property 'cache' set to true
      * if this option needs to be cached in get_fast_modinfo(). The 'cache' property
      * is recommended to be set only for fields used in course_format::get_section_name(),
-     * course_format::extend_course_navigation() and course_format::get_view_url()
+     * course_format::extend_course_navigation() and course_format::get_format_view_url()
      *
      * For better performance cached options are recommended to have 'cachedefault' property
      * Unlike 'default', 'cachedefault' should be static and not access get_config().

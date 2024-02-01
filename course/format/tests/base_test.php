@@ -253,6 +253,68 @@ class base_test extends advanced_testcase {
         $this->assertEquals(2, $viewurl->get_param('expandsection'));
         $viewurl = $formatwithsections->get_view_url(2, ['expanded' => 0]);
         $this->assertNull($viewurl->get_param('expandsection'));
+
+        // Debugging errors caused by the deprecation of the get_view_url() function.
+        $this->assertdebuggingcalledcount(17);
+    }
+
+    /**
+     * Test for get_format_view_url().
+     *
+     * @covers ::get_format_view_url
+     */
+    public function test_get_format_view_url(): void {
+        $this->resetAfterTest();
+
+        // Generate a course with two sections (0 and 1) and two modules. Course format is set to 'testformat'.
+        // This will allow us to test the default implementation of get_view_url.
+        $generator = $this->getDataGenerator();
+        $course1 = $generator->create_course(['format' => 'testformat']);
+        course_create_sections_if_missing($course1, [0, 1]);
+
+        $data = (object)['id' => $course1->id];
+        $format = course_get_format($course1);
+        $format->update_course_format_options($data);
+
+        $sectioninfo0 = get_fast_modinfo($course1->id)->get_section_info(0);
+        $sectioninfo1 = get_fast_modinfo($course1->id)->get_section_info(1);
+
+        // In page.
+        $this->assertNotEmpty($format->get_format_view_url(null));
+        $this->assertNotEmpty($format->get_format_view_url($sectioninfo0));
+        $this->assertNotEmpty($format->get_format_view_url($sectioninfo0));
+
+        // Navigation.
+        $this->assertStringContainsString('course/view.php', $format->get_format_view_url($sectioninfo0));
+        $this->assertStringContainsString('course/view.php', $format->get_format_view_url($sectioninfo1));
+        $this->assertStringContainsString('course/section.php', $format->get_format_view_url($sectioninfo0, ['navigatetosection' => 1]));
+        $this->assertStringContainsString('course/section.php', $format->get_format_view_url($sectioninfo1, ['navigatetosection' => 1]));
+        // When sr parameter is defined, the section.php page should be returned.
+        $this->assertStringContainsString('course/section.php', $format->get_format_view_url($sectioninfo0, ['sectiontoreturnto' => 1]));
+        $this->assertStringContainsString('course/section.php', $format->get_format_view_url($sectioninfo1, ['sectiontoreturnto' => 1]));
+        $this->assertStringContainsString('course/section.php', $format->get_format_view_url($sectioninfo0, ['sectiontoreturnto' => 0]));
+        $this->assertStringContainsString('course/section.php', $format->get_format_view_url($sectioninfo1, ['sectiontoreturnto' => 0]));
+
+        // Expand section.
+        // The current course format $format uses the format 'testformat' which does not use sections.
+        // Thus, the 'expanded' parameter does not do anything.
+        $viewurl = $format->get_format_view_url($sectioninfo1);
+        $this->assertNull($viewurl->get_param('expandsection'));
+        $viewurl = $format->get_format_view_url($sectioninfo1, ['expanded' => 1]);
+        $this->assertNull($viewurl->get_param('expandsection'));
+        $viewurl = $format->get_format_view_url($sectioninfo1, ['expanded' => 0]);
+        $this->assertNull($viewurl->get_param('expandsection'));
+        // We now use a course format which uses sections.
+        $course2 = $generator->create_course(['format' => 'testformatsections']);
+        course_create_sections_if_missing($course1, [0, 2]);
+        $formatwithsections = course_get_format($course2);
+        $sectioninfo2 = get_fast_modinfo($course2->id)->get_section_info(2);
+        $viewurl = $formatwithsections->get_format_view_url($sectioninfo2);
+        $this->assertEquals(2, $viewurl->get_param('expandsection'));
+        $viewurl = $formatwithsections->get_format_view_url($sectioninfo2, ['expanded' => 1]);
+        $this->assertEquals(2, $viewurl->get_param('expandsection'));
+        $viewurl = $formatwithsections->get_format_view_url($sectioninfo2, ['expanded' => 0]);
+        $this->assertNull($viewurl->get_param('expandsection'));
     }
 
     /**

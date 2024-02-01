@@ -80,19 +80,44 @@ class format_legacy extends core_courseformat\base {
      *     'navigation' (bool) if true and section has no separate page, the function returns null
      *     'sr' (int) used by multipage formats to specify to which section to return
      * @return null|moodle_url
+     *
+     * @deprecated Since 4.4. Use get_format_view_url instead.
+     * @todo MDL-80116 This will be deleted in Moodle 4.8.
      */
     public function get_view_url($section, $options = array()) {
+        debugging(
+            'The method get_view_url() has been deprecated, please use get_format_view_url() instead.',
+            DEBUG_DEVELOPER
+        );
+
+        $course = $this->get_course();
+        if (is_object($section)) {
+            $sectionno = $section->section;
+        } else {
+            $sectionno = $section;
+        }
+        $sectioninfo = get_fast_modinfo($course->id)->get_section_info($sectionno);
+        return $this->get_format_view_url($sectioninfo, $this->map_get_format_view_url_options($options));
+    }
+
+    /**
+     * The URL to use for the specified course (with section)
+     *
+     * This function calls function callback_FORMATNAME_get_section_url() if it exists
+     *
+     * @param section_info|null $section Section info object. If null the course view page is returned
+     * @param array $options options for view URL. At the moment core uses:
+     *     'navigatetosection' (bool) if true and section has no separate page, the function returns null
+     *     'sectiontoreturnto' (int) used by multipage formats to specify to which section to return
+     * @return null|moodle_url
+     */
+    public function get_format_view_url(?section_info $section, array $options = []): ?moodle_url {
         // Use course formatter callback if it exists
         $featurefunction = 'callback_'.$this->format.'_get_section_url';
         if (function_exists($featurefunction) && ($course = $this->get_course())) {
-            if (is_object($section)) {
-                $sectionnum = $section->section;
-            } else {
-                $sectionnum = $section;
-            }
-            if ($sectionnum) {
-                $url = $featurefunction($course, $sectionnum);
-                if ($url || !empty($options['navigation'])) {
+            if ($section) {
+                $url = $featurefunction($course, $section->sectionnum);
+                if ($url || !empty($options['navigatetosection'])) {
                     return $url;
                 }
             }
@@ -100,24 +125,20 @@ class format_legacy extends core_courseformat\base {
 
         // if function is not defined
         if (!$this->uses_sections() ||
-                !array_key_exists('coursedisplay', $this->course_format_options())) {
+            !array_key_exists('coursedisplay', $this->course_format_options())) {
             // default behaviour
-            return parent::get_view_url($section, $options);
+            return parent::get_format_view_url($section, $options);
         }
 
         $course = $this->get_course();
-        $url = new moodle_url('/course/view.php', array('id' => $course->id));
+        $url = new moodle_url('/course/view.php', ['id' => $course->id]);
 
         $sr = null;
-        if (array_key_exists('sr', $options)) {
-            $sr = $options['sr'];
+        if (array_key_exists('sectiontoreturnto', $options)) {
+            $sr = $options['sectiontoreturnto'];
         }
-        if (is_object($section)) {
-            $sectionno = $section->section;
-        } else {
-            $sectionno = $section;
-        }
-        if ($sectionno !== null) {
+        $sectionno = $section->sectionnum;
+        if ($section !== null) {
             if ($sr !== null) {
                 if ($sr) {
                     $usercoursedisplay = COURSE_DISPLAY_MULTIPAGE;
@@ -131,7 +152,7 @@ class format_legacy extends core_courseformat\base {
             if ($sectionno != 0 && $usercoursedisplay == COURSE_DISPLAY_MULTIPAGE) {
                 $url->param('section', $sectionno);
             } else {
-                if (!empty($options['navigation'])) {
+                if (!empty($options['navigatetosection'])) {
                     return null;
                 }
                 $url->set_anchor('section-'.$sectionno);
