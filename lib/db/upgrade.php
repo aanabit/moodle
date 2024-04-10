@@ -1024,64 +1024,64 @@ function xmldb_main_upgrade($oldversion) {
         $admin = get_admin();
         $adminid = $admin ? $admin->id : '0';
 
-        $cleverservices = $DB->get_records('oauth2_issuer', ['servicetype' => 'clever']);
-        foreach ($cleverservices as $cleverservice) {
-            $time = time();
-
-            // Insert/update the new endpoints.
-            foreach ($endpointuris as $endpointname => $endpointuri) {
-                $endpoint = ['issuerid' => $cleverservice->id, 'name' => $endpointname];
-                $endpointid = $DB->get_field('oauth2_endpoint', 'id', $endpoint);
-
-                if ($endpointid) {
-                    $endpoint = array_merge($endpoint, [
-                        'id' => $endpointid,
-                        'url' => $endpointuri,
-                        'timemodified' => $time,
-                        'usermodified' => $adminid,
-                    ]);
-                    $DB->update_record('oauth2_endpoint', $endpoint);
-                } else {
-                    $endpoint = array_merge($endpoint, [
-                        'url' => $endpointuri,
-                        'timecreated' => $time,
-                        'timemodified' => $time,
-                        'usermodified' => $adminid,
-                    ]);
-                    $DB->insert_record('oauth2_endpoint', $endpoint);
-                }
-            }
-
-            // Insert/update new user field mappings.
-            foreach ($userfieldmappings as $internalfieldname => $externalfieldname) {
-                $fieldmap = ['issuerid' => $cleverservice->id, 'internalfield' => $internalfieldname];
-                $fieldmapid = $DB->get_field('oauth2_user_field_mapping', 'id', $fieldmap);
-
-                if ($fieldmapid) {
-                    $fieldmap = array_merge($fieldmap, [
-                        'id' => $fieldmapid,
-                        'externalfield' => $externalfieldname,
-                        'timemodified' => $time,
-                        'usermodified' => $adminid,
-                    ]);
-                    $DB->update_record('oauth2_user_field_mapping', $fieldmap);
-                } else {
-                    $fieldmap = array_merge($fieldmap, [
-                        'externalfield' => $externalfieldname,
-                        'timecreated' => $time,
-                        'timemodified' => $time,
-                        'usermodified' => $adminid,
-                    ]);
-                    $DB->insert_record('oauth2_user_field_mapping', $fieldmap);
-                }
-            }
-
-            // Update the baseurl for the issuer.
-            $cleverservice->baseurl = 'https://clever.com';
-            $cleverservice->timemodified = $time;
-            $cleverservice->usermodified = $adminid;
-            $DB->update_record('oauth2_issuer', $cleverservice);
-        }
+        //$cleverservices = $DB->get_records('oauth2_issuer', ['servicetype' => 'clever']);
+        //foreach ($cleverservices as $cleverservice) {
+        //    $time = time();
+        //
+        //    // Insert/update the new endpoints.
+        //    foreach ($endpointuris as $endpointname => $endpointuri) {
+        //        $endpoint = ['issuerid' => $cleverservice->id, 'name' => $endpointname];
+        //        $endpointid = $DB->get_field('oauth2_endpoint', 'id', $endpoint);
+        //
+        //        if ($endpointid) {
+        //            $endpoint = array_merge($endpoint, [
+        //                'id' => $endpointid,
+        //                'url' => $endpointuri,
+        //                'timemodified' => $time,
+        //                'usermodified' => $adminid,
+        //            ]);
+        //            $DB->update_record('oauth2_endpoint', $endpoint);
+        //        } else {
+        //            $endpoint = array_merge($endpoint, [
+        //                'url' => $endpointuri,
+        //                'timecreated' => $time,
+        //                'timemodified' => $time,
+        //                'usermodified' => $adminid,
+        //            ]);
+        //            $DB->insert_record('oauth2_endpoint', $endpoint);
+        //        }
+        //    }
+        //
+        //    // Insert/update new user field mappings.
+        //    foreach ($userfieldmappings as $internalfieldname => $externalfieldname) {
+        //        $fieldmap = ['issuerid' => $cleverservice->id, 'internalfield' => $internalfieldname];
+        //        $fieldmapid = $DB->get_field('oauth2_user_field_mapping', 'id', $fieldmap);
+        //
+        //        if ($fieldmapid) {
+        //            $fieldmap = array_merge($fieldmap, [
+        //                'id' => $fieldmapid,
+        //                'externalfield' => $externalfieldname,
+        //                'timemodified' => $time,
+        //                'usermodified' => $adminid,
+        //            ]);
+        //            $DB->update_record('oauth2_user_field_mapping', $fieldmap);
+        //        } else {
+        //            $fieldmap = array_merge($fieldmap, [
+        //                'externalfield' => $externalfieldname,
+        //                'timecreated' => $time,
+        //                'timemodified' => $time,
+        //                'usermodified' => $adminid,
+        //            ]);
+        //            $DB->insert_record('oauth2_user_field_mapping', $fieldmap);
+        //        }
+        //    }
+        //
+        //    // Update the baseurl for the issuer.
+        //    $cleverservice->baseurl = 'https://clever.com';
+        //    $cleverservice->timemodified = $time;
+        //    $cleverservice->usermodified = $adminid;
+        //    $DB->update_record('oauth2_issuer', $cleverservice);
+        //}
 
         upgrade_main_savepoint(true, 2024021500.02);
     }
