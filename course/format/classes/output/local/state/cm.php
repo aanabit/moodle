@@ -87,6 +87,11 @@ class cm implements renderable {
             // Activities with delegate section has some restriction to prevent structure loops.
             'delegatesection' => sectiondelegate::has_delegate_class('mod_'.$cm->modname),
         ];
+        if ($data->delegatesection) {
+            $modinfo = get_fast_modinfo($course->id);
+            $sectioninfo = $modinfo->get_section_info_by_component('mod_'.$cm->modname, $cm->instance);
+            $data->delegatesectionid = $sectioninfo->id;
+        }
 
         // Check the user access type to this cm.
         $info = new info_module($cm);
