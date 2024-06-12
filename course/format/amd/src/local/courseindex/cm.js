@@ -167,7 +167,7 @@ export default class Component extends DndCmItem {
      */
     async _refreshCompletion({state, element}) {
         // No completion icons are displayed in edit mode.
-        if (this.reactive.isEditing || !element.istrackeduser) {
+        if (this.reactive.isEditing || !element.istrackeduser || element.delegatedsection) {
             return;
         }
         // Check if the completion value has changed.
