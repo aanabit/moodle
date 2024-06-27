@@ -32,6 +32,7 @@ if (!defined('MAX_MODINFO_CACHE_SIZE')) {
     define('MAX_MODINFO_CACHE_SIZE', 10);
 }
 
+use core_courseformat\local\sectionactions;
 use core_courseformat\output\activitybadge;
 use core_courseformat\sectiondelegate;
 
@@ -442,6 +443,24 @@ class course_modinfo {
             }
         }
         return $this->delegatedbycm;
+    }
+
+    /**
+<<<<<<< HEAD
+=======
+     * Returns the sections delegated by given modules, if any.
+     *
+     * @param cm_info[] Array of course modules to get delegated sections from.
+     * @return section_info[]
+     */
+    public function get_delegated_section_info(array $cms): array {
+        $delegatedsections = [];
+        foreach ($cms as $cminfo) {
+            if ($delegatedsection = $cminfo->get_delegated_section_info()) {
+                $delegatedsections[$delegatedsection->id] = $delegatedsection;
+            }
+        }
+        return $delegatedsections;
     }
 
     /**
