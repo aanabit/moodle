@@ -545,6 +545,10 @@ class stateactions {
         foreach ($cms as $cm) {
             $updates->add_cm_put($cm->id);
         }
+        $delegatedsections = $modinfo->get_delegated_section_info($cms);
+        foreach ($delegatedsections as $sectionid => $section) {
+            $updates->add_section_put($sectionid);
+        }
     }
 
     /**
