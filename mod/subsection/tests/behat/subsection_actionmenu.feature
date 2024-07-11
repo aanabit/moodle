@@ -10,8 +10,8 @@ Feature: The module menu replaces the section menu when accessing the subsection
       | username | firstname | lastname | email                |
       | teacher1 | Teacher   | 1        | teacher1@example.com |
     And the following "courses" exist:
-      | fullname | shortname | category | numsections |
-      | Course 1 | C1        | 0        | 2           |
+      | fullname | shortname | category | numsections | initsections |
+      | Course 1 | C1        | 0        | 2           | 1            |
     And the following "activity" exists:
       | activity | subsection  |
       | name     | Subsection1 |
@@ -31,22 +31,44 @@ Feature: The module menu replaces the section menu when accessing the subsection
     When I click on "Edit" "icon" in the "[data-region='header-actions-container']" "css_element"
     Then I should not see "Move right"
     And I should not see "Assign roles"
-    And I should not see "Permalink"
     And I should not see "Highlight"
     And I should see "Edit settings"
-    And I should see "Move"
+    And I should not see "Move"
     And I should see "Hide"
-    And I should see "Duplicate"
+    # Duplicate is not implemented yet.
+    And I should not see "Duplicate"
     And I should see "Delete"
+    And I should see "Permalink"
 
   @javascript
-  Scenario: The action menu for subsection module has less options thant a regular activity
+  Scenario: The action menu for subsection module in also has 'View' and 'Move' options
     Given I turn editing mode on
     When I open "Subsection1" actions menu
     Then I should not see "Move right"
     And I should not see "Assign roles"
+    And I should not see "Highlight"
+    And I should see "View"
     And I should see "Edit settings"
     And I should see "Move"
     And I should see "Hide"
-    And I should see "Duplicate"
+    # Duplicate is not implemented yet.
+    And I should not see "Duplicate"
     And I should see "Delete"
+    And I should see "Permalink"
+
+  @javascript
+  Scenario: The action menu for subsection module in section page also 'View' and 'Move' options
+    Given I click on "Section 1" "link"
+    And I turn editing mode on
+    When I open "Subsection1" actions menu
+    Then I should not see "Move right"
+    And I should not see "Assign roles"
+    And I should not see "Highlight"
+    And I should see "View"
+    And I should see "Edit settings"
+    And I should see "Move"
+    And I should see "Hide"
+    # Duplicate is not implemented yet.
+    And I should not see "Duplicate"
+    And I should see "Delete"
+    And I should see "Permalink"
