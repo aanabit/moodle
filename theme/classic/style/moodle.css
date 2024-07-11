@@ -29068,6 +29068,9 @@ span.editinstructions .alert-link {
   width: 32px;
   border-radius: 0.25rem;
 }
+.course-section .action-menu.section-actions .btn.btn-icon {
+  font-size: 1.171875rem;
+}
 .course-section .section-summary-activities .icon {
   width: inherit;
   color: #0f6cbf;
@@ -29126,7 +29129,7 @@ span.editinstructions .alert-link {
   margin-top: 0.25rem;
   border-top: 1px solid #dee2e6;
 }
-.editing .activity {
+.editing .activity, .section .activity:first-child {
   padding-top: 0;
   margin-top: 0;
   border-top: none;
@@ -29136,6 +29139,7 @@ span.editinstructions .alert-link {
   position: relative;
   padding: 0.75rem;
   background-color: #fff;
+  border-radius: 1rem;
 }
 .activity-item.activityinline {
   padding: 0.75rem 0;
@@ -29149,18 +29153,16 @@ span.editinstructions .alert-link {
 }
 .editing .activity-item {
   cursor: move;
-  border: 2px solid transparent;
-  border-radius: 1rem;
 }
 .editing .activity-item .a {
   cursor: pointer;
 }
-.editing .activity-item:hover, .editing .activity-item.selected {
-  border: 2px solid #0f6cbf;
+.editing .activity-item:hover:not(:has(.activity:hover)), .editing .activity-item.selected {
+  outline: 2px solid #0f6cbf;
   box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
 }
-.editing .activity-item:hover .activityiconcontainer,
-.editing .activity-item:hover .badge, .editing .activity-item.selected .activityiconcontainer,
+.editing .activity-item:hover:not(:has(.activity:hover)) .activityiconcontainer,
+.editing .activity-item:hover:not(:has(.activity:hover)) .badge, .editing .activity-item.selected .activityiconcontainer,
 .editing .activity-item.selected .badge {
   mix-blend-mode: multiply;
 }
@@ -29888,6 +29890,36 @@ span.editinstructions .alert-link {
 .sitetopic .section-item {
   margin-bottom: 1.5rem;
   border-radius: 0.25rem;
+}
+
+/* Subsection specific styles */
+.activity.subsection {
+  border-top: none;
+}
+.activity.subsection > .activity-item {
+  border: 1px solid #dee2e6;
+  padding: 0;
+}
+.activity.subsection > .activity-item .activity-altcontent {
+  margin-top: 0;
+}
+.activity.subsection .delegated-section {
+  margin-top: 0;
+}
+.activity.subsection .delegated-section .section-item {
+  border: none;
+  padding: 0.75rem;
+}
+.activity.subsection .delegated-section .icons-collapse-expand:has(+ h4) {
+  height: 24px;
+  width: 24px;
+  font-size: 0.8203125rem;
+}
+.activity.subsection .delegated-section h4 {
+  font-size: 1.171875rem;
+}
+.activity.subsection + .activity {
+  border-top: none;
 }
 
 /* Anchor link offset fix. This makes hash links scroll 60px down to account for the fixed header. */
@@ -36087,7 +36119,6 @@ li.activity.label,
 .file-picker td.label {
   background: inherit;
   color: inherit;
-  border: inherit;
   text-shadow: none;
   white-space: normal;
   display: block;
@@ -36097,6 +36128,7 @@ li.activity.label,
 }
 
 .file-picker td.label {
+  border: inherit;
   display: table-cell;
   text-align: right;
   padding: 8px;
