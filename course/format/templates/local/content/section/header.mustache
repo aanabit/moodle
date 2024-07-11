@@ -50,7 +50,7 @@
     {{/sitehome}}
     {{^sitehome}}
         {{^displayonesection}}
-            <div class="d-flex align-items-start position-relative">
+            <div class="d-flex align-items-center position-relative">
                 <a role="button"
                     data-toggle="collapse"
                     data-for="sectiontoggler"
@@ -69,7 +69,7 @@
                     <span class="dir-ltr-hide">{{#pix}} t/collapsedchevron_rtl, core {{/pix}}</span>
                 </span>
                 </a>
-                <h3 class="h4 sectionname course-content-item d-flex align-self-stretch align-items-center mb-0"
+                <h{{headinglevel}} class="h4 sectionname course-content-item d-flex align-self-stretch align-items-center mb-0"
                     id="sectionid-{{id}}-title" data-for="section_title" data-id="{{id}}" data-number="{{num}}">
                     {{{title}}}
                 </h3>

@@ -78,6 +78,9 @@ class visibility implements named_templatable, renderable {
         if (!$this->show_visibility()) {
             return null;
         }
+        if ($this->mod->get_delegated_section_info()) {
+            return null;
+        }
         $format = $this->format;
         // In rare legacy cases, the section could be stealth (orphaned) but they are not editable.
         if (!$format->show_editor()
