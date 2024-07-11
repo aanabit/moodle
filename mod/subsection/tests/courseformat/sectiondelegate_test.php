@@ -80,13 +80,10 @@ final class sectiondelegate_test extends \advanced_testcase {
             get_string('delete'),
             get_string('sectionlink', 'course'),
         ];
-
         // The default section menu should be different for the delegated section menu.
         $result = $delegated->get_section_action_menu($format, $controlmenu, $renderer);
         foreach ($result->get_secondary_actions() as $secondaryaction) {
-            // Highlight and Permalink are only present in section menu (not module), so they shouldn't be find in the result.
-            $this->assertNotEquals(get_string('highlight'), $secondaryaction->text);
-            $this->assertNotEquals(get_string('sectionlink', 'course'), $secondaryaction->text);
+            $this->assertContains($secondaryaction->text, $allowedoptions);
         }
     }
 }

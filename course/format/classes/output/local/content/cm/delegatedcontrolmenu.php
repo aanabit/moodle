@@ -94,11 +94,11 @@ class delegatedcontrolmenu extends basecontrolmenu {
         // Only show the view link if we are not already in the section view page.
         if (!$isheadersection) {
             $controls['view'] = [
-                    'url'   => new moodle_url('/course/section.php', ['id' => $section->id]),
-                    'icon' => 'i/viewsection',
-                    'name' => get_string('view'),
-                    'pixattr' => ['class' => ''],
-                    'attr' => ['class' => 'view'],
+                'url'   => new moodle_url('/course/section.php', ['id' => $section->id]),
+                'icon' => 'i/viewsection',
+                'name' => get_string('view'),
+                'pixattr' => ['class' => ''],
+                'attr' => ['class' => 'view'],
             ];
         }
 
@@ -113,11 +113,11 @@ class delegatedcontrolmenu extends basecontrolmenu {
 
             // Edit settings goes to section settings form.
             $controls['edit'] = [
-                    'url'   => new moodle_url('/course/editsection.php', $params),
-                    'icon' => 'i/settings',
-                    'name' => $streditsection,
-                    'pixattr' => ['class' => ''],
-                    'attr' => ['class' => 'edit'],
+                'url'   => new moodle_url('/course/editsection.php', $params),
+                'icon' => 'i/settings',
+                'name' => $streditsection,
+                'pixattr' => ['class' => ''],
+                'attr' => ['class' => 'edit'],
             ];
         }
         
@@ -135,34 +135,34 @@ class delegatedcontrolmenu extends basecontrolmenu {
             if ($section->visible) { // Show the hide/show eye.
                 $url->param('hide', $section->section);
                 $controls['visiblity'] = [
-                        'url' => $url,
-                        'icon' => 'i/show',
-                        'name' => $strhidefromothers,
-                        'pixattr' => ['class' => ''],
-                        'attr' => [
-                                'class' => 'editing_showhide',
-                                'data-sectionreturn' => $sectionreturn,
-                                'data-action' => ($usecomponents) ? 'sectionHide' : 'hide',
-                                'data-id' => $section->id,
-                                'data-swapname' => $strshowfromothers,
-                                'data-swapicon' => 'i/show',
-                        ],
+                    'url' => $url,
+                    'icon' => 'i/show',
+                    'name' => $strhidefromothers,
+                    'pixattr' => ['class' => ''],
+                    'attr' => [
+                            'class' => 'editing_showhide',
+                            'data-sectionreturn' => $sectionreturn,
+                            'data-action' => ($usecomponents) ? 'sectionHide' : 'hide',
+                            'data-id' => $section->id,
+                            'data-swapname' => $strshowfromothers,
+                            'data-swapicon' => 'i/show',
+                    ],
                 ];
             } else {
                 $url->param('show', $section->section);
                 $controls['visiblity'] = [
-                        'url' => $url,
-                        'icon' => 'i/hide',
-                        'name' => $strshowfromothers,
-                        'pixattr' => ['class' => ''],
-                        'attr' => [
-                                'class' => 'editing_showhide',
-                                'data-sectionreturn' => $sectionreturn,
-                                'data-action' => ($usecomponents) ? 'sectionShow' : 'show',
-                                'data-id' => $section->id,
-                                'data-swapname' => $strhidefromothers,
-                                'data-swapicon' => 'i/hide',
-                        ],
+                    'url' => $url,
+                    'icon' => 'i/hide',
+                    'name' => $strshowfromothers,
+                    'pixattr' => ['class' => ''],
+                    'attr' => [
+                            'class' => 'editing_showhide',
+                            'data-sectionreturn' => $sectionreturn,
+                            'data-action' => ($usecomponents) ? 'sectionShow' : 'show',
+                            'data-id' => $section->id,
+                            'data-swapname' => $strhidefromothers,
+                            'data-swapicon' => 'i/hide',
+                    ],
                 ];
             }
         }
@@ -175,39 +175,38 @@ class delegatedcontrolmenu extends basecontrolmenu {
             $url->param('sr', $cm->sectionnum);
 
             $controls['delete'] = [
-                    'url' => $url,
-                    'icon' => 't/delete',
-                    'name' => get_string('delete'),
-                    'pixattr' => ['class' => ''],
-                    'attr' => [
-                            'class' => 'editing_delete text-danger',
-                            'data-action' => ($usecomponents) ? 'cmDelete' : 'delete',
-                            'data-sectionreturn' => $sectionreturn,
-                            'data-id' => $cm->id,
-                    ],
+                'url' => $url,
+                'icon' => 't/delete',
+                'name' => get_string('delete'),
+                'pixattr' => ['class' => ''],
+                'attr' => [
+                    'class' => 'editing_delete text-danger',
+                    'data-action' => ($usecomponents) ? 'cmDelete' : 'delete',
+                    'data-sectionreturn' => $sectionreturn,
+                    'data-id' => $cm->id,
+                ],
             ];
         }
 
         // Add section page permalink.
-        if (
-                has_any_capability([
-                        'moodle/course:movesections',
-                        'moodle/course:update',
-                        'moodle/course:sectionvisibility',
-                ], $coursecontext)
+        if (has_any_capability([
+                'moodle/course:movesections',
+                'moodle/course:update',
+                'moodle/course:sectionvisibility',
+            ], $coursecontext)
         ) {
             $sectionlink = new moodle_url(
-                    '/course/section.php',
-                    ['id' => $section->id]
+                '/course/section.php',
+                ['id' => $section->id]
             );
             $controls['permalink'] = [
-                    'url' => $sectionlink,
-                    'icon' => 'i/link',
-                    'name' => get_string('sectionlink', 'course'),
-                    'pixattr' => ['class' => ''],
-                    'attr' => [
-                            'data-action' => 'permalink',
-                    ],
+                'url' => $sectionlink,
+                'icon' => 'i/link',
+                'name' => get_string('sectionlink', 'course'),
+                'pixattr' => ['class' => ''],
+                'attr' => [
+                    'data-action' => 'permalink',
+                ],
             ];
         }
 
