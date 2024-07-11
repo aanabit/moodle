@@ -31,13 +31,13 @@ class cmactions extends baseactions {
      * Update a course delegated section linked to the given module.
      *
      * @param \stdClass $cm
-     * @param array|\stdClass $sectionfields to change in section database record.
+     * @param \stdClass $sectionfields to change in section database record.
      * @param bool $rebuildcache If true (default), perform a partial cache purge and rebuild.
      * @return bool true if any delegated section has been updated, false otherwise.
      */
     public function update_delegated(
             \stdClass $cm,
-            array|\stdClass $sectionfields,
+            \stdClass $sectionfields,
             bool $rebuildcache = true
     ): bool {
 
@@ -51,7 +51,7 @@ class cmactions extends baseactions {
             return false;
         }
 
-        unset($sectionfields['id']);
+        unset($sectionfields->id);
         $sectionactions = new sectionactions($this->course);
         $sectionactions->update($delegatedsection, $sectionfields);
 
@@ -104,7 +104,8 @@ class cmactions extends baseactions {
                 ]
         );
         $cm->name = $name;
-        $fields = ['name' => $name];
+        $fields = new \stdClass();
+        $fields->name = $name;
 
         \core\event\course_module_updated::create_from_cm($cm)->trigger();
 

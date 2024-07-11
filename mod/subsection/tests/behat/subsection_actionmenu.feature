@@ -58,7 +58,7 @@ Feature: The module menu replaces the section menu when accessing the subsection
 
   @javascript
   Scenario: The action menu for subsection module in section page also 'View' and 'Move' options
-    Given I click on "Section 1" "link"
+    Given I click on "New section" "link"
     And I turn editing mode on
     When I open "Subsection1" actions menu
     Then I should not see "Move right"
