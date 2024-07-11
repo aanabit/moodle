@@ -207,7 +207,7 @@ class delegatedcontrolmenu implements named_templatable, renderable {
                 $url->param('hide', $section->section);
                 $controls['visiblity'] = [
                         'url' => $url,
-                        'icon' => 'i/hide',
+                        'icon' => 'i/show',
                         'name' => $strhidefromothers,
                         'pixattr' => ['class' => ''],
                         'attr' => [
@@ -223,7 +223,7 @@ class delegatedcontrolmenu implements named_templatable, renderable {
                 $url->param('show', $section->section);
                 $controls['visiblity'] = [
                         'url' => $url,
-                        'icon' => 'i/show',
+                        'icon' => 'i/hide',
                         'name' => $strshowfromothers,
                         'pixattr' => ['class' => ''],
                         'attr' => [

@@ -28,36 +28,35 @@ use course_modinfo;
  */
 class cmactions extends baseactions {
     /**
-     * Update a course module.
+     * Update a course delegated section linked to the given module.
      *
      * @param \stdClass $cm
      * @param array|\stdClass $sectionfields to change in section database record.
      * @param bool $rebuildcache If true (default), perform a partial cache purge and rebuild.
-     * @return bool true if the course module was updated, false otherwise.
+     * @return bool true if any delegated section has been updated, false otherwise.
      */
-    public function after_updating(
+    public function update_delegated(
             \stdClass $cm,
             array|\stdClass $sectionfields,
             bool $rebuildcache = true
     ): bool {
 
-        \core\event\course_module_updated::create_from_cm($cm)->trigger();
-
-        if ($delegatedclass = sectiondelegatemodule::has_delegate_class('mod_' . $cm->modname)) {
-            // Propagate the changes to delegated section.
-            $cminfo = \cm_info::create($cm);
-            if ($delegatedsection = $cminfo->get_delegated_section_info()) {
-                unset($sectionfields['id']);
-                $sectionactions = new sectionactions($this->course);
-                $sectionactions->update($delegatedsection, $sectionfields);
-            }
+        if (!$delegatedclass = sectiondelegatemodule::has_delegate_class('mod_' . $cm->modname)) {
+            return false;
         }
 
+        // Propagate the changes to delegated section.
+        $cminfo = \cm_info::create($cm);
+        if (!$delegatedsection = $cminfo->get_delegated_section_info()) {
+            return false;
+        }
+
+        unset($sectionfields['id']);
+        $sectionactions = new sectionactions($this->course);
+        $sectionactions->update($delegatedsection, $sectionfields);
+
         if ($rebuildcache) {
-            course_modinfo::purge_course_module_cache($cm->course, $cm->id);
-            if ($delegatedclass) {
-                course_modinfo::purge_course_section_cache_by_id($cm->course, 12);
-            }
+            course_modinfo::purge_course_section_cache_by_id($cm->course, $delegatedsection->id);
             rebuild_course_cache($cm->course, false, true);
         }
 
@@ -107,14 +106,17 @@ class cmactions extends baseactions {
         $cm->name = $name;
         $fields = ['name' => $name];
 
-        if (!$this->after_updating($cm, $fields)) {
-            return false;
-        }
+        \core\event\course_module_updated::create_from_cm($cm)->trigger();
+
+        \course_modinfo::purge_course_module_cache($cm->course, $cm->id);
+        rebuild_course_cache($cm->course, false, true);
+
+        $this->update_delegated($cm, $fields);
 
         // Modules may add some logic to renaming.
         $modinfo = get_fast_modinfo($cm->course);
         \core\di::get(\core\hook\manager::class)->dispatch(
-                new \core_courseformat\hook\after_cm_name_edited($modinfo->get_cm($cm->id), $name),
+            new \core_courseformat\hook\after_cm_name_edited($modinfo->get_cm($cm->id), $name),
         );
 
         // Attempt to update the grade item if relevant.
@@ -165,23 +167,28 @@ class cmactions extends baseactions {
         $cminfo->visibleoncoursepage = $visibleoncoursepage;
         $cminfo->visibleold = $visible;
 
-        $visibleold = $cm->visible;
-
         $DB->update_record('course_modules', $cminfo);
         $DB->update_record(
-                $cm->modname,
-                (object)[
-                        'id' => $cm->instance,
-                        'timemodified' => time(),
-                ]
+            $cm->modname,
+            (object)[
+                'id' => $cm->instance,
+                'timemodified' => time(),
+            ]
         );
 
-        if (!$this->after_updating($cm, $cminfo, $rebuildcache)) {
-            return false;
+        if ($rebuildcache) {
+            \course_modinfo::purge_course_module_cache($cm->course, $cm->id);
+            rebuild_course_cache($cm->course, false, true);
         }
 
-        if (($visibleold != $visible) &&
-                ($events = $DB->get_records('event', ['instance' => $cm->instance, 'modulename' => $modulename]))) {
+        $this->update_delegated($cm, $cminfo, $rebuildcache);
+
+        if ($cm->visible == $visible) {
+            // There is nothing else to change.
+            return true;
+        }
+
+        if ($events = $DB->get_records('event', ['instance' => $cm->instance, 'modulename' => $modulename])) {
             foreach($events as $event) {
                 if ($visible) {
                     $event = new \calendar_event($event);
@@ -196,12 +203,12 @@ class cmactions extends baseactions {
         // Hide the associated grade items so the teacher doesn't also have to go to the gradebook and hide them there.
         // Note that this must be done after updating the row in course_modules, in case
         // the modules grade_item_update function needs to access $cm->visible.
-        if ($visibleold != $visible &&
-                plugin_supports('mod', $modulename, FEATURE_CONTROLS_GRADE_VISIBILITY) &&
-                component_callback_exists('mod_' . $modulename, 'grade_item_update')) {
+        $supportsgrade = plugin_supports('mod', $modulename, FEATURE_CONTROLS_GRADE_VISIBILITY) &&
+                component_callback_exists('mod_' . $modulename, 'grade_item_update');
+        if ($supportsgrade) {
             $instance = $DB->get_record($modulename, ['id' => $cm->instance], '*', MUST_EXIST);
             component_callback('mod_' . $modulename, 'grade_item_update', [$instance]);
-        } else if ($visibleold != $visible) {
+        } else {
             $grade_items = \grade_item::fetch_all([
                     'itemtype' => 'mod',
                     'itemmodule' => $modulename,
@@ -215,13 +222,6 @@ class cmactions extends baseactions {
             }
         }
 
-        // For modules delegating section we should also change section visibility.
-        $delegatedsection = \core_courseformat\sectiondelegate::has_delegate_class('mod_' . $modulename);
-
-        if ($rebuildcache) {
-            \course_modinfo::purge_course_module_cache($cm->course, $cm->id);
-            rebuild_course_cache($cm->course, false, true);
-        }
         return true;
     }
 }
