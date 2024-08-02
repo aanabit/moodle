@@ -1,5 +1,5 @@
 @core @core_courseformat
-Feature: Varify section visibility interface
+Feature: Verify section visibility interface
   In order to edit the course sections visibility
   As a teacher
   I need to be able to see the updated visibility information
@@ -106,3 +106,34 @@ Feature: Varify section visibility interface
     # Confirm the Section 2 menu hasn't been updated.
     And I open section "2" edit menu
     And I should see "Hide" in the "Section 2" "section"
+
+  @javascript
+  Scenario: Subsections created in hidden sections are hidden
+    Given I enable "subsection" "mod" plugin
+    And I should not see "Hidden from student"
+    When I hide section "Section 1"
+    And I should see "Hidden from students" in the "Section 1" "section"
+    And I should see "Hidden from students" in the "Activity sample 1" "activity"
+    And I add a subsection activity to course "Course 1" section "1" and I fill the form with:
+      | Name | Sub1 |
+    Then I should see "Hidden from students" in the "Sub1" "section"
+
+  @javascript
+  Scenario: Subsections visibility behavior is the same as any other module
+    Given I enable "subsection" "mod" plugin
+    And I should not see "Hidden from student"
+    And I hide section "Section 1"
+    And I add a subsection activity to course "Course 1" section "1" and I fill the form with:
+      | Name | Sub1 |
+    And I add a assign activity to course "Course 1" section "1" and I fill the form with:
+      | Assignment name                     | Hidden assignment name        |
+      | ID number                           | assign1                       |
+      | Description                         | Hidden assignment description |
+      | assignsubmission_onlinetext_enabled | 1                             |
+    And I should see "Hidden from students" in the "Activity sample 1" "activity"
+    And I should see "Hidden from students" in the "Sub1" "section"
+    And I should see "Hidden from students" in the "Hidden assignment name" "activity"
+    And I show section "Section 1"
+    And I should not see "Hidden from students" in the "Activity sample 1" "activity"
+    And I should see "Hidden from students" in the "Sub1" "section"
+    And I should see "Hidden from students" in the "Hidden assignment name" "activity"
