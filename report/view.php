@@ -58,6 +58,19 @@ if ($reportnode = $PAGE->settingsnav->find('coursereports', \navigation_node::TY
 }
 
 if ($hasreports) {
+    $children = $reportnode->children;
+    $ordered = [];
+    foreach ($children as $child) {
+        if ($child->display) {
+            $ordered[$child->text] = $child;
+        }
+    }
+    ksort($ordered);
+    $collection = new navigation_node_collection();
+    foreach ($ordered as $node) {
+        $collection->add($node);
+    }
+    $reportnode->children = $collection;
     echo $OUTPUT->render_from_template('core/report_link_page', ['node' => $reportnode]);
 } else {
     echo html_writer::div($OUTPUT->notification(get_string('noreports', 'debug'), 'error'), 'mt-3');
