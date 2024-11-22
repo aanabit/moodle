@@ -1408,8 +1408,6 @@ class stateactions_test extends \advanced_testcase {
         $this->resetAfterTest();
         $course = $this->create_course('topics', 4, []);
 
-        $manager = \core_plugin_manager::resolve_plugininfo_class('mod');
-        $manager::enable_plugin('subsection', 1);
         $subsection1 = $this->getDataGenerator()->create_module(
             'subsection', ['course' => $course, 'section' => 1, 'name' => 'subsection1']
         );
