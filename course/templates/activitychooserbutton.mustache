@@ -41,6 +41,10 @@
             type="button"
             id="dropdownMenuButton"
             data-toggle="dropdown"
+            data-action="open-addingcontent"
+            {{#modid}}
+            data-beforemod="{{modid}}"
+            {{/modid}}
             aria-haspopup="true"
             aria-expanded="false"
             aria-label="{{#str}}insertcontentbefore, core, { "activityname": {{#quote}} {{activityname}} {{/quote}} } {{/str}}"
