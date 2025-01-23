@@ -1,0 +1,9 @@
+issueNumber: MDL-83873
+notes:
+  core_calendar:
+    - message: >-
+        prepare_for_view(), calendar_add_event_metadata(),
+        calendar_add_event_metadata, calendar_top_controls(),
+        calendar_get_link_previous() and calendar_get_link_next() functions have
+        been removed.
+      type: removed

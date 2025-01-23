@@ -1178,17 +1178,11 @@ class calendar_information {
     }
 
     /**
-     * Initialize calendar information
-     *
      * @deprecated 3.4
-     * @param stdClass $course object
-     * @param array $coursestoload An array of courses [$course->id => $course]
-     * @param bool $ignorefilters options to use filter
      */
-    public function prepare_for_view(stdClass $course, array $coursestoload, $ignorefilters = false) {
-        debugging('The prepare_for_view() function has been deprecated. Please update your code to use set_sources()',
-                DEBUG_DEVELOPER);
-        $this->set_sources($course, $coursestoload);
+    #[\core\attribute\deprecated('set_sources', since: '3.4', mdl: 'MDL-59890', final: true)]
+    public function prepare_for_view() {
+        \core\deprecation::emit_deprecation_if_present([self::class, __FUNCTION__]);
     }
 
     /**
@@ -1584,69 +1578,11 @@ function calendar_get_group_cached($groupid) {
 }
 
 /**
- * Add calendar event metadata
- *
- * @deprecated since 3.9
- *
- * @param stdClass $event event info
- * @return stdClass $event metadata
+ * @deprecated 3.9
  */
-function calendar_add_event_metadata($event) {
-    debugging('This function is no longer used', DEBUG_DEVELOPER);
-    global $CFG, $OUTPUT;
-
-    // Support multilang in event->name.
-    $event->name = format_string($event->name, true);
-
-    if (!empty($event->modulename)) { // Activity event.
-        // The module name is set. I will assume that it has to be displayed, and
-        // also that it is an automatically-generated event. And of course that the
-        // instace id and modulename are set correctly.
-        $instances = get_fast_modinfo($event->courseid)->get_instances_of($event->modulename);
-        if (!array_key_exists($event->instance, $instances)) {
-            return;
-        }
-        $module = $instances[$event->instance];
-
-        $modulename = $module->get_module_type_name(false);
-        if (get_string_manager()->string_exists($event->eventtype, $event->modulename)) {
-            // Will be used as alt text if the event icon.
-            $eventtype = get_string($event->eventtype, $event->modulename);
-        } else {
-            $eventtype = '';
-        }
-
-        $event->icon = '<img src="' . s($module->get_icon_url()) . '" alt="' . s($eventtype) .
-            '" title="' . s($modulename) . '" class="icon" />';
-        $event->referer = html_writer::link($module->url, $event->name);
-        $event->courselink = calendar_get_courselink($module->get_course());
-        $event->cmid = $module->id;
-    } else if ($event->courseid == SITEID) { // Site event.
-        $event->icon = '<img src="' . $OUTPUT->image_url('i/siteevent') . '" alt="' .
-            get_string('siteevent', 'calendar') . '" class="icon" />';
-        $event->cssclass = 'calendar_event_site';
-    } else if ($event->courseid != 0 && $event->courseid != SITEID && $event->groupid == 0) { // Course event.
-        $event->icon = '<img src="' . $OUTPUT->image_url('i/courseevent') . '" alt="' .
-            get_string('courseevent', 'calendar') . '" class="icon" />';
-        $event->courselink = calendar_get_courselink($event->courseid);
-        $event->cssclass = 'calendar_event_course';
-    } else if ($event->groupid) { // Group event.
-        if ($group = calendar_get_group_cached($event->groupid)) {
-            $groupname = format_string($group->name, true, \context_course::instance($group->courseid));
-        } else {
-            $groupname = '';
-        }
-        $event->icon = \html_writer::empty_tag('image', array('src' => $OUTPUT->image_url('i/groupevent'),
-            'alt' => get_string('groupevent', 'calendar'), 'title' => $groupname, 'class' => 'icon'));
-        $event->courselink = calendar_get_courselink($event->courseid) . ', ' . $groupname;
-        $event->cssclass = 'calendar_event_group';
-    } else if ($event->userid) { // User event.
-        $event->icon = '<img src="' . $OUTPUT->image_url('i/userevent') . '" alt="' .
-            get_string('userevent', 'calendar') . '" class="icon" />';
-        $event->cssclass = 'calendar_event_user';
-    }
-
-    return $event;
+#[\core\attribute\deprecated('calendar_add_event_metadata no longer used', since: '3.9', mdl: 'MDL-58866', final: true)]
+function calendar_add_event_metadata() {
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
 }
 
 /**
@@ -1670,170 +1606,11 @@ function calendar_get_events_by_id($eventids) {
 }
 
 /**
- * Get control options for calendar.
- *
- * @deprecated since Moodle 4.3
- * @param string $type of calendar
- * @param array $data calendar information
- * @return string $content return available control for the calendar in html
+ * @deprecated 4.3
  */
-function calendar_top_controls($type, $data) {
-    debugging(__FUNCTION__ . ' has been deprecated and should not be used anymore.', DEBUG_DEVELOPER);
-
-    global $PAGE, $OUTPUT;
-
-    // Get the calendar type we are using.
-    $calendartype = \core_calendar\type_factory::get_calendar_instance();
-
-    $content = '';
-
-    // Ensure course id passed if relevant.
-    $courseid = '';
-    if (!empty($data['id'])) {
-        $courseid = '&amp;course=' . $data['id'];
-    }
-
-    // If we are passing a month and year then we need to convert this to a timestamp to
-    // support multiple calendars. No where in core should these be passed, this logic
-    // here is for third party plugins that may use this function.
-    if (!empty($data['m']) && !empty($date['y'])) {
-        if (!isset($data['d'])) {
-            $data['d'] = 1;
-        }
-        if (!checkdate($data['m'], $data['d'], $data['y'])) {
-            $time = time();
-        } else {
-            $time = make_timestamp($data['y'], $data['m'], $data['d']);
-        }
-    } else if (!empty($data['time'])) {
-        $time = $data['time'];
-    } else {
-        $time = time();
-    }
-
-    // Get the date for the calendar type.
-    $date = $calendartype->timestamp_to_date_array($time);
-
-    $urlbase = $PAGE->url;
-
-    // We need to get the previous and next months in certain cases.
-    if ($type == 'frontpage' || $type == 'course' || $type == 'month') {
-        $prevmonth = calendar_sub_month($date['mon'], $date['year']);
-        $prevmonthtime = $calendartype->convert_to_gregorian($prevmonth[1], $prevmonth[0], 1);
-        $prevmonthtime = make_timestamp($prevmonthtime['year'], $prevmonthtime['month'], $prevmonthtime['day'],
-            $prevmonthtime['hour'], $prevmonthtime['minute']);
-
-        $nextmonth = calendar_add_month($date['mon'], $date['year']);
-        $nextmonthtime = $calendartype->convert_to_gregorian($nextmonth[1], $nextmonth[0], 1);
-        $nextmonthtime = make_timestamp($nextmonthtime['year'], $nextmonthtime['month'], $nextmonthtime['day'],
-            $nextmonthtime['hour'], $nextmonthtime['minute']);
-    }
-
-    switch ($type) {
-        case 'frontpage':
-            $prevlink = calendar_get_link_previous(get_string('monthprev', 'calendar'), $urlbase, false, false, false,
-                true, $prevmonthtime);
-            $nextlink = calendar_get_link_next(get_string('monthnext', 'calendar'), $urlbase, false, false, false, true,
-                $nextmonthtime);
-            $calendarlink = calendar_get_link_href(new \moodle_url(CALENDAR_URL . 'view.php', array('view' => 'month')),
-                false, false, false, $time);
-
-            if (!empty($data['id'])) {
-                $calendarlink->param('course', $data['id']);
-            }
-
-            $right = $nextlink;
-
-            $content .= \html_writer::start_tag('div', array('class' => 'calendar-controls'));
-            $content .= $prevlink . '<span class="hide"> | </span>';
-            $content .= \html_writer::tag('span', \html_writer::link($calendarlink,
-                userdate($time, get_string('strftimemonthyear')), array('title' => get_string('monththis', 'calendar'))
-            ), array('class' => 'current'));
-            $content .= '<span class="hide"> | </span>' . $right;
-            $content .= "<span class=\"clearer\"><!-- --></span>\n";
-            $content .= \html_writer::end_tag('div');
-
-            break;
-        case 'course':
-            $prevlink = calendar_get_link_previous(get_string('monthprev', 'calendar'), $urlbase, false, false, false,
-                true, $prevmonthtime);
-            $nextlink = calendar_get_link_next(get_string('monthnext', 'calendar'), $urlbase, false, false, false,
-                true, $nextmonthtime);
-            $calendarlink = calendar_get_link_href(new \moodle_url(CALENDAR_URL . 'view.php', array('view' => 'month')),
-                false, false, false, $time);
-
-            if (!empty($data['id'])) {
-                $calendarlink->param('course', $data['id']);
-            }
-
-            $content .= \html_writer::start_tag('div', array('class' => 'calendar-controls'));
-            $content .= $prevlink . '<span class="hide"> | </span>';
-            $content .= \html_writer::tag('span', \html_writer::link($calendarlink,
-                userdate($time, get_string('strftimemonthyear')), array('title' => get_string('monththis', 'calendar'))
-            ), array('class' => 'current'));
-            $content .= '<span class="hide"> | </span>' . $nextlink;
-            $content .= "<span class=\"clearer\"><!-- --></span>";
-            $content .= \html_writer::end_tag('div');
-            break;
-        case 'upcoming':
-            $calendarlink = calendar_get_link_href(new \moodle_url(CALENDAR_URL . 'view.php', array('view' => 'upcoming')),
-                false, false, false, $time);
-            if (!empty($data['id'])) {
-                $calendarlink->param('course', $data['id']);
-            }
-            $calendarlink = \html_writer::link($calendarlink, userdate($time, get_string('strftimemonthyear')));
-            $content .= \html_writer::tag('div', $calendarlink, array('class' => 'centered'));
-            break;
-        case 'display':
-            $calendarlink = calendar_get_link_href(new \moodle_url(CALENDAR_URL . 'view.php', array('view' => 'month')),
-                false, false, false, $time);
-            if (!empty($data['id'])) {
-                $calendarlink->param('course', $data['id']);
-            }
-            $calendarlink = \html_writer::link($calendarlink, userdate($time, get_string('strftimemonthyear')));
-            $content .= \html_writer::tag('h3', $calendarlink);
-            break;
-        case 'month':
-            $prevlink = calendar_get_link_previous(userdate($prevmonthtime, get_string('strftimemonthyear')),
-                'view.php?view=month' . $courseid . '&amp;', false, false, false, false, $prevmonthtime);
-            $nextlink = calendar_get_link_next(userdate($nextmonthtime, get_string('strftimemonthyear')),
-                'view.php?view=month' . $courseid . '&amp;', false, false, false, false, $nextmonthtime);
-
-            $content .= \html_writer::start_tag('div', array('class' => 'calendar-controls'));
-            $content .= $prevlink . '<span class="hide"> | </span>';
-            $content .= $OUTPUT->heading(userdate($time, get_string('strftimemonthyear')), 2, 'current');
-            $content .= '<span class="hide"> | </span>' . $nextlink;
-            $content .= '<span class="clearer"><!-- --></span>';
-            $content .= \html_writer::end_tag('div')."\n";
-            break;
-        case 'day':
-            $days = calendar_get_days();
-
-            $prevtimestamp = strtotime('-1 day', $time);
-            $nexttimestamp = strtotime('+1 day', $time);
-
-            $prevdate = $calendartype->timestamp_to_date_array($prevtimestamp);
-            $nextdate = $calendartype->timestamp_to_date_array($nexttimestamp);
-
-            $prevname = $days[$prevdate['wday']]['fullname'];
-            $nextname = $days[$nextdate['wday']]['fullname'];
-            $prevlink = calendar_get_link_previous($prevname, 'view.php?view=day' . $courseid . '&amp;', false, false,
-                false, false, $prevtimestamp);
-            $nextlink = calendar_get_link_next($nextname, 'view.php?view=day' . $courseid . '&amp;', false, false, false,
-                false, $nexttimestamp);
-
-            $content .= \html_writer::start_tag('div', array('class' => 'calendar-controls'));
-            $content .= $prevlink;
-            $content .= '<span class="hide"> | </span><span class="current">' .userdate($time,
-                    get_string('strftimedaydate')) . '</span>';
-            $content .= '<span class="hide"> | </span>' . $nextlink;
-            $content .= "<span class=\"clearer\"><!-- --></span>";
-            $content .= \html_writer::end_tag('div') . "\n";
-
-            break;
-    }
-
-    return $content;
+#[\core\attribute\deprecated('calendar_top_controls no longer used', since: '4.3', mdl: 'MDL-79313', final: true)]
+function calendar_top_controls() {
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
 }
 
 /**
@@ -1934,65 +1711,19 @@ function calendar_get_link_href($linkbase, $d, $m, $y, $time = 0) {
 }
 
 /**
- * Build and return a previous month HTML link, with an arrow.
- *
- * @deprecated since Moodle 4.3
- * @param string $text The text label.
- * @param string|moodle_url $linkbase The URL stub.
- * @param int $d The number of the date.
- * @param int $m The number of the month.
- * @param int $y year The number of the year.
- * @param bool $accesshide Default visible, or hide from all except screenreaders.
- * @param int $time the unixtime, used for multiple calendar support. The values $d,
- *     $m and $y are kept for backwards compatibility.
- * @return string HTML string.
+ * @deprecated 4.3
  */
-function calendar_get_link_previous($text, $linkbase, $d, $m, $y, $accesshide = false, $time = 0) {
-    debugging(__FUNCTION__ . ' has been deprecated and should not be used anymore.', DEBUG_DEVELOPER);
-
-    $href = calendar_get_link_href(new \moodle_url($linkbase), $d, $m, $y, $time);
-
-    if (empty($href)) {
-        return $text;
-    }
-
-    $attrs = [
-        'data-time' => calendar_get_timestamp($d, $m, $y, $time),
-        'data-drop-zone' => 'nav-link',
-    ];
-
-    return link_arrow_left($text, $href->out(false), $accesshide, 'previous', $attrs);
+#[\core\attribute\deprecated('calendar_get_link_previous no longer used', since: '4.3', mdl: 'MDL-79432', final: true)]
+function calendar_get_link_previous() {
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
 }
 
 /**
- * Build and return a next month HTML link, with an arrow.
- *
- * @deprecated since Moodle 4.3
- * @param string $text The text label.
- * @param string|moodle_url $linkbase The URL stub.
- * @param int $d the number of the Day
- * @param int $m The number of the month.
- * @param int $y The number of the year.
- * @param bool $accesshide Default visible, or hide from all except screenreaders.
- * @param int $time the unixtime, used for multiple calendar support. The values $d,
- *     $m and $y are kept for backwards compatibility.
- * @return string HTML string.
+ * @deprecated 4.3
  */
-function calendar_get_link_next($text, $linkbase, $d, $m, $y, $accesshide = false, $time = 0) {
-    debugging(__FUNCTION__ . ' has been deprecated and should not be used anymore.', DEBUG_DEVELOPER);
-
-    $href = calendar_get_link_href(new \moodle_url($linkbase), $d, $m, $y, $time);
-
-    if (empty($href)) {
-        return $text;
-    }
-
-    $attrs = [
-        'data-time' => calendar_get_timestamp($d, $m, $y, $time),
-        'data-drop-zone' => 'nav-link',
-    ];
-
-    return link_arrow_right($text, $href->out(false), $accesshide, 'next', $attrs);
+#[\core\attribute\deprecated('calendar_get_link_next no longer used', since: '4.3', mdl: 'MDL-79432', final: true)]
+function calendar_get_link_next() {
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
 }
 
 /**
