@@ -103,6 +103,7 @@ Feature: Manage analytics models
     And I open the action menu in "Students at risk of not meeting the course completion conditions" "table_row"
     And I choose "Execute scheduled analysis" in the open action menu
     And I should see "Training results"
+    And I should see "I need to break it"
     And I press "Continue"
     # Check notifications
     Then I should see "1" in the "#nav-notification-popover-container [data-region='count-container']" "css_element"
