@@ -110,7 +110,8 @@
             "matrix"
         ],
         "contenttype": [
-            "h5p"
+            "h5p",
+            "modules"
         ],
         "coursereport": [],
         "customfield": [
