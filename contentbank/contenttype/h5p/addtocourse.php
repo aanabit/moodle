@@ -48,7 +48,7 @@ $cb = new \core_contentbank\contentbank();
 $content = $cb->get_content_from_id($record->id);
 $contenttype = $content->get_content_type_instance();
 
-if (!$contenttype->can_useincourse()) {
+if (!$contenttype->can_addtocourse()) {
     $cburl = new \moodle_url('/contentbank/view.php', ['id' => $id, 'errormsg' => 'notavailable']);
     redirect($cburl);
 }
@@ -78,10 +78,11 @@ $file = reset($files);
 
 // Everything seems fine. Create the course_module.
 $course = get_course($courseid);
-//$courseformat = course_get_format($course);
-//$section = $courseformat->get_section(0);
-list($module, $context, $cw, $cm, $data) = prepare_new_moduleinfo_data($course, 'h5pactivity', 447);
+$courseformat = course_get_format($course);
+$section = $courseformat->get_section(0);
+list($module, $context, $cw, $cm, $data) = prepare_new_moduleinfo_data($course, 'h5pactivity', 0);
 $moduleid = add_course_module($data);
+course_add_cm_to_section($courseid, $moduleid, 0, null, 'h5pactivity');
 
 // Create a default h5pactivity object to pass to h5pactivity_add_instance()!
 $h5p = get_config('h5pactivity');
@@ -104,4 +105,4 @@ $h5p->reference = $file->get_filename();
 h5pactivity_add_instance($h5p, null);
 
 $courseurl = new moodle_url('/course/view.php', ['id' => $courseid]);
-redirect($courseurl);
+//redirect($courseurl);

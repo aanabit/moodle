@@ -46,7 +46,7 @@ $title = get_string('contentbank');
 if ($PAGE->course) {
     require_login($PAGE->course->id);
 }
-$PAGE->set_url('/contentbank/useincourse.php', ['contextid' => $contextid, 'courseid' => $courseid]);
+$PAGE->set_url('/contentbank/addtocourse.php', ['contextid' => $contextid, 'courseid' => $courseid]);
 if ($contextid == \context_system::instance()->id) {
     $PAGE->set_context(context_course::instance($contextid));
 } else {
@@ -64,7 +64,7 @@ $PAGE->set_secondary_active_tab('contentbank');
 
 // Get all contents managed by active plugins where the user has permission to render them.
 $contenttypes = [];
-$enabledcontenttypes = $cb->get_contenttypes_with_capability_feature(core_contentbank\contenttype::CAN_USEINCOURSE);
+$enabledcontenttypes = $cb->get_contenttypes_with_capability_feature(core_contentbank\contenttype::CAN_ADDTOCOURSE);
 foreach ($enabledcontenttypes as $contenttypename) {
     $contenttypeclass = "\\contenttype_$contenttypename\\contenttype";
     $contenttype = new $contenttypeclass($context);

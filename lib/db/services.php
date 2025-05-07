@@ -3011,13 +3011,20 @@ $functions = array(
         'ajax'          => true,
         'capabilities'  => 'moodle/contentbank:manageowncontent',
     ],
-    'core_contentbank_use_content_in_course' => [
-        'classname'     => 'core_contentbank\external\use_content_in_course',
+    'core_contentbank_add_content_to_course' => [
+            'classname'     => 'core_contentbank\external\add_content_to_course',
+            'classpath'     => '',
+            'description'   => 'Create a new instance using a content from the content bank.',
+            'type'          => 'write',
+            'ajax'          => true,
+            'capabilities'  => 'moodle/contentbank:manageowncontent',
+    ],
+    'core_contentbank_get_addcontent_url' => [
+        'classname'     => 'core_contentbank\external\get_addcontent_url',
         'classpath'     => '',
-        'description'   => 'Create a new instance using a content from the content bank.',
+        'description'   => 'Get contnt type add content URL',
         'type'          => 'write',
         'ajax'          => true,
-        'capabilities'  => 'moodle/contentbank:manageowncontent',
     ],
     'core_create_userfeedback_action_record' => [
         'classname'     => 'core\external\record_userfeedback_action',

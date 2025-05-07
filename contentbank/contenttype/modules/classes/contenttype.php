@@ -69,7 +69,7 @@ class contenttype extends \core_contentbank\contenttype {
      * @return array
      */
     protected function get_implemented_features(): array {
-        return [self::CAN_UPLOAD, self::CAN_DOWNLOAD, self::CAN_USEINCOURSE];
+        return [self::CAN_UPLOAD, self::CAN_DOWNLOAD, self::CAN_ADDTOCOURSE];
     }
 
     /**
@@ -111,7 +111,7 @@ class contenttype extends \core_contentbank\contenttype {
      * @param  content $content The content to be displayed.
      * @return \moodle_url      URL to instiate page.
      */
-    public function get_useincourse_url(content $content): \moodle_url {
-        return new \moodle_url('/contentbank/contenttype/modules/useincourse.php', ['id' => $content->get_id()]);
+    public function get_addtocourse_url(content $content): \moodle_url {
+        return new \moodle_url('/contentbank/contenttype/modules/addtocourse.php', ['id' => $content->get_id()]);
     }
 }

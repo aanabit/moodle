@@ -60,9 +60,9 @@ class bankcontent implements renderable, templatable {
     private $allowedcourses;
 
     /**
-     * @var int   Course id parameter for useincourse page or 0 for general view page.
+     * @var int   Course id parameter for addtocourse page or 0 for general view page.
      */
-    private $foruseincourse;
+    private $foraddtocourse;
 
     /**
      * Construct this renderable.
@@ -71,13 +71,13 @@ class bankcontent implements renderable, templatable {
      * @param array $toolbar List of content bank toolbar options.
      * @param \context|null $context Optional context to check (default null)
      * @param contentbank $cb Contenbank object.
-     * @param int $foruseincourse Course id parameter for useincourse page or 0 for general view page.
+     * @param int $foraddtocourse Course id parameter for addtocourse page or 0 for general view page.
      */
-    public function __construct(array $contents, array $toolbar, ?\context $context, contentbank $cb, int $foruseincourse = 0) {
+    public function __construct(array $contents, array $toolbar, ?\context $context, contentbank $cb, int $foraddtocourse = 0) {
         $this->contents = $contents;
         $this->toolbar = $toolbar;
         $this->context = $context;
-        $this->foruseincourse = $foruseincourse;
+        $this->foraddtocourse = $foraddtocourse;
         list($this->allowedcategories, $this->allowedcourses) = $cb->get_contexts_with_capabilities_by_user();
     }
 
@@ -107,9 +107,9 @@ class bankcontent implements renderable, templatable {
                 $name = $content->get_name();
             }
             $author = \core_user::get_user($content->get_content()->usercreated);
-            if ($this->foruseincourse) {
-                $linkurl = $contenttype->get_useincourse_url($content);
-                $linkurl->param('courseid', $this->foruseincourse);
+            if ($this->foraddtocourse) {
+                $linkurl = $contenttype->get_addtocourse_url($content);
+                $linkurl->param('courseid', $this->foraddtocourse);
                 $link = $linkurl->out();
             } else {
                 $link = $contenttype->get_view_url($content);
@@ -173,8 +173,8 @@ class bankcontent implements renderable, templatable {
         }
         if (!empty($allowedcontexts)) {
             $strchoosecontext = get_string('choosecontext', 'core_contentbank');
-            if ($this->foruseincourse) {
-                $selecturl = new \moodle_url('/contentbank/useincourse.php', ['courseid' => $this->foruseincourse]);
+            if ($this->foraddtocourse) {
+                $selecturl = new \moodle_url('/contentbank/addtocourse.php', ['courseid' => $this->foraddtocourse]);
             } else {
                 $selecturl = new \moodle_url('/contentbank/index.php');
             }

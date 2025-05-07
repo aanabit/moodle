@@ -94,7 +94,6 @@ $string['timecreated'] = 'Time created';
 $string['type'] = 'Type';
 $string['unsupported'] = 'This content type is not supported.';
 $string['upload'] = 'Upload';
-$string['useincourse'] = 'Use in course';
 $string['uses'] = 'Places linked';
 $string['visibilitychoicepublic'] = 'Public';
 $string['visibilitychoiceunlisted'] = 'Unlisted';

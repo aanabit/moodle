@@ -243,7 +243,7 @@ class core_course_renderer extends plugin_renderer_base {
 
         /**
         $contentbank = new moodle_url(
-            '/contentbank/useincourse.php',
+            '/contentbank/addtocourse.php',
             ['courseid' => $course->id, 'contextid' => context_course::instance($course->id)->id]
         );
         $data = [

@@ -46,7 +46,7 @@ $cb = new \core_contentbank\contentbank();
 $content = $cb->get_content_from_id($record->id);
 $contenttype = $content->get_content_type_instance();
 
-if (!$contenttype->can_useincourse()) {
+if (!$contenttype->can_addtocourse()) {
     $cburl = new \moodle_url('/contentbank/view.php', ['id' => $id, 'errormsg' => 'notavailable']);
     redirect($cburl);
 }

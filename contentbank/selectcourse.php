@@ -49,7 +49,7 @@ $cb = new \core_contentbank\contentbank();
 $content = $cb->get_content_from_id($record->id);
 $contenttype = $content->get_content_type_instance();
 
-if (!$contenttype->can_useincourse($content)) {
+if (!$contenttype->can_addtocourse($content)) {
     $cburl = new \moodle_url('/contentbank/index.php', ['contextid' => $context->id, 'errormsg' => 'notavailable']);
     redirect($cburl);
 }
@@ -77,7 +77,7 @@ echo $OUTPUT->header();
 //echo $OUTPUT->render($selectcourses);
 
 $form = new core_contentbank\form\selectcourse(
-    $contenttype->get_useincourse_url($content),
+    $contenttype->get_addtocourse_url($content),
     enrol_get_my_courses(['id', 'fullname', 'shortname'], null, 0, [], true)
 );
 $form->display();

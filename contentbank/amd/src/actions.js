@@ -231,71 +231,70 @@ function($, Ajax, Notification, Str, Templates, Url, ModalSaveCancel, ModalEvent
         $(ACTIONS.ADD_TO_COURSE).click(function(e) {
             e.preventDefault();
 
-            // var contentname = $(this).data('contentname');
+            var contentname = $(this).data('contentname');
             var contentid = $(this).data('contentid');
 
             if (contentid) {
-                event.preventDefault();
+//                event.preventDefault();
                 showSelectCourseDialogue();
             }
-            //
-            // var strings = [
-            //     {
-            //         key: 'selectcoursetoadd',
-            //         component: 'core_contentbank'
-            //     },
-            //     {
-            //         key: 'next',
-            //         component: 'core'
-            //     },
-            // ];
-            //
-            // var saveButtonText = '';
-            // Str.get_strings(strings).then(function(langStrings) {
-            //     var modalTitle = langStrings[0];
-            //     saveButtonText = langStrings[1];
-            //
-            //     return ModalSaveCancel.create({
-            //         title: modalTitle,
-            //         body: Templates.render('core_contentbank/addtocourse',
-            //             {'contentid': contentid, 'name': contentname,
-            //                 "courses": {
-            //                     "id": "2",
-            //                     "name": "Testing",
-            //                 },
-            //             }
-            //         ),
-            //         removeOnClose: true,
-            //         show: true,
-            //         buttons: {
-            //             save: saveButtonText,
-            //         },
-            //     });
-            // }).then(function(modal) {
-            //     modal.getRoot().on(ModalEvents.save, function(e) {
-            //         // The action is now confirmed, sending an action for it.
-            //         var newname = $("#newname").val().trim();
-            //         if (newname) {
-            //             renameContent(contentid, newname);
-            //         } else {
-            //             var errorStrings = [
-            //                 {
-            //                     key: 'error',
-            //                 },
-            //                 {
-            //                     key: 'emptynamenotallowed',
-            //                     component: 'core_contentbank',
-            //                 },
-            //             ];
-            //             Str.get_strings(errorStrings).then(function(langStrings) {
-            //                 Notification.alert(langStrings[0], langStrings[1]);
-            //             }).catch(Notification.exception);
-            //             e.preventDefault();
-            //         }
-            //     });
-            //
-            //     return;
-            // }).catch(Notification.exception);
+
+            var strings = [
+                {
+                    key: 'selectcoursetoadd',
+                    component: 'core_contentbank'
+                },
+                {
+                    key: 'next',
+                    component: 'core'
+                },
+            ];
+
+            var saveButtonText = '';
+            Str.get_strings(strings).then(function(langStrings) {
+                var modalTitle = langStrings[0];
+                saveButtonText = langStrings[1];
+
+                return ModalSaveCancel.create({
+                    title: modalTitle,
+                    body: Templates.render('core_contentbank/addtocourse',
+                          {'contentid': contentid, 'name': contentname,
+                                "courses": {
+                                    "id": "34",
+                                    "name": "H5P",
+                                },
+                            }
+                        ),
+                        removeOnClose: true,
+                        show: true,
+                        buttons: {
+                            save: saveButtonText,
+                        },
+                });
+            }).then(function(modal) {
+                modal.getRoot().on(ModalEvents.save, function(e) {
+                    // The action is now confirmed, sending an action for it.
+                    var courseid = 34;
+                    if (courseid) {
+                        addContentToCourse(contentid, courseid);
+                    } else {
+                        var errorStrings = [
+                            {
+                                key: 'error',
+                            },
+                            {
+                                key: 'instancenotcreated',
+                                component: 'core_contentbank',
+                            },
+                        ];
+                        Str.get_strings(errorStrings).then(function(langStrings) {
+                            Notification.alert(langStrings[0], langStrings[1]);
+                        }).catch(Notification.exception);
+                        e.preventDefault();
+                    }
+                });
+                return;
+            }).catch(Notification.exception);
         });
     };
 
@@ -484,6 +483,49 @@ function($, Ajax, Notification, Str, Templates, Url, ModalSaveCancel, ModalEvent
             Notification.fetchNotifications();
         }).catch(Notification.exception);
     };
+
+    /**
+     * Add the content to the selected course.
+     *
+     * @param {int} contentid The content to use and add to course.
+     * @param {int} courseid  The course id to add the content to.
+     */
+    function addContentToCourse(contentid, courseid) {
+        var request = {
+            methodname: 'core_contentbank_get_addcontent_url',
+            args: {
+                contentid: contentid,
+            }
+        };
+        var requestType = 'success';
+        Ajax.call([request])[0].then(function(data) {
+            if (data.result) {
+                return data.result;
+            }
+            requestType = 'error';
+            return data.warnings[0].message;
+
+        }).then(function(message) {
+            var params = null;
+            if (requestType == 'success') {
+                params = {
+                    id: contentid,
+                    courseid: courseid,
+                    statusmsg: message
+                };
+                // Redirect to the content view page and display the message as a notification.
+                window.location.href = Url.relativeUrl(message, params, false);
+            } else {
+                // Fetch error notifications.
+                Notification.addNotification({
+                    message: message,
+                    type: 'error'
+                });
+                Notification.fetchNotifications();
+            }
+            return;
+        }).catch(Notification.exception);
+    }
 
     return /** @alias module:core_contentbank/actions */ {
         // Public variables and functions.

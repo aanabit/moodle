@@ -46,6 +46,6 @@ class selectcourse extends \moodleform {
                 $mform->addElement('radio', 'courseid', null, $course->fullname.' ('.$course->shortname.')', $course->id);
             }
         }
-        $this->_form->addElement('submit', 'useincourse', get_string('useincourse', 'core_contentbank'));
+        $this->_form->addElement('submit', 'addtocourse', get_string('addtocourse', 'core_contentbank'));
     }
 }
