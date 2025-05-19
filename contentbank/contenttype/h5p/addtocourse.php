@@ -74,7 +74,8 @@ if (count($files) > 1) {
     throw new \moodle_exception('Too many files found!');
 }
 
-$file = reset($files);
+$file = $content->get_file();
+$h5pfile = \core_h5p\api::get_content_from_pathnamehash($file->get_pathnamehash());
 
 // Everything seems fine. Create the course_module.
 $course = get_course($courseid);
@@ -101,6 +102,7 @@ $h5p->displayoptions = \core_h5p\helper::get_display_options($core, $config);
 $h5p->cmidnumber = '';
 $h5p->name = $content->get_name();
 $h5p->reference = $file->get_filename();
+$h5p->packagefile = $file->itemid;
 
 h5pactivity_add_instance($h5p, null);
 
