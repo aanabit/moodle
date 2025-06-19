@@ -24,11 +24,13 @@
 
     Example context (json):
     {
+        "baseurl": "http://localhost/badges/external_backpacks.php",
+        "id": 1,
+        "sesskey": "brava",
         "backpacks": [
             {
                 "backpackweburl": "http://localhost/",
                 "sitebackpack": true,
-                "cantest": true,
                 "canmoveup": true,
                 "canmovedown": false
             }
@@ -37,7 +39,7 @@
 }}
 
 <form action="{{baseurl}}" method="get" id="createbackpack">
-   <input type="hidden" name="action" value="edit"/>
+   <input type="hidden" name="action" value="edit">
    <button type="submit" class="btn btn-secondary">{{#str}}newbackpack, core_badges{{/str}}</button>
 </form>
 
@@ -84,9 +86,6 @@
                     {{#pix}}t/delete, core,{{#str}}delete{{/str}}{{/pix}}
                 </a>
             {{/sitebackpack}}
-            {{#cantest}}
-                <a href="{{baseurl}}?id={{id}}&action=test">{{#pix}}t/check, core,{{#str}}testsettings, core_badges{{/str}}{{/pix}}</a>
-            {{/cantest}}
             </td>
         </tr>
         {{/backpacks}}

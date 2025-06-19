@@ -886,8 +886,17 @@ class core_badges_renderer extends plugin_renderer_base {
      *
      * @param  int    $backpackid The backpack identifier.
      * @return string A message with the validation result.
+     * @deprecated since 5.1.
+     * @todo MDL-85822 This function will be finally removed in Moodle 6.0.
      */
+    #[\core\attribute\deprecated(
+        reason: 'Backpack site authentication test has been removed',
+        since: '5.1',
+        mdl: 'MDL-85624'
+    )]
     public function render_test_backpack_result(int $backpackid): string {
+        \core\deprecation::emit_deprecation_if_present([$this, __FUNCTION__]);
+
         // Get the backpack.
         $backpack = badges_get_site_backpack($backpackid);
 

@@ -1,0 +1,9 @@
+issueNumber: MDL-85624
+notes:
+  core_badges:
+    - message: >-
+        Backpack default site authentication test feature has been removed so
+        the related core_badges_renderer::render_test_backpack_result(), 
+        badges_verify_site_backpack() and badges_verify_backpack() functions 
+        have been deprecated.
+      type: deprecated

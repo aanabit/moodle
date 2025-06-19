@@ -559,7 +559,6 @@ $string['targetframework_help'] = 'The name of the external skill or standard fr
 $string['targetcode'] = 'Code';
 $string['targetcode_help'] = 'A unique string identifier for referencing the external skill or standard within its framework.';
 $string['testbackpack'] = 'Test backpack \'{$a}\'';
-$string['testsettings'] = 'Test settings';
 $string['type'] = 'Type';
 $string['tagarea_badge'] = 'Badges';
 $string['userbadges'] = 'User badges';
@@ -603,3 +602,4 @@ $string['version_help'] = 'The version field may be used to keep track of the ba
 
 // Deprecated since Moodle 5.1.
 $string['includeauthdetails'] = "Include authentication details with the backpack";
+$string['testsettings'] = 'Test settings';

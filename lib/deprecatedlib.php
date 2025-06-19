@@ -854,3 +854,67 @@ function imagecopybicubic($dst_img, $src_img, $dst_x, $dst_y, $src_x, $src_y, $d
     \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     return imagecopyresampled($dst_img, $src_img, $dst_x, $dst_y, $src_x, $src_y, $dst_w, $dst_h, $src_w, $src_h);
 }
+
+/**
+ * Attempt to authenticate with the site backpack credentials and return an error
+ * if the authentication fails. If external backpacks are not enabled, this will
+ * not perform any test.
+ *
+ * @return string
+ *
+ * @deprecated since 5.1.
+ * @todo MDL-85822 This function will be finally removed in Moodle 6.0.
+ */
+#[\core\attribute\deprecated(since: '5.1', mdl: 'MDL-85624')]
+function badges_verify_site_backpack() {
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
+
+    $defaultbackpack = badges_get_site_primary_backpack();
+    return badges_verify_backpack($defaultbackpack->id);
+}
+
+/**
+ * Attempt to authenticate with a backpack credentials and return an error
+ * if the authentication fails.
+ * If external backpacks are not enabled or the backpack version is different
+ * from OBv2, this will not perform any test.
+ *
+ * @param int $backpackid Backpack identifier to verify.
+ * @return string The result of the verification process.
+ *
+ * @deprecated since 5.1.
+ * @todo MDL-85822 This function will be finally removed in Moodle 6.0.
+ */
+#[\core\attribute\deprecated(since: '5.1', mdl: 'MDL-85624')]
+function badges_verify_backpack(int $backpackid) {
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
+
+    global $OUTPUT, $CFG;
+
+    if (empty($CFG->badges_allowexternalbackpack)) {
+        return '';
+    }
+
+    $backpack = badges_get_site_backpack($backpackid);
+    if (empty($backpack->apiversion) || ($backpack->apiversion == OPEN_BADGES_V2)) {
+        $backpackapi = new \core_badges\backpack_api($backpack);
+
+        // Clear any cached access tokens in the session.
+        $backpackapi->clear_system_user_session();
+
+        // Now attempt a login with these credentials.
+        $result = $backpackapi->authenticate();
+        if (empty($result) || !empty($result->error)) {
+            $warning = $backpackapi->get_authentication_error();
+
+            $params = ['id' => $backpack->id, 'action' => 'edit'];
+            $backpackurl = (new moodle_url('/badges/backpacks.php', $params))->out(false);
+
+            $message = get_string('sitebackpackwarning', 'badges', ['url' => $backpackurl, 'warning' => $warning]);
+            $icon = $OUTPUT->pix_icon('i/warning', get_string('warning', 'moodle'));
+            return $OUTPUT->container($icon . $message, 'text-danger');
+        }
+    }
+
+    return '';
+}

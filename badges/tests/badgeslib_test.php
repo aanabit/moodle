@@ -1226,7 +1226,7 @@ final class badgeslib_test extends badges_testcase {
     }
 
     /**
-     * Test backpack creation/update with auth details provided
+     * Test backpack creation/update with no credentials.
      *
      * @param boolean $isadmin
      * @param boolean $updatetest
@@ -1242,8 +1242,6 @@ final class badgeslib_test extends badges_testcase {
             'backpackweburl' => 'https://ca.badgr.io',
         ];
 
-        $data['backpackemail'] = 'test@test.com';
-        $data['password'] = 'test';
         if ($isadmin || $updatetest) {
             $this->setAdminUser();
             $lastmax = $DB->get_field_sql('SELECT MAX(sortorder) FROM {badge_external_backpack}');
@@ -1262,7 +1260,8 @@ final class badgeslib_test extends badges_testcase {
             $this->assertEquals($data['backpackapiurl'], $record->backpackapiurl);
             $this->assertEquals($lastmax + 1, $record->sortorder);
             $record = $DB->get_record('badge_backpack', ['userid' => 0]);
-            $this->assertNotEmpty($record);
+            // There was no credential to save.
+            $this->assertEmpty($record);
         } else {
             $user = $this->getDataGenerator()->create_user();
             $this->setUser($user);

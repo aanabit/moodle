@@ -1515,58 +1515,6 @@ function badge_assemble_notification(stdClass $badge) {
 }
 
 /**
- * Attempt to authenticate with the site backpack credentials and return an error
- * if the authentication fails. If external backpacks are not enabled, this will
- * not perform any test.
- *
- * @return string
- */
-function badges_verify_site_backpack() {
-    $defaultbackpack = badges_get_site_primary_backpack();
-    return badges_verify_backpack($defaultbackpack->id);
-}
-
-/**
- * Attempt to authenticate with a backpack credentials and return an error
- * if the authentication fails.
- * If external backpacks are not enabled or the backpack version is different
- * from OBv2, this will not perform any test.
- *
- * @param int $backpackid Backpack identifier to verify.
- * @return string The result of the verification process.
- */
-function badges_verify_backpack(int $backpackid) {
-    global $OUTPUT, $CFG;
-
-    if (empty($CFG->badges_allowexternalbackpack)) {
-        return '';
-    }
-
-    $backpack = badges_get_site_backpack($backpackid);
-    if (empty($backpack->apiversion) || ($backpack->apiversion == OPEN_BADGES_V2)) {
-        $backpackapi = new \core_badges\backpack_api($backpack);
-
-        // Clear any cached access tokens in the session.
-        $backpackapi->clear_system_user_session();
-
-        // Now attempt a login with these credentials.
-        $result = $backpackapi->authenticate();
-        if (empty($result) || !empty($result->error)) {
-            $warning = $backpackapi->get_authentication_error();
-
-            $params = ['id' => $backpack->id, 'action' => 'edit'];
-            $backpackurl = (new moodle_url('/badges/backpacks.php', $params))->out(false);
-
-            $message = get_string('sitebackpackwarning', 'badges', ['url' => $backpackurl, 'warning' => $warning]);
-            $icon = $OUTPUT->pix_icon('i/warning', get_string('warning', 'moodle'));
-            return $OUTPUT->container($icon . $message, 'text-danger');
-        }
-    }
-
-    return '';
-}
-
-/**
  * Generate a public badgr URL that conforms to OBv2. This is done because badgr responses do not currently conform to
  * the spec.
  *

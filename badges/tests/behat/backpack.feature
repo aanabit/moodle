@@ -11,11 +11,6 @@ Feature: Backpack badges
     And the following "users" exist:
       | username | firstname | lastname | email                |
       | student1 | Student   | 1        | student1@example.com |
-    And I log in as "admin"
-    And I navigate to "Badges > Badges settings" in site administration
-    And I set the field "Badge issuer name" to "Test Badge Site"
-    And I set the field "Badge issuer email address" to "testuser@example.com"
-    And I log out
 
   @javascript
   Scenario: If external backpack connection is disabled, backpack settings should not be displayed

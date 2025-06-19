@@ -74,7 +74,6 @@ class external_backpacks_page implements \renderable {
         foreach ($this->backpacks as $backpack) {
             $exporter = new backpack_exporter($backpack);
             $backpack = $exporter->export($output);
-            $backpack->cantest = ($backpack->apiversion == OPEN_BADGES_V2);
             $backpack->canmoveup = $rownumber > 0;
             $backpack->canmovedown = $rownumber < $rowcount - 1;
 

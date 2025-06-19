@@ -85,3 +85,4 @@ aiusagestats,core_hub
 maxsectionslimit,core
 maxsectionaddmessage,core_courseformat
 includeauthdetails,core_badges
+testsettings,core_badges
