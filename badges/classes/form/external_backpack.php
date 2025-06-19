@@ -70,11 +70,6 @@ class external_backpack extends \moodleform {
         $mform->addElement('hidden', 'backpackuid', 0);
         $mform->setType('backpackuid', PARAM_INT);
 
-        $mform->addElement('advcheckbox', 'includeauthdetails', null, get_string('includeauthdetails', 'core_badges'));
-        if (!empty($backpack->backpackemail) || !empty($backpack->password)) {
-            $mform->setDefault('includeauthdetails', 1);
-        }
-
         $issuercontact = $CFG->badges_defaultissuercontact;
         $this->add_auth_fields($issuercontact);
 
@@ -82,10 +77,7 @@ class external_backpack extends \moodleform {
             $this->set_data($backpack);
         }
 
-        $mform->hideIf('includeauthdetails', 'apiversion', 'in', [OPEN_BADGES_V2P1]);
-        $mform->hideIf('backpackemail', 'includeauthdetails');
         $mform->hideIf('backpackemail', 'apiversion', 'in', [OPEN_BADGES_V2P1]);
-        $mform->hideIf('password', 'includeauthdetails');
         $mform->hideIf('password', 'apiversion', 'in', [OPEN_BADGES_V2P1]);
         $mform->hideIf('backpackapiurl', 'apiversion', 'in', [OPEN_BADGES_V2P1]);
 
@@ -130,13 +122,12 @@ class external_backpack extends \moodleform {
     public function get_data() {
         $data = parent::get_data();
         if ($data ) {
-            if ((isset($data->includeauthdetails) && !$data->includeauthdetails)
-                || (isset($data->apiversion) && $data->apiversion == 2.1)) {
+            if (isset($data->apiversion) && $data->apiversion == 2.1) {
                 $data->backpackemail = "";
                 $data->password = "";
             }
 
-            if ((isset($data->apiversion) && $data->apiversion == 1)) {
+            if (isset($data->apiversion) && $data->apiversion == 1) {
                 $data->password = "";
             }
         }

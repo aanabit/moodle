@@ -1,0 +1,8 @@
+issueNumber: MDL-85624
+notes:
+  core_badges:
+    - message: >-
+        "Include authentication details with the backpack" setting
+        (includeauthdetails) has been removed so there is no default site
+        backpack authentication detail stored anymore"
+      type: removed

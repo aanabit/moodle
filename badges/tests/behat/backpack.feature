@@ -137,36 +137,6 @@ Feature: Backpack badges
     And "Move down" "icon" should not exist in the "https://dc.imsglobal.org" "table_row"
 
   @javascript
-  Scenario: Add a new site backpack with authentication details checkbox
-    Given I am on homepage
-    And I log in as "admin"
-    And I navigate to "Badges > Manage backpacks" in site administration
-    When I press "Add a new backpack"
-    And I set the field "apiversion" to "2.1"
-    And I set the field "backpackweburl" to "http://backpackweburl.cat"
-    And I should not see "Backpack API URL"
-    Then "Include authentication details with the backpack" "checkbox" should not be visible
-    And I should not see "Badge issuer email address"
-    And I should not see "Badge issuer password"
-    And I set the field "apiversion" to "2"
-    And "Include authentication details with the backpack" "checkbox" should be visible
-    And I click on "includeauthdetails" "checkbox"
-    And I should see "Badge issuer email address"
-    And I should see "Badge issuer password"
-    And I set the field "backpackemail" to "test@test.com"
-    And I set the field "password" to "123456"
-    And I set the field "backpackapiurl" to "http://backpackapiurl.cat"
-    And I press "Save changes"
-    And I click on "Edit" "link" in the "http://backpackweburl.cat" "table_row"
-    And the field "Include authentication details with the backpack" matches value "1"
-    And I click on "includeauthdetails" "checkbox"
-    And I press "Save changes"
-    And I click on "Edit" "link" in the "http://backpackweburl.cat" "table_row"
-    And the field "Include authentication details with the backpack" matches value "0"
-    And I click on "includeauthdetails" "checkbox"
-    And I should not see "test@test.com"
-
-  @javascript
   Scenario: View backpack form as a student
     Given I log in as "student1"
     And I follow "Preferences" in the user menu

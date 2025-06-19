@@ -580,7 +580,6 @@ $string['visible'] = 'Visible';
 $string['version'] = 'Version';
 $string['warnexpired'] = ' (This badge has expired!)';
 $string['year'] = 'Year(s)';
-$string['includeauthdetails'] = "Include authentication details with the backpack";
 
 // Deprecated since Moodle 4.5.
 $string['error:cannotact'] = 'Cannot activate the badge. ';
@@ -601,3 +600,6 @@ $string['imagecaption_help'] = 'If specified, an image caption is displayed on t
 $string['issuername_help'] = 'Name of the issuing agent or authority.';
 $string['language_help'] = 'The language used on the badge page.';
 $string['version_help'] = 'The version field may be used to keep track of the badge\'s development. If specified, the version is displayed on the badge page.';
+
+// Deprecated since Moodle 5.1.
+$string['includeauthdetails'] = "Include authentication details with the backpack";
