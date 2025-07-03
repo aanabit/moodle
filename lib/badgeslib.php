@@ -1047,7 +1047,7 @@ function badges_save_backpack_credentials(stdClass $data) {
         $backpack->email = $data->backpackemail;
         $backpack->password = !empty($data->password) ? $data->password : '';
         $backpack->externalbackpackid = $data->externalbackpackid;
-        $backpack->userid = $data->userid ?? 0;
+        $backpack->userid = $data->userid;
         $backpack->backpackuid = $data->backpackuid ?? 0;
         $backpack->autosync = $data->autosync ?? 0;
 

@@ -1842,5 +1842,13 @@ function xmldb_main_upgrade($oldversion) {
         upgrade_main_savepoint(true, 2025053000.02);
     }
 
+    if ($oldversion < 2025062900.01) {
+        // Delete all the site backpack credentials with no user linked.
+        $DB->delete_records('badge_backpack', ['userid' => 0]);
+
+        // Main savepoint reached.
+        upgrade_main_savepoint(true, 2025062900.01);
+    }
+
     return true;
 }
