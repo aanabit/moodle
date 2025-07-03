@@ -63,16 +63,16 @@ class overview extends \core_courseformat\activityoverviewbase {
         }
 
         $content = new action_link(
-            url: new url('/mod/feedback/show_entries.php', ['id' => $this->cm->id]),
-            text: $this->stringmanager->get_string('view', 'core'),
-            attributes: ['class' => button::SECONDARY_OUTLINE->classes()],
+                url: new url('/mod/feedback/show_entries.php', ['id' => $this->cm->id]),
+                text: $this->stringmanager->get_string('view', 'core'),
+                attributes: ['class' => button::SECONDARY_OUTLINE->classes()],
         );
 
         return new overviewitem(
-            name: $this->stringmanager->get_string('actions'),
-            value: $this->stringmanager->get_string('view'),
-            content: $content,
-            textalign: text_align::CENTER,
+                name: $this->stringmanager->get_string('actions'),
+                value: $this->stringmanager->get_string('view'),
+                content: $content,
+                textalign: text_align::CENTER,
         );
     }
 

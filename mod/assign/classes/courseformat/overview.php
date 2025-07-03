@@ -104,7 +104,7 @@ class overview extends \core_courseformat\activityoverviewbase {
         $content = new action_link(
             url: new url('/mod/assign/view.php', ['id' => $this->cm->id, 'action' => 'grading']),
             text: $name . $badge,
-            attributes: ['class' => button::SECONDARY_OUTLINE->classes()],
+            attributes: ['class' => button::BODY_OUTLINE->classes()],
         );
 
         return new overviewitem(
@@ -142,14 +142,14 @@ class overview extends \core_courseformat\activityoverviewbase {
         $total = $this->assign->count_participants($activitygroup);
 
         return new overviewitem(
-            name: get_string('submissions', 'assign'),
-            value: $submissions,
-            content: get_string(
-                'count_of_total',
-                'core',
-                ['count' => $submissions, 'total' => $total]
-            ),
-            textalign: text_align::CENTER,
+                name: get_string('submissions', 'assign'),
+                value: $submissions,
+                content: get_string(
+                        'count_of_total',
+                        'core',
+                        ['count' => $submissions, 'total' => $total]
+                ),
+                textalign: text_align::CENTER,
         );
     }
 
