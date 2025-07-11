@@ -16,13 +16,14 @@
 
 namespace mod_feedback\courseformat;
 
-use core_calendar\output\humandate;
-use core_courseformat\local\overview\overviewitem;
-use core\output\action_link;
-use core\output\local\properties\button;
-use core\output\local\properties\text_align;
+use cm_info;
 use core\url;
 use core\output\pix_icon;
+use core\output\action_link;
+use core_calendar\output\humandate;
+use core\output\local\properties\button;
+use core\output\local\properties\text_align;
+use core_courseformat\local\overview\overviewitem;
 
 /**
  * Class overview
@@ -32,45 +33,44 @@ use core\output\pix_icon;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class overview extends \core_courseformat\activityoverviewbase {
+
+    /**
+     * Constructor.
+     *
+     * @param cm_info $cm the course module instance.
+     * @param \core_string_manager $stringmanager the string manager.
+     */
+    public function __construct(
+        cm_info $cm,
+        /** @var \core_string_manager $stringmanager the string manager */
+        protected readonly \core_string_manager $stringmanager,
+    ) {
+        parent::__construct($cm);
+    }
+
     #[\Override]
     public function get_extra_overview_items(): array {
         return [
+            'responses' => $this->get_extra_responses_overview(),
             'submitted' => $this->get_extra_submitted_overview(),
         ];
     }
 
     #[\Override]
     public function get_actions_overview(): ?overviewitem {
-        global $CFG, $USER;
-
         if (!has_capability('mod/feedback:viewreports', $this->context)) {
             return null;
         }
 
-        require_once($CFG->dirroot . '/mod/feedback/lib.php');
-
-        $submissions = feedback_get_completeds_group_count(
-            $this->cm->get_instance_record()
-        );
-        // Normalize the value.
-        if (!$submissions) {
-            $submissions = 0;
-        }
-        $total = $submissions + feedback_count_incomplete_users($this->cm);
-
         $content = new action_link(
             url: new url('/mod/feedback/show_entries.php', ['id' => $this->cm->id]),
-            text: get_string(
-                'count_of_total',
-                'core',
-                ['count' => $submissions, 'total' => $total]
-            ),
+            text: $this->stringmanager->get_string('view', 'core'),
             attributes: ['class' => button::SECONDARY_OUTLINE->classes()],
         );
 
         return new overviewitem(
-            name: get_string('responses', 'mod_feedback'),
-            value: $submissions,
+            name: $this->stringmanager->get_string('actions'),
+            value: $this->stringmanager->get_string('view'),
             content: $content,
             textalign: text_align::CENTER,
         );
@@ -85,15 +85,44 @@ class overview extends \core_courseformat\activityoverviewbase {
 
         if (empty($duedate)) {
             return new overviewitem(
-                name: get_string('feedbackclose', 'mod_feedback'),
+                name: $this->stringmanager->get_string('duedate', 'mod_feedback'),
                 value: null,
                 content: '-',
             );
         }
         return new overviewitem(
-            name: get_string('feedbackclose', 'mod_feedback'),
+            name: $this->stringmanager->get_string('duedate', 'mod_feedback'),
             value: $duedate,
             content: humandate::create_from_timestamp($duedate),
+        );
+    }
+
+    /**
+     * Get the responses overview item.
+     *
+     * @return overviewitem|null The overview item (or null for students).
+     */
+    private function get_extra_responses_overview(): ?overviewitem {
+        global $CFG;
+
+        if (!has_capability('mod/feedback:viewreports', $this->context)) {
+            return null;
+        }
+
+        require_once($CFG->dirroot . '/mod/feedback/lib.php');
+
+        $submissions = feedback_get_completeds_group_count(
+            $this->cm->get_instance_record()
+        );
+        // Normalize the value.
+        if (!$submissions) {
+            $submissions = 0;
+        }
+
+        return new overviewitem(
+            name: $this->stringmanager->get_string('responses', 'mod_feedback'),
+            value: $submissions,
+            textalign: text_align::CENTER,
         );
     }
 
@@ -123,13 +152,13 @@ class overview extends \core_courseformat\activityoverviewbase {
             $value = true;
             $content = new pix_icon(
                 'i/checkedcircle',
-                alt: get_string('this_feedback_is_already_submitted', 'mod_feedback'),
+                alt: $this->stringmanager->get_string('this_feedback_is_already_submitted', 'mod_feedback'),
                 attributes: ['class' => 'text-success'],
             );
         }
 
         return new overviewitem(
-            name: get_string('responded', 'mod_feedback'),
+            name: $this->stringmanager->get_string('responded', 'mod_feedback'),
             value: $value,
             content: $content,
             textalign: text_align::CENTER,

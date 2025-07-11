@@ -28,6 +28,7 @@ use core_courseformat\local\overview\overviewfactory;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 final class overview_test extends \advanced_testcase {
+
     #[\Override]
     public static function setUpBeforeClass(): void {
         global $CFG;
@@ -42,52 +43,35 @@ final class overview_test extends \advanced_testcase {
      * @covers ::get_actions_overview
      * @dataProvider provider_test_get_actions_overview
      *
-     * @param string $user
-     * @param bool $expectnull
-     * @param bool $hasresponses
+     * @param string $role
+     * @param array|null $expected
      * @return void
      */
-    public function test_get_actions_overview(string $user, bool $expectnull, bool $hasresponses): void {
+    public function test_get_actions_overview(
+        string $role,
+        ?array $expected
+    ): void {
         $this->resetAfterTest();
+        $this->setAdminUser();
+
         $course = $this->getDataGenerator()->create_course();
-        $teacher = $this->getDataGenerator()->create_and_enrol($course, 'teacher');
-        $student = $this->getDataGenerator()->create_and_enrol($course, 'student');
+        $currentuser = $this->getDataGenerator()->create_and_enrol($course, $role);
+        $activity = $this->getDataGenerator()->create_module( 'feedback', ['course' => $course->id]);
 
-        $activity = $this->getDataGenerator()->create_module(
-            'feedback',
-            ['course' => $course->id],
-        );
-        $cm = get_fast_modinfo($course)->get_cm($activity->cmid);
-
-        $feedbackgenerator = $this->getDataGenerator()->get_plugin_generator('mod_feedback');
-        $itemcreated = $feedbackgenerator->create_item_multichoice($activity, ['values' => "y\nn"]);
-
-        $expectedresonses = 0;
-        if ($hasresponses) {
-            $this->setUser($student);
-            $feedbackgenerator->create_response([
-                'userid' => $student->id,
-                'cmid' => $cm->id,
-                'anonymous' => false,
-                $itemcreated->name => 'y',
-            ]);
-            $expectedresonses = 1;
-        }
-
-        $currentuser = ($user == 'teacher') ? $teacher : $student;
         $this->setUser($currentuser);
 
+        $cm = get_fast_modinfo($course)->get_cm($activity->cmid);
         $item = overviewfactory::create($cm)->get_actions_overview();
 
-        // Students should not see item.
-        if ($expectnull) {
+        if ($expected === null) {
             $this->assertNull($item);
             return;
         }
 
-        // Teachers should see item.
-        $this->assertEquals(get_string('responses', 'mod_feedback'), $item->get_name());
-        $this->assertEquals($expectedresonses, $item->get_value());
+        $this->assertEquals(
+            $expected,
+            ['name' => $item->get_name(), 'value' => $item->get_value()]
+        );
     }
 
     /**
@@ -97,25 +81,16 @@ final class overview_test extends \advanced_testcase {
      */
     public static function provider_test_get_actions_overview(): array {
         return [
-            'Teacher with responses' => [
-                'user' => 'teacher',
-                'expectnull' => false,
-                'hasresponses' => true,
+            'Student' => [
+                'role' => 'student',
+                'expected' => null,
             ],
-            'Student with responses' => [
-                'user' => 'student',
-                'expectnull' => true,
-                'hasresponses' => true,
-            ],
-            'Teacher without responses' => [
-                'user' => 'teacher',
-                'expectnull' => false,
-                'hasresponses' => false,
-            ],
-            'Student without responses' => [
-                'user' => 'student',
-                'expectnull' => true,
-                'hasresponses' => false,
+            'Teacher' => [
+                'role' => 'editingteacher',
+                'expected' => [
+                    'name' => get_string('actions'),
+                    'value' => get_string('view'),
+                ],
             ],
         ];
     }
@@ -148,7 +123,7 @@ final class overview_test extends \advanced_testcase {
         $item = overviewfactory::create($cm)->get_due_date_overview();
 
         // Teachers should see item.
-        $this->assertEquals(get_string('feedbackclose', 'mod_feedback'), $item->get_name());
+        $this->assertEquals(get_string('duedate', 'mod_feedback'), $item->get_name());
         $expectedvalue = $hasduedate ? $moddata['timeclose'] : null;
         $this->assertEquals($expectedvalue, $item->get_value());
     }
@@ -180,6 +155,94 @@ final class overview_test extends \advanced_testcase {
     }
 
     /**
+     * Test get_extra_responses_overview.
+     *
+     * @covers ::get_extra_responses_overview
+     * @dataProvider provider_get_extra_responses_overview
+     *
+     * @param string $user
+     * @param bool $expectnull
+     * @param bool $hasresponses
+     */
+    public function test_get_extra_responses_overview(string $user, bool $expectnull, bool $hasresponses): void {
+        $this->resetAfterTest();
+
+        $course = $this->getDataGenerator()->create_course();
+        $teacher = $this->getDataGenerator()->create_and_enrol($course, 'teacher');
+        $student = $this->getDataGenerator()->create_and_enrol($course, 'student');
+
+        $activity = $this->getDataGenerator()->create_module(
+            'feedback',
+            ['course' => $course->id],
+        );
+        $cm = get_fast_modinfo($course)->get_cm($activity->cmid);
+
+        $feedbackgenerator = $this->getDataGenerator()->get_plugin_generator('mod_feedback');
+        $itemcreated = $feedbackgenerator->create_item_multichoice($activity, ['values' => "y\nn"]);
+
+        $expectedresonses = 0;
+        if ($hasresponses) {
+            $this->setUser($student);
+            $feedbackgenerator->create_response([
+                'userid' => $student->id,
+                'cmid' => $cm->id,
+                'anonymous' => false,
+                $itemcreated->name => 'y',
+            ]);
+            $expectedresonses = 1;
+        }
+
+        $currentuser = ($user == 'teacher') ? $teacher : $student;
+        $this->setUser($currentuser);
+
+        $overview = overviewfactory::create($cm);
+        $reflection = new \ReflectionClass($overview);
+        $method = $reflection->getMethod('get_extra_responses_overview');
+        $method->setAccessible(true);
+        $item = $method->invoke($overview);
+
+        // Students should not see item.
+        if ($expectnull) {
+            $this->assertNull($item);
+            return;
+        }
+
+        // Teachers should see item.
+        $this->assertEquals(get_string('responses', 'mod_feedback'), $item->get_name());
+        $this->assertEquals($expectedresonses, $item->get_value());
+    }
+
+    /**
+     * Data provider for get_extra_responses_overview.
+     *
+     * @return array
+     */
+    public static function provider_get_extra_responses_overview(): array {
+        return [
+            'Teacher with responses' => [
+                'user' => 'teacher',
+                'expectnull' => false,
+                'hasresponses' => true,
+            ],
+            'Student with responses' => [
+                'user' => 'student',
+                'expectnull' => true,
+                'hasresponses' => true,
+            ],
+            'Teacher without responses' => [
+                'user' => 'teacher',
+                'expectnull' => false,
+                'hasresponses' => false,
+            ],
+            'Student without responses' => [
+                'user' => 'student',
+                'expectnull' => true,
+                'hasresponses' => false,
+            ],
+        ];
+    }
+
+    /**
      * Test get_extra_submitted_overview.
      *
      * @covers ::get_extra_submitted_overview
@@ -205,7 +268,6 @@ final class overview_test extends \advanced_testcase {
         $feedbackgenerator = $this->getDataGenerator()->get_plugin_generator('mod_feedback');
         $itemcreated = $feedbackgenerator->create_item_multichoice($activity, ['values' => "y\nn"]);
 
-        $expectedresonses = 0;
         if ($hasresponses) {
             $this->setUser($student);
             $feedbackgenerator->create_response([
@@ -214,7 +276,6 @@ final class overview_test extends \advanced_testcase {
                 'anonymous' => false,
                 $itemcreated->name => 'y',
             ]);
-            $expectedresonses = 1;
         }
 
         $currentuser = ($user == 'teacher') ? $teacher : $student;
