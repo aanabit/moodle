@@ -44,6 +44,15 @@ $overviewdialogmaxwidth: 20rem !default;
         }
     }
 
+    // Inline selects in the course overview.
+    .inplaceeditable-select {
+        display: inline-block;
+    }
+    .form-select {
+        padding-top: $btn-padding-y-sm;
+        padding-bottom: $btn-padding-y-sm;
+    }
+
     // Activity icons in the course overview.
     .activityiconcontainer {
         width: map-get($iconsizes, 6);
