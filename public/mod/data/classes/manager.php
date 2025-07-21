@@ -246,13 +246,21 @@ class manager {
     /**
      * Return the database entries.
      *
+     * @param array $groups to filter by.
      * @return [] the data records array.
      */
-    public function get_all_entries(): array {
+    public function get_all_entries(array $groups = []): array {
         global $DB;
 
         if (empty($this->_entries)) {
-            $this->_entries = $DB->get_records('data_records', ['dataid' => $this->instance->id]);
+            if (empty($groups)) {
+                $this->_entries = $DB->get_records('data_records', ['dataid' => $this->instance->id]);
+            } else {
+                [$sql, $params] = $DB->get_in_or_equal(array_keys($groups), SQL_PARAMS_NAMED);
+                $sql = 'dataid = :id AND (groupid ' . $sql . ' OR groupid = 0)';
+                $params['id'] = $this->instance->id;
+                $this->_entries = $DB->get_records_select('data_records', $sql, $params);
+            }
         }
         return $this->_entries;
     }
@@ -293,16 +301,17 @@ class manager {
      * Return the database comments filtered by approved entries.
      *
      * @param ?int $approved Approved value to filter by. Null for not filtering.
+     * @param ?array $groups to filter by.
      *
      * @return [] the filtered data comments array or null if there is no comment.
      */
-    public function get_comments(?int $approved = null): ?array {
+    public function get_comments(?int $approved = null, array $groups = []): ?array {
 
         if ($this->_comments) {
             return $this->_comments;
         }
 
-        $entries = $this->get_all_entries();
+        $entries = $this->get_all_entries($groups);
         if (!is_null($approved)) {
             $entries = $this->filter_entries_by_approval($entries, $approved);
         }
