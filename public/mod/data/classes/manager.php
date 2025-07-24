@@ -69,16 +69,6 @@ class manager {
     /** @var cm_info course_modules record. */
     private $cm;
 
-    /** @var array the current data records.
-     * Do not access this attribute directly, use $this->get_all_entries instead
-     */
-    private $_entries = null;
-
-    /** @var array the current data comments.
-     * Do not access this attribute directly, use $this->get_all_comments instead
-     */
-    private $_comments = null;
-
     /** @var array the current data_fields records.
      * Do not access this attribute directly, use $this->get_field_records instead
      */
@@ -252,17 +242,14 @@ class manager {
     public function get_all_entries(array $groups = []): array {
         global $DB;
 
-        if (empty($this->_entries)) {
-            if (empty($groups)) {
-                $this->_entries = $DB->get_records('data_records', ['dataid' => $this->instance->id]);
-            } else {
-                [$sql, $params] = $DB->get_in_or_equal(array_keys($groups), SQL_PARAMS_NAMED);
-                $sql = 'dataid = :id AND (groupid ' . $sql . ' OR groupid = 0)';
-                $params['id'] = $this->instance->id;
-                $this->_entries = $DB->get_records_select('data_records', $sql, $params);
-            }
+        if (empty($groups)) {
+            return $DB->get_records('data_records', ['dataid' => $this->instance->id]);
+        } else {
+            [$sql, $params] = $DB->get_in_or_equal(array_keys($groups), SQL_PARAMS_NAMED);
+            $sql = 'dataid = :id AND (groupid ' . $sql . ' OR groupid = 0)';
+            $params['id'] = $this->instance->id;
+            return $DB->get_records_select('data_records', $sql, $params);
         }
-        return $this->_entries;
     }
 
     /**
@@ -307,16 +294,12 @@ class manager {
      */
     public function get_comments(?int $approved = null, array $groups = []): ?array {
 
-        if ($this->_comments) {
-            return $this->_comments;
-        }
-
         $entries = $this->get_all_entries($groups);
         if (!is_null($approved)) {
             $entries = $this->filter_entries_by_approval($entries, $approved);
         }
 
-        $this->_comments = [];
+        $comments = [];
 
         // Initilising comment object.
         $args = new stdClass;
@@ -331,11 +314,11 @@ class manager {
             $comment = new \comment($args);
             $morecomments = $comment->get_comments();
             if ($morecomments) {
-                $this->_comments = array_merge($this->_comments, $morecomments);
+                $comments = array_merge($comments, $morecomments);
             }
         }
 
-        return $this->_comments;
+        return $comments;
     }
 
     /**

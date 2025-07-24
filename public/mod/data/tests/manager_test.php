@@ -799,33 +799,53 @@ final class manager_test extends \advanced_testcase {
             [$field->field->id => 'Example entry'],
         );
         $this->assertCount(1, $manager->get_all_entries());
+    }
 
-        // Let's check the SEPARATEGROUPS behavior.
-        set_coursemodule_groupmode($manager->get_coursemodule()->id, SEPARATEGROUPS);
+    /**
+     * Test for get_all_entries() with groups parameter.
+     *
+     * @covers ::get_all_entries
+     */
+    public function test_get_all_entries_with_groups(): void {
+        $this->resetAfterTest();
 
+        $course = $this->getDataGenerator()->create_course();
         $g1 = $this->getDataGenerator()->create_group(['courseid' => $course->id]);
         $g2 = $this->getDataGenerator()->create_group(['courseid' => $course->id]);
 
+        $data = $this->getDataGenerator()->create_module(manager::MODULE, ['course' => $course, 'groupmode' => SEPARATEGROUPS]);
+        $manager = manager::create_from_instance($data);
+
+        // Add a field.
+        /** @var \mod_data_generator $generator */
+        $generator = $this->getDataGenerator()->get_plugin_generator('mod_data');
+        $fieldrecord = (object)[
+            'name' => 'myfield',
+            'type' => 'text',
+        ];
+        $field = $generator->create_field($fieldrecord, $data);
+        $generator->create_entry(
+            $data,
+            [$field->field->id => 'Example entry'],
+        );
+
         // Create entries for each group.
         $generator->create_entry(
-            $data,
-            [$field->field->id => 'G1'],
-            $g1->id,
+                $data,
+                [$field->field->id => 'G1'],
+                $g1->id,
         );
         $generator->create_entry(
-            $data,
-            [$field->field->id => 'G2'],
-            $g2->id,
+                $data,
+                [$field->field->id => 'G2'],
+                $g2->id,
         );
 
-        $manager = manager::create_from_instance($data);
         $this->assertCount(3, $manager->get_all_entries([]));
-
-        $manager = manager::create_from_instance($data);
         $this->assertCount(2, $manager->get_all_entries([$g1->id => $g1]));
-
-        $manager = manager::create_from_instance($data);
         $this->assertCount(3, $manager->get_all_entries([$g1->id => $g1, $g2->id => $g2]));
+        // Non-existing group. It returns the entries with no group.
+        $this->assertCount(1, $manager->get_all_entries([666 => null]));
     }
 
     /**
@@ -1109,6 +1129,80 @@ final class manager_test extends \advanced_testcase {
                 'approvalfilter' => 0,
             ],
         ];
+    }
+
+    /**
+     * Test get_comments with groups parameter.
+     *
+     * @covers ::get_comments
+     */
+    public function test_get_comments_with_groups(): void {
+        global $CFG;
+
+        $this->resetAfterTest();
+        $this->setAdminUser();
+
+        $CFG->usecomments = true;
+
+        $course = $this->getDataGenerator()->create_course();
+        $g1 = $this->getDataGenerator()->create_group(['courseid' => $course->id]);
+        $g2 = $this->getDataGenerator()->create_group(['courseid' => $course->id]);
+
+        $data = $this->getDataGenerator()->create_module(
+            manager::MODULE,
+            ['course' => $course, 'approval' => 1, 'comments' => 1, 'groupmode' => SEPARATEGROUPS],
+        );
+
+        // Add a field.
+        /** @var \mod_data_generator $generator */
+        $generator = $this->getDataGenerator()->get_plugin_generator('mod_data');
+        $fieldrecord = (object)[
+            'name' => 'myfield',
+            'type' => 'text',
+        ];
+        $field = $generator->create_field($fieldrecord, $data);
+
+        $comments= [];
+        $comment = [
+            'contextlevel' => 'module',
+            'instanceid' => $data->cmid,
+            'component' => 'mod_data',
+            'content' => 'abc',
+            'area' => 'database_entry',
+        ];
+
+        $nogroupsentry = $generator->create_entry(
+            $data,
+            [$field->field->id => 'Example entry'],
+        );
+        $comment['itemid'] = $nogroupsentry;
+        $comments[] = $comment;
+
+        // Create entries for each group.
+        $g1entry = $generator->create_entry(
+            $data,
+            [$field->field->id => 'G1'],
+            $g1->id,
+        );
+        $comment['itemid'] = $g1entry;
+        $comments[] = $comment;
+
+        $g2entry = $generator->create_entry(
+            $data,
+            [$field->field->id => 'G2'],
+            $g2->id,
+        );
+        $comment['itemid'] = $g2entry;
+        $comments[] = $comment;
+
+        \core_comment_external::add_comments($comments);
+        $manager = manager::create_from_instance($data);
+
+        $this->assertCount(3, $manager->get_comments());
+        $this->assertCount(2, $manager->get_comments(groups: [$g1->id => $g1]));
+        $this->assertCount(3, $manager->get_comments(groups: [$g1->id => $g1, $g2->id => $g2]));
+        // Non-existing group. It returns the entries with no group.
+        $this->assertCount(1, $manager->get_comments(groups: [666 => null]));
     }
 
     /**

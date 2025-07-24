@@ -197,8 +197,12 @@ Feature: Testing overview integration in database activity
     Then the following should exist in the "Table listing all Database activities" table:
       | Name            | Due date       | Total entries | My entries | Comments  |
       | Separate groups | 1 January 2040 | 3             | 1          | 1         |
-    And I log out
     And I am on the "Course 1" "course > activities > data" page logged in as nonediting1
+    And I wait "20" seconds
     And the following should exist in the "Table listing all Database activities" table:
-      | Name            | Due date       | Entries | Comments | Actions      |
+      | Name            | Due date       | Entries | Comments | Actions     |
       | Separate groups | 1 January 2040 | 4       | 1        | Approve (1) |
+    And I am on the "Course 1" "course > activities > data" page logged in as teacher1
+    And the following should exist in the "Table listing all Database activities" table:
+      | Name            | Due date       | Entries | Comments | Actions     |
+      | Separate groups | 1 January 2040 | 6       | 1        | Approve (2) |

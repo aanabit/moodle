@@ -98,7 +98,7 @@ class overview extends \core_courseformat\activityoverviewbase {
         $alertlabel = get_string('numberofentriestoapprove', 'data');
         if ($this->manager->get_approval_requested()) {
             // Let's calculate how many entries need to be approved.
-            $entries = $this->manager->filter_entries_by_approval($this->manager->get_all_entries(), 0);
+            $entries = $this->manager->filter_entries_by_approval($this->manager->get_all_entries($this->groups), 0);
             $toapprove = count($entries);
 
             $name = get_string('approve', 'data');
@@ -130,49 +130,24 @@ class overview extends \core_courseformat\activityoverviewbase {
 
     #[\Override]
     public function get_extra_overview_items(): array {
-        $columns = [];
-        // Add entry columns for each view.
-        if ($this->canviewall) {
-            $columns['totalentries'] = $this->get_extra_entries_overview();
-        } else {
-            $columns['totalentries'] = $this->get_extra_totalentries_overview();
-            $columns['myentries'] = $this->get_extra_myentries_overview();
-        }
-
-        // Add comments column for all views.
-        $columns['comments'] = $this->get_extra_comments_overview();
-
-        return $columns;
-    }
-
-    /**
-     * Get the "Total entries" overview item.
-     *
-     * @return overviewitem The overview item.
-     */
-    private function get_extra_totalentries_overview(): overviewitem {
-        $allentries = $this->manager->get_all_entries($this->groups);
-        if ($this->manager->get_approval_requested()) {
-            $allentries = $this->manager->filter_entries_by_approval($allentries, 1);
-        }
-        $totalentries = count($allentries);
-
-        // Add total entries.
-        return new overviewitem(
-            name: get_string('totalentries', 'data'),
-            value: $totalentries,
-            content: $totalentries,
-            textalign: text_align::CENTER,
-        );
+        return [
+            'totalentries' => $this->get_extra_entries_overview(),
+            'myentries' => $this->get_extra_myentries_overview(),
+            'comments' => $this->get_extra_comments_overview(),
+        ];
     }
 
     /**
      * Get the "My entries" overview item.
      *
-     * @return overviewitem The overview item.
+     * @return ?overviewitem The overview item or null when the user is a student.
      */
-    private function get_extra_myentries_overview(): overviewitem {
+    private function get_extra_myentries_overview(): ?overviewitem {
         global $USER;
+
+        if ($this->canviewall) {
+            return null;
+        }
 
         $myentries = $this->manager->filter_entries_by_user($this->manager->get_all_entries($this->groups), $USER->id);
         $totalmyentries = count($myentries);
@@ -192,11 +167,26 @@ class overview extends \core_courseformat\activityoverviewbase {
      */
     private function get_extra_entries_overview(): overviewitem {
         $allentries = $this->manager->get_all_entries($this->groups);
-        $totalentries = count($allentries);
+        if ($this->canviewall) {
+            $name = get_string('entries', 'data');
+            $totalentries = count($allentries);
 
-        // Add total entries.
+            // Add total entries.
+            return new overviewitem(
+                name: $name,
+                value: $totalentries,
+                content: $totalentries,
+                textalign: text_align::CENTER,
+            );
+        } else {
+            if ($this->manager->get_approval_requested()) {
+                $allentries = $this->manager->filter_entries_by_approval($allentries, 1);
+            }
+            $name = get_string('totalentries', 'data');
+            $totalentries = count($allentries);
+        }
         return new overviewitem(
-            name: get_string('entries', 'data'),
+            name: $name,
             value: $totalentries,
             content: $totalentries,
             textalign: text_align::CENTER,

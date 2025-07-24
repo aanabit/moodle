@@ -135,8 +135,8 @@ final class overview_test extends \advanced_testcase {
                 'needsapproval' => true,
                 'entries' => [1, 1],
                 'expected' => [
-                        'link' => get_string('view', 'moodle'),
-                        'value' => 0,
+                    'link' => get_string('view', 'moodle'),
+                    'value' => 0,
                 ],
             ],
         ];
@@ -156,11 +156,11 @@ final class overview_test extends \advanced_testcase {
      * @return void
      */
     public function test_get_extra_entries_overview(
-            string $role,
-            bool $needsapproval,
-            array $entries,
-            array $myentries,
-            array $expected
+        string $role,
+        bool $needsapproval,
+        array $entries,
+        array $myentries,
+        array $expected
     ): void {
         $this->resetAfterTest();
 
@@ -301,10 +301,10 @@ final class overview_test extends \advanced_testcase {
      * @return void
      */
     public function test_get_extra_comments_overview(
-            string $role,
-            bool $needsapproval,
-            array $entries,
-            int $expected
+        string $role,
+        bool $needsapproval,
+        array $entries,
+        int $expected
     ): void {
         global $CFG;
 
