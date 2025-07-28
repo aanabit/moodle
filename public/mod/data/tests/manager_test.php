@@ -831,14 +831,14 @@ final class manager_test extends \advanced_testcase {
 
         // Create entries for each group.
         $generator->create_entry(
-                $data,
-                [$field->field->id => 'G1'],
-                $g1->id,
+            $data,
+            [$field->field->id => 'G1'],
+            $g1->id,
         );
         $generator->create_entry(
-                $data,
-                [$field->field->id => 'G2'],
-                $g2->id,
+            $data,
+            [$field->field->id => 'G2'],
+            $g2->id,
         );
 
         $this->assertCount(3, $manager->get_all_entries([]));
