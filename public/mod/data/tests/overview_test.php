@@ -363,7 +363,7 @@ final class overview_test extends \advanced_testcase {
         $this->assertEquals(5, $items['totalentries']->get_value());
         $this->assertNull($items['myentries']);
 
-        // Editing teachers can see their groups and all participants.
+        // Non-editing teachers can see their groups and all participants.
         $this->setUser($noneditingteacher);
         $cm = get_fast_modinfo($course)->get_cm($activity->cmid);
         $items = overviewfactory::create($cm)->get_extra_overview_items();

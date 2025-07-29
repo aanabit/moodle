@@ -41,8 +41,8 @@ class overview extends \core_courseformat\activityoverviewbase {
     /** @var bool whether the user can see pendent entries or not. */
     private $canviewall;
 
-    /** @var array Groups to filter by. */
-    private $groups = [];
+    /** @var array All the entries belonging to groups that the current user can view. */
+    private $allentries = [];
 
     /**
      * Constructor.
@@ -59,7 +59,11 @@ class overview extends \core_courseformat\activityoverviewbase {
 
         $this->manager = manager::create_from_coursemodule($cm);
         $this->canviewall = has_capability('mod/data:approve', $cm->context);
-        $this->groups = $this->get_groups_for_filtering();
+        $groups = [];
+        if ($this->needs_filtering_by_groups()) {
+            $groups = $this->get_groups_for_filtering();
+        }
+        $this->allentries = $this->manager->get_all_entries($groups);
     }
 
     #[\Override]
@@ -98,7 +102,7 @@ class overview extends \core_courseformat\activityoverviewbase {
         $alertlabel = get_string('numberofentriestoapprove', 'data');
         if ($this->manager->get_approval_requested()) {
             // Let's calculate how many entries need to be approved.
-            $entries = $this->manager->filter_entries_by_approval($this->manager->get_all_entries($this->groups), 0);
+            $entries = $this->manager->filter_entries_by_approval($this->allentries, 0);
             $toapprove = count($entries);
 
             $name = get_string('approve', 'data');
@@ -149,7 +153,7 @@ class overview extends \core_courseformat\activityoverviewbase {
             return null;
         }
 
-        $myentries = $this->manager->filter_entries_by_user($this->manager->get_all_entries($this->groups), $USER->id);
+        $myentries = $this->manager->filter_entries_by_user($this->allentries, $USER->id);
         $totalmyentries = count($myentries);
 
         return new overviewitem(
@@ -166,27 +170,19 @@ class overview extends \core_courseformat\activityoverviewbase {
      * @return overviewitem The overview item.
      */
     private function get_extra_entries_overview(): overviewitem {
-        $allentries = $this->manager->get_all_entries($this->groups);
         if ($this->canviewall) {
             $name = get_string('entries', 'data');
-            $totalentries = count($allentries);
-
-            // Add total entries.
-            return new overviewitem(
-                name: $name,
-                value: $totalentries,
-                content: $totalentries,
-                textalign: text_align::CENTER,
-            );
+            $totalentries = count($this->allentries);
         } else {
+            $allentries = $this->allentries;
             if ($this->manager->get_approval_requested()) {
-                $allentries = $this->manager->filter_entries_by_approval($allentries, 1);
+                $allentries = $this->manager->filter_entries_by_approval($this->allentries, 1);
             }
             $name = get_string('totalentries', 'data');
             $totalentries = count($allentries);
         }
         return new overviewitem(
-            name: get_string('entries', 'data'),
+            name: $name,
             value: $totalentries,
             content: $totalentries,
             textalign: text_align::CENTER,
@@ -212,7 +208,7 @@ class overview extends \core_courseformat\activityoverviewbase {
         }
 
         $approved = ($this->canviewall) ? null : 1;
-        $comments = $this->manager->get_comments(approved: $approved, groups: $this->groups);
+        $comments = $this->manager->get_comments(approved: $approved, groups: $this->get_groups_for_filtering());
         $totalcomments = ($comments) ? count($comments) : 0;
         return new overviewitem(
             name: get_string('comments', 'data'),
