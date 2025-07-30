@@ -104,3 +104,58 @@ Feature: Testing overview integration in H5P activity
     And I should see "Name" in the "h5pactivity_overview_collapsible" "region"
     And I should see "H5P type" in the "h5pactivity_overview_collapsible" "region"
     And I should see "Actions" in the "h5pactivity_overview_collapsible" "region"
+
+  @javascript
+  Scenario: Non-editing teachers can only see information related to their groups
+    Given the following "users" exist:
+      | username    | firstname   | lastname | email                   |
+      | nonediting1 | Non editing | Teacher  | nonediting1@example.com |
+    And the following "course enrolments" exist:
+      | user        | course | role           |
+      | nonediting1 | C1     | teacher        |
+    And the following "groups" exist:
+      | name    | course | idnumber |
+      | Group A | C1     | GA       |
+      | Group B | C1     | GB       |
+    And the following "group members" exist:
+      | user        | group |
+      | student1    | GA    |
+      | student3    | GA    |
+      | nonediting1 | GA    |
+    And the following "activity" exists:
+      | course          | C1                                    |
+      | activity        | h5pactivity                           |
+      | name            | Separate groups                       |
+      | intro           | description                           |
+      | packagefilepath | h5p/tests/fixtures/find-the-words.h5p |
+      | idnumber        | separate                              |
+      | completion      | 1                                     |
+      | enabletracking  | 1                                     |
+      | reviewmode      | 1                                     |
+      | grademethod     | 2                                     |
+      | groupmode       | 1                                     |
+    And the following "mod_h5pactivity > attempts" exist:
+      | user     | h5pactivity     | attempt | interactiontype | rawscore | maxscore | duration | completion | success |
+      # student1.
+      | student1 | Separate groups | 1       | choice          | 2        | 2        | 1        | 1          | 1       |
+      | student1 | Separate groups | 1       | compound        | 2        | 2        | 4        | 1          | 1       |
+      | student1 | Separate groups | 2       | choice          | 0        | 2        | 1        | 1          | 0       |
+      | student1 | Separate groups | 2       | compound        | 0        | 2        | 4        | 1          | 0       |
+      | student1 | Separate groups | 3       | matching        | 2        | 2        | 1        | 1          | 1       |
+      | student1 | Separate groups | 3       | compound        | 2        | 2        | 4        | 1          | 1       |
+      | student1 | Separate groups | 4       | true-false      | 2        | 2        | 1        | 1          | 1       |
+      | student1 | Separate groups | 4       | compound        | 2        | 2        | 4        | 1          | 1       |
+      # student2.
+      | student2 | Separate groups | 1       | compound        | 0        | 2        | 1        | 1          | 0       |
+    And I am on the "Course 1" "course > activities > h5pactivity" page logged in as nonediting1
+    # Check column values.
+    And the following should exist in the "Table listing all H5P activities" table:
+      | Name            | H5P type         | Students who attempted | Total attempts | Actions       |
+      | Separate groups | Unknown H5P type | 1 of 2                 | 4              | View results  |
+    # Check the Total attempts value.
+    When I click on "4" "button" in the "Separate groups" "table_row"
+    Then I should see "Grading method: Average grade"
+    And I should see "Average attempts per student: 4"
+    # Check the View results link.
+    And I click on "View results" "link" in the "Separate groups" "table_row"
+    And I should see "View (4)"
