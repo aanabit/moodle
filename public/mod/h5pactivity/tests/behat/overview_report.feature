@@ -92,7 +92,7 @@ Feature: Testing overview integration in H5P activity
     And I should see "Grading method: Highest grade"
     And I should see "Average attempts per student: 0"
     # Close the dropdown.
-    And I click on "0" "button" in the "Empty H5P activity" "table_row"
+    And I press the escape key
     # Check the View link.
     And I click on "View" "link" in the "H5P activity" "table_row"
     And I should see "Attempts (5)"
@@ -151,7 +151,6 @@ Feature: Testing overview integration in H5P activity
       | student2 | Separate groups | 1       | compound        | 0        | 2        | 1        | 1          | 0       |
     And I am on the "Course 1" "course > activities > h5pactivity" page logged in as nonediting1
     # Check column values.
-    And I wait "10" seconds
     And the following should exist in the "Table listing all H5P activities" table:
       | Name            | H5P type         | Students who attempted | Total attempts | Actions |
       | Separate groups | Unknown H5P type | 1 of 2                 | 4              | View    |
