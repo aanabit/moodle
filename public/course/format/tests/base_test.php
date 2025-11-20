@@ -700,9 +700,9 @@ final class base_test extends advanced_testcase {
     /**
      * Data provider for test_move_section_after.
      *
-     * @return Generator the testing scenarios
+     * @return \Generator the testing scenarios
      */
-    public static function move_section_after_provider(): Generator {
+    public static function move_section_after_provider(): \Generator {
         yield 'Move top' => [
             'movesection' => 'section3',
             'destination' => 'section0',
@@ -811,9 +811,9 @@ final class base_test extends advanced_testcase {
     /**
      * Data provider for test_get_non_ajax_cm_action_url.
      *
-     * @return Generator the testing scenarios
+     * @return \Generator the testing scenarios
      */
-    public static function get_non_ajax_cm_action_url_provider(): Generator {
+    public static function get_non_ajax_cm_action_url_provider(): \Generator {
         yield 'duplicate' => [
             'action' => 'cmDuplicate',
             'expectedparam' => 'duplicate',

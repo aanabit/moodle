@@ -16,7 +16,6 @@
 
 namespace core_courseformat;
 
-use AppendIterator;
 use stdClass;
 
 /**
