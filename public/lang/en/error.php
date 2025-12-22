@@ -480,7 +480,7 @@ $string['nopermissiontoviewcalendar'] = 'Sorry, but you do not have permission t
 $string['nopermissiontoviewgrades'] = 'Cannot view grades.';
 $string['nopermissiontoviewletergrade'] = 'Missing permission to view letter grades';
 $string['nopermissiontoviewpage'] = 'You are not allowed to look at this page';
-$string['nosections_editor'] = 'The course can’t be displayed because the current course format \'{$a->courseformat}\' is not compatible with the way the course content is organised.
+$string['nosections_editor'] = 'The course can\'t be displayed because the current course format \'{$a->courseformat}\' is not compatible with the way the course content is organised.
 To display the course correctly, choose a different course format. Use the \'Continue\' button to go to course format settings.';
 $string['nosections_noneditor'] = 'This course is not available right now. Contact your teacher or instructor for help.';
 $string['nosite'] = 'Could not find a top-level course!';
