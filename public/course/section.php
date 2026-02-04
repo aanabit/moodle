@@ -98,7 +98,11 @@ if (!$sectioninfo->uservisible) {
     if ($sectioninfo->visible && $sectioninfo->availableinfo) {
         $sectionname = get_section_name($course, $sectioninfo);
         $message = get_string('notavailablecourse', '', $sectionname);
-        redirect(course_get_url($course), $message, null, \core\output\notification::NOTIFY_ERROR);
+        $url = \core\router\util::get_path_for_callable(
+            [\core_course\route\controller\restricted_section::class, 'restricted_section_page'],
+            ['section' => $sectioninfo->id],
+        );
+        redirect($url, '', null);
     } else {
         // Note: We actually already know they don't have this capability
         // or uservisible would have been true; this is just to get the
