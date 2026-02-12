@@ -22,12 +22,12 @@ use GuzzleHttp\Psr7\ServerRequest;
 use stdClass;
 
 /**
- * Tests for the Module Path paraemter.
+ * Tests for the Section Path parameter.
  *
  * @package    core
  * @copyright  Amaia Anabitarte <amaia@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- * @covers     \core\router\parameters\path_module
+ * @covers     \core\router\parameters\path_section
  */
 final class path_section_test extends route_testcase {
     public function test_section_id(): void {
@@ -52,7 +52,7 @@ final class path_section_test extends route_testcase {
     /**
      * Tests for when a section was not found.
      */
-    public function test_msection_not_found(): void {
+    public function test_section_not_found(): void {
         $this->resetAfterTest();
 
         $param = new path_section();

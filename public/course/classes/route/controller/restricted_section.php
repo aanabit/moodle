@@ -34,7 +34,7 @@ class restricted_section {
     use \core\router\route_controller;
 
     /**
-     * Restricted module.
+     * Restricted section.
      *
      * @param ResponseInterface $response
      * @param section_info $sectioninfo

@@ -24,7 +24,7 @@ use core\router\schema\referenced_object;
 use Psr\Http\Message\ServerRequestInterface;
 
 /**
- * A Moodle parameter referenced in the path.
+ * A parameter representing a section in the path.
  *
  * @package    core
  * @copyright  2026 Amaia Anabitarte <amaia@moodle.com>
@@ -35,9 +35,9 @@ class path_section extends \core\router\schema\parameters\path_parameter impleme
     referenced_object
 {
     /**
-     * Create a new path_module parameter.
+     * Create a new path_section parameter.
      *
-     * @param string $name The name of the parameter to use for the module identifier
+     * @param string $name The name of the parameter to use for the section identifier
      * @param mixed ...$extra Additional arguments
      */
     public function __construct(
@@ -47,7 +47,7 @@ class path_section extends \core\router\schema\parameters\path_parameter impleme
         $extra['name'] = $name;
         $extra['type'] = param::RAW;
         $extra['description'] = <<<EOF
-        The module identifier.
+        The section identifier.
 
         This can be the id of the section.
         EOF;
@@ -66,10 +66,7 @@ class path_section extends \core\router\schema\parameters\path_parameter impleme
         ServerRequestInterface $request,
         string $value,
     ): ServerRequestInterface {
-        if (!$section = $this->get_section_for_value($value)) {
-            throw new not_found_exception('course_sections', $value);
-        }
-
+        $section = $this->get_section_for_value($value);
         return $request
             ->withAttribute($this->name, $section)
             ->withAttribute("coursecontext", \context_course::instance($section->course));
