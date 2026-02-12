@@ -182,22 +182,23 @@ Feature: Display availability for activities and sections
     And I click on "Grade" "button" in the "Add restriction..." "dialogue"
     And the "alt" attribute of ".availability-item .availability-eye img" "css_element" should contain "Item name displayed"
 
-  @javascript
   Scenario: Restricted section page
     # Set up.
     Given the following config values are set as admin:
       | unaddableblocks | | theme_boost|
+    And the following "groups" exist:
+      | course | name | idnumber |
+      | C1     | G1   | GI1      |
+    And the following "groupings" exist:
+      | name | course | idnumber |
+      | GX1  | C1     | GXI1     |
     And I am on the "C1" "Course" page logged in as "teacher1"
     And I turn editing mode on
     And I add the "Navigation" block if not present
     # Add a restriction to section 1 (visible to students).
     And I edit the section "1"
-    And I expand all fieldsets
-    And I press "Add restriction..."
-    And I click on "User profile" "button" in the "Add restriction..." "dialogue"
-    And I set the field "User profile field" to "Email address"
-    And I set the field "Value to compare against" to "email@example.com"
-    And I set the field "Method of comparison" to "is equal to"
+    And I set the following fields to these values:
+      | Access restrictions | Grouping: GX1 |
     And I press "Save changes"
     # Change to student view.
     And I am on the "Course 1" "Course" page logged in as "student1"

@@ -96,8 +96,6 @@ if (!$sectioninfo->uservisible) {
     // Check if coursesection has conditions affecting availability and if
     // so, output availability info.
     if ($sectioninfo->visible && $sectioninfo->availableinfo) {
-        $sectionname = get_section_name($course, $sectioninfo);
-        $message = get_string('notavailablecourse', '', $sectionname);
         $url = \core\router\util::get_path_for_callable(
             [\core_course\route\controller\restricted_section::class, 'restricted_section_page'],
             ['section' => $sectioninfo->id],
