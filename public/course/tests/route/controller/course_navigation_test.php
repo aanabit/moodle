@@ -20,6 +20,7 @@ use core\router\route_loader_interface;
 use core\tests\router\route_testcase;
 use core\url;
 use core_course\modinfo;
+use moodle_url;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 
@@ -241,8 +242,8 @@ final class course_navigation_test extends route_testcase {
             ],
             'current' => 'cm1',
             'expected' => [
-                'type' => 'error',
-                'statuscode' => 404,
+                'type' => 'course',
+                'id' => 'cm1',
             ],
         ];
         yield 'With previous module being a subsection (student)' => [
@@ -275,8 +276,8 @@ final class course_navigation_test extends route_testcase {
             ],
             'current' => 'cm2',
             'expected' => [
-                'type' => 'error',
-                'statuscode' => 404,
+                'type' => 'course',
+                'id' => 'cm2',
             ],
         ];
         yield 'With module that does not exist (student)' => [
@@ -361,23 +362,33 @@ final class course_navigation_test extends route_testcase {
         int $courseid,
         string $location
     ): void {
+        if ($elementtype != 'cm' && $elementtype != 'course') {
+            $this->fail('Unknown expected element type ' . $elementtype);
+        }
+
         $coursemodinfo = modinfo::instance($courseid);
-        if ($elementtype === 'cm') {
-            $cms = $coursemodinfo->get_cms();
-            $cm = null;
-            foreach ($cms as $activitycm) {
-                if ($activitycm->get_name() == $elementid) {
-                    $cm = $activitycm;
-                    break;
-                }
+        $cms = $coursemodinfo->get_cms();
+        $cm = null;
+        foreach ($cms as $activitycm) {
+            if ($activitycm->get_name() == $elementid) {
+                $cm = $activitycm;
+                break;
             }
+        }
+        if ($elementtype === 'cm') {
             $this->assertNotEmpty($cm, "The course module with name {$elementid} should be found.");
             $this->assertEquals(
                 $cm->url,
                 new url($location)
             );
-        } else {
-            $this->fail('Unknown expected element type ' . $elementtype);
+        }
+        if ($elementtype === 'course') {
+            $this->assertEquals($cm->course, $courseid);
+            $url = new moodle_url('/course/view.php', ['id' => $courseid]);
+            $this->assertEquals(
+                $url,
+                new url($location)
+            );
         }
     }
 

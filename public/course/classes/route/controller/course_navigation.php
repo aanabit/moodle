@@ -110,7 +110,9 @@ class course_navigation {
                 return $this->redirect($response, $prevcm->get_url());
             }
         }
-        return $this->page_not_found($request, $response);
+        // We are at the beginning of the course. Redirect to the course page.
+        $courseurl = new \moodle_url('/course/view.php', ['id' => $cm->course]);
+        return $this->redirect($response, $courseurl);
     }
 
     /**
