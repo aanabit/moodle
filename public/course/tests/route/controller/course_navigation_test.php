@@ -396,6 +396,17 @@ final class course_navigation_test extends route_testcase {
                 'id' => 'cm1', // Students cannot see stealth modules in the course page.
             ],
         ];
+        yield 'Hidden first module (teacher)' => [
+            'cmsdef' => [
+                ['name' => 'cm1', 'options' => ['visible' => false]],
+                ['name' => 'cm2'],
+            ],
+            'current' => 'cm2',
+            'expected' => [
+                'id' => 'cm1', // Students cannot see stealth modules in the course page.
+            ],
+            'role' => 'teacher',
+        ];
         yield 'Hidden first module (student)' => [
             'cmsdef' => [
                 ['name' => 'cm1', 'options' => ['visible' => false]],
@@ -405,6 +416,17 @@ final class course_navigation_test extends route_testcase {
             'expected' => [
                 'type' => 'course', // Students cannot see hidden modules.
             ],
+        ];
+        yield 'Stealth first module (teacher)' => [
+            'cmsdef' => [
+                ['name' => 'cm1', 'options' => ['visibleoncoursepage' => false]],
+                ['name' => 'cm2'],
+            ],
+            'current' => 'cm2',
+            'expected' => [
+                'id' => 'cm1', // Students cannot see stealth modules in the course page.
+            ],
+            'role' => 'teacher',
         ];
         yield 'Stealth first module (student)' => [
             'cmsdef' => [
@@ -426,7 +448,7 @@ final class course_navigation_test extends route_testcase {
                 'type' => 'course',
             ],
         ];
-        yield 'With previous module being a subsection (student) in the first section' => [
+        yield 'With previous module being a subsection in the first section (student)' => [
             'cmsdef' => [
                 ['name' => 'subsection1', 'type' => 'subsection', 'options' => ['section' => 0]],
                 ['name' => 'cm1', 'options' => ['section' => 'subsection1']],
@@ -481,7 +503,7 @@ final class course_navigation_test extends route_testcase {
                 'id' => 'cm1',
             ],
         ];
-        yield 'With first module without url (student) in the first section' => [
+        yield 'With first module without url in the first section (student)' => [
             'cmsdef' => [
                 ['name' => 'cm1', 'type' => 'label'],
                 ['name' => 'cm2', 'options' => ['section' => 0]],
