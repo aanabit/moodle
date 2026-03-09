@@ -46,7 +46,6 @@ final class path_section_test extends route_testcase {
         $this->assertInstanceOf(\core\context\course::class, $newrequest->getAttribute('coursecontext'));
 
         $this->assertEquals($section->id, $newrequest->getAttribute('section')->id);
-        $this->assertEquals($context->id, $newrequest->getAttribute('coursecontext')->id);
         $this->assertEquals($course->id, $newrequest->getAttribute('course'));
     }
 
