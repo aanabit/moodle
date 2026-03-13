@@ -21,6 +21,7 @@ use core\tests\router\route_testcase;
 use core\url;
 use core_courseformat\formatactions;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * Restricted section controller tests.
@@ -37,20 +38,28 @@ final class restricted_section_test extends route_testcase {
      * The reason why the section is not restricted for the user
      * (whether the user has enough permission to see the section page or
      * whether the restrictions don't apply to the user) is not important.
-     * So we are testing only one of the reasons: the user has enough permission.
-     * But for non-applied restrictions will work exactly the same because
-     * the returned value for $sectioninfo->uservisible = true,
-     * and that is the only value we are checking to redirect to section page or not.
+     * So we are testing only the case where the uservisible is true
+     * (because the user has enough permisssio) and uservisible is false
+     * (because the restriction applies to a student with no enough permission)
+     *
+     * @param string $role
+     * @param int $expectedstatus Expected response status code.
+     * @param bool $redirection Whether redirection should happen or not.
      */
-    public function test_restricted_section(): void {
+    #[DataProvider('restricted_section_provider')]
+    public function test_restricted_section(
+        string $role,
+        int $expectedstatus,
+        bool $redirection,
+    ): void {
 
         $this->resetAfterTest();
 
         $generator = $this->getDataGenerator();
-        $course = $generator->create_course(['numsections' => 3]);
+        $course = $generator->create_course(['numsections' => 2]);
         $modinfo = get_fast_modinfo($course);
 
-        $visibleavailability = json_encode(\core_availability\tree::get_root_json(
+        $restriction = json_encode(\core_availability\tree::get_root_json(
             [
                 \availability_date\condition::get_json(
                     \availability_date\condition::DIRECTION_FROM,
@@ -60,31 +69,15 @@ final class restricted_section_test extends route_testcase {
             '&',
             true,
         ));
-        $hiddenavailability = json_encode(\core_availability\tree::get_root_json(
-            [
-                \availability_date\condition::get_json(
-                    \availability_date\condition::DIRECTION_FROM,
-                    time() + 3600,
-                ),
-            ],
-            '&',
-            false,
-        ));
 
-        // Restrict Section 1 with visible restrictions.
+        // Restrict Section 1.
         formatactions::section($course)->update(
             $modinfo->get_section_info(1),
-            ['availability' => $visibleavailability],
+            ['availability' => $restriction],
         );
 
-        // Restrict Section 2 with hidden restrictions.
-        formatactions::section($course)->update(
-            $modinfo->get_section_info(2),
-            ['availability' => $hiddenavailability],
-        );
-
-        $teacher = $generator->create_and_enrol($course, 'editingteacher');
-        $this->setUser($teacher);
+        $user = $generator->create_and_enrol($course, $role);
+        $this->setUser($user);
         $restrictedsection = $modinfo->get_section_info(1);
         $response = $this->process_request(
             'GET',
@@ -92,27 +85,34 @@ final class restricted_section_test extends route_testcase {
             route_loader_interface::ROUTE_GROUP_PAGE
         );
 
-        $this->assert_valid_response($response, 302);
+        $this->assert_valid_response($response, $expectedstatus);
         $location = $response->getHeader('Location'); // Just to consume the header if any.
-        $this->assertNotEmpty($location, 'The redirection header should be present.');
-        $this->assertEquals(
-            new url('/course/section.php', ['id' => $restrictedsection->id]),
-            new url($location[0])
-        );
+        if ($redirection) {
+            $this->assertNotEmpty($location, 'The redirection header should be present.');
+            $this->assertEquals(
+                new url('/course/section.php', ['id' => $restrictedsection->id]),
+                new url($location[0])
+            );
+        } else {
+            $this->assertEmpty($location, 'There is no redirection.');
+        }
+    }
 
-        $hiddensection = $modinfo->get_section_info(2);
-        $response = $this->process_request(
-            'GET',
-            'course/sections/' . $hiddensection->id . '/restricted',
-            route_loader_interface::ROUTE_GROUP_PAGE
-        );
-
-        $this->assert_valid_response($response, 302);
-        $location = $response->getHeader('Location'); // Just to consume the header if any.
-        $this->assertNotEmpty($location, 'The redirection header should be present.');
-        $this->assertEquals(
-            new url('/course/section.php', ['id' => $hiddensection->id]),
-            new url($location[0])
-        );
+    /**
+     * Data provider for test_restricted_section.
+     *
+     * @return \Generator
+     */
+    public static function restricted_section_provider(): \Generator {
+        yield 'Teacher - Permission to see restricted page' => [
+            'role' => 'teacher',
+            'expectedstatus' => 302,
+            'redirection' => true,
+        ];
+        yield 'Student - Stays in the restricted page' => [
+            'role' => 'student',
+            'expectedstatus' => 200,
+            'redirection' => false,
+        ];
     }
 }
