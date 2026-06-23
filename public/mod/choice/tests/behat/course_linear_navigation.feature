@@ -18,13 +18,13 @@ Feature: Display the course linear navigation in the choice pages
       | teacher | C1     | editingteacher |
     And the following "activities" exist:
       | activity | name        | intro                   | course | idnumber | allowupdate | option                       |
-      | choice   | Choice name | Test choice description | C1     | choice1  | 1           | Option 1, Option 2, Option 3 |
+      | choice   | Choice1 | Test choice description | C1     | choice1  | 1           | Option 1, Option 2, Option 3 |
 
   @javascript
   Scenario: As a student I should see the course linear navigation in choice pages that allow it
     Given I am on the "Choice1" "choice activity" page logged in as "student"
     Then the course linear navigation should be visible
-    And I choose "Option 1" from "Choice name" choice activity
+    And I choose "Option 1" from "Choice1" choice activity
     And I should see "Your choice has been saved"
     And the course linear navigation should be visible
     And I follow "Remove my choice"
@@ -34,7 +34,7 @@ Feature: Display the course linear navigation in the choice pages
   Scenario: As a teacher I should see the course linear navigation in choice pages that allow it
     Given I am on the "Choice1" "choice activity" page logged in as "teacher"
     Then the course linear navigation should be visible
-    And I choose "Option 1" from "Choice name" choice activity
+    And I choose "Option 1" from "Choice1" choice activity
     And I should see "Your choice has been saved"
     And the course linear navigation should be visible
     And I follow "Remove my choice"
