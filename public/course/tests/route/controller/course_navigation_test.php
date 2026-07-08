@@ -2104,12 +2104,13 @@ final class course_navigation_test extends route_testcase {
         $teacher = $generator->create_and_enrol($course, 'teacher');
         $this->setUser($teacher);
         $modinfo = get_fast_modinfo($course);
-        $section = $modinfo->get_section_info(0);
+        $section = $modinfo->get_section_info(1);
+        $cminfo = $modinfo->get_cm($cm->cmid);
         $allcms = $navigation->get_all_section_cms($modinfo, $section);
         // Teachers can view hidden activities so the navigation takes that into consideration.
         // Testing only one of the non-navigable modules is enough, as they all should return the same result.
         $this->assertFalse($navigation->is_last_navigable($cminfo, $modinfo, $allcms));
-        $this->assertTrue($navigation->is_last_navigable($modinfo->get_cm($restrictedcm->cmid), $modinfo, $allcms));
+        $this->assertTrue($navigation->is_last_navigable($modinfo->get_cm($stealth->cmid), $modinfo, $allcms));
     }
 
     /**
